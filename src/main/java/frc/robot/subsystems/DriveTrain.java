@@ -18,8 +18,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import javax.annotation.Nullable;
 
+import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
+import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import frc.robot.Constants;
@@ -33,10 +35,14 @@ public class DriveTrain extends SubsystemBase {
         CURVATURE
     }
 
-    public final SmartMotor rightMaster = new SmartMotor(12, TalonFXInvertType.Clockwise);
-    public final SmartMotor leftMaster = new SmartMotor(13, TalonFXInvertType.CounterClockwise);
+    public final SmartMotor rightMaster = new SmartMotor(12);
+    public final SmartMotor leftMaster = new SmartMotor(13);
     private final WPI_TalonFX rightFollower = new WPI_TalonFX(14);
     private final WPI_TalonFX leftFollower = new WPI_TalonFX(15);
+
+    	/** Config Objects for motor controllers */
+	TalonFXConfiguration _leftConfig = new TalonFXConfiguration();
+	TalonFXConfiguration _rightConfig = new TalonFXConfiguration();
 
     /** The NavX gyro */
     private final DriveGyro gyro = new DriveGyro();
@@ -64,7 +70,9 @@ public class DriveTrain extends SubsystemBase {
     public DriveTrain() {
 
         leftMaster.setName("Left");
+        leftMaster.setInverted(TalonFXInvertType.Clockwise);
         rightMaster.setName("Right");
+        rightMaster.setInverted(TalonFXInvertType.CounterClockwise);
 
         leftFollower.configFactoryDefault();
         leftFollower.follow(leftMaster);
@@ -87,6 +95,75 @@ public class DriveTrain extends SubsystemBase {
         addChild("Differential Drive", differentialDrive);
     }
 
+    public void configForPID() {
+        leftMaster.getAllConfigs(_leftConfig);
+        rightMaster.getAllConfigs(_rightConfig);
+
+        System.out.println("AutoDriveStraightCommand - leftConfig(before): " + _leftConfig);
+        System.out.println("AutoDriveStraightCommand - rightConfig(before): " + _rightConfig);
+
+		leftMaster.setDistanceConfigs(_leftConfig, Constants.kGains_Distanc);
+		rightMaster.setDistanceConfigs(_rightConfig, Constants.kGains_Distanc);
+
+        System.out.println("AutoDriveStraightCommand - LeftConfig(to set): " + _leftConfig);
+        System.out.println("AutoDriveStraightCommand - RightConfig(to set): " + _rightConfig);
+		leftMaster.configAllSettings(_leftConfig);
+        rightMaster.configAllSettings(_rightConfig);
+        
+        leftMaster.resetPosition();
+		rightMaster.resetPosition();
+    }
+
+    public void configForPID2() {
+        leftMaster.getAllConfigs(_leftConfig);
+        rightMaster.getAllConfigs(_rightConfig);
+
+        System.out.println("AutoDriveStraightCommand - leftConfig(before): " + _leftConfig);
+        System.out.println("AutoDriveStraightCommand - rightConfig(before): " + _rightConfig);
+
+		leftMaster.setDistanceConfigs(_leftConfig, Constants.kGains_Distanc);
+		rightMaster.setDistanceConfigs(_rightConfig, Constants.kGains_Distanc);
+		rightMaster.setTurnConfigs(_rightConfig, leftMaster.getDeviceID(), Constants.kGains_Turning);
+
+        System.out.println("AutoDriveStraightCommand - LeftConfig(to set): " + _leftConfig);
+        System.out.println("AutoDriveStraightCommand - RightConfig(to set): " + _rightConfig);
+		leftMaster.configAllSettings(_leftConfig);
+        rightMaster.configAllSettings(_rightConfig);
+        
+        leftMaster.resetPosition();
+		rightMaster.resetPosition();
+    }
+
+    public void configMotionSCurveStrength(int smoothing) {
+        leftMaster.configMotionSCurveStrength(smoothing);
+        rightMaster.configMotionSCurveStrength(smoothing);
+        SmartDashboard.putNumber("Smoothing", smoothing);
+    }
+
+    public void setTarget(double distance) {
+        leftMaster.setTarget(distance);
+		rightMaster.setTarget(distance);
+		logPeriodic();
+
+        System.out.println("target (meters) = " + distance);
+    }
+
+    public void setTarget2(double distance, double angle) {
+		/* Configured for MotionMagic on Integrated Sensors' Sum and Auxiliary PID on Integrated Sensors' Difference */
+		rightMaster.setTarget(distance, angle);
+		leftMaster.follow(rightMaster, FollowerType.AuxOutput1);
+        differentialDrive.feed(); 
+		logPeriodic();
+
+		System.out.println("target (meters) = " + distance + " angle: " + angle);
+    }
+
+    public Boolean isTargetReached() {
+        double error = rightMaster.getClosedLoopError();
+		double velocity = rightMaster.getActiveTrajectoryVelocity();
+        System.out.println("AutonomousCommand - error: " + error + " vel: " + velocity);
+        return false;
+    }
     @Override
     public void periodic() {
     }

@@ -4,16 +4,8 @@
 
 package frc.robot.commands;
 
-import com.ctre.phoenix.motorcontrol.FollowerType;
-import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
-import com.ctre.phoenix.motorcontrol.StatusFrame;
-import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
-import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.*;
 
@@ -22,13 +14,6 @@ public class AutonomousCommand extends CommandBase {
 
     private final RobotContainer _robot;
     private final DriveTrain _driveTrain;
-
-    /** Invert Directions for Left and Right */
-    TalonFXInvertType _leftInvert = TalonFXInvertType.CounterClockwise; //Same as invert = "false"
-    TalonFXInvertType _rightInvert = TalonFXInvertType.Clockwise; //Same as invert = "true"
-    /** Config Objects for motor controllers */
-	TalonFXConfiguration _leftConfig = new TalonFXConfiguration();
-	TalonFXConfiguration _rightConfig = new TalonFXConfiguration();
 
     double _lockedDistance = 0;
 	double _targetAngle = 0;
@@ -49,40 +34,8 @@ public class AutonomousCommand extends CommandBase {
 
         _driveTrain.enableDriveTrain(false);
         _driveTrain.enableBrakes(false);
-
-        _driveTrain.leftMaster.getAllConfigs(_leftConfig);
-        _driveTrain.rightMaster.getAllConfigs(_rightConfig);
-
-        System.out.println("AutonomousCommand - leftConfig(before): " + _leftConfig);
-        System.out.println("AutonomousCommand - rightConfig(before): " + _rightConfig);
-
-		_driveTrain.leftMaster.setDistanceConfigs(_leftConfig, Constants.kGains_Distanc);
-		_driveTrain.rightMaster.setDistanceConfigs(_rightConfig, Constants.kGains_Distanc);
-		_driveTrain.rightMaster.setTurnConfigs(_rightConfig, Constants.kGains_Turning);
-
-		/* Configure the Remote Talon's selected sensor as a remote sensor for the right Talon */
-		_rightConfig.remoteFilter0.remoteSensorDeviceID = _driveTrain.leftMaster.getDeviceID(); // Device ID of Source
-		_rightConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.TalonFX_SelectedSensor; // Remote Feedback Source
-		
-        System.out.println("AutoDriveTurnCommand - LeftConfig(to set): " + _leftConfig);
-        System.out.println("AutoDriveTurnCommand - RightConfig(to set): " + _rightConfig);
-		_driveTrain.leftMaster.configAllSettings(_leftConfig);
-        _driveTrain.rightMaster.configAllSettings(_rightConfig);
-        
-		_driveTrain.leftMaster.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 5, Constants.kTimeoutMs);
-
-		_driveTrain.rightMaster.setStatusFramePeriod(StatusFrame.Status_12_Feedback1, 10, Constants.kTimeoutMs);
-		_driveTrain.rightMaster.setStatusFramePeriod(StatusFrame.Status_13_Base_PIDF0, 10, Constants.kTimeoutMs);
-		_driveTrain.rightMaster.setStatusFramePeriod(StatusFrame.Status_14_Turn_PIDF1, 10, Constants.kTimeoutMs);
-		_driveTrain.rightMaster.setStatusFramePeriod(StatusFrame.Status_10_Targets, 10, Constants.kTimeoutMs);
-		_driveTrain.rightMaster.setStatusFramePeriod(StatusFrameEnhanced.Status_10_Targets, 10);
-
-		/* Determine which slot affects which PID */
-        _driveTrain.rightMaster.selectProfileSlot(Constants.kSlot_Distanc, Constants.PID_PRIMARY);
-        _driveTrain.rightMaster.selectProfileSlot(Constants.kSlot_Turning, Constants.PID_TURN);
-		
-		_driveTrain.leftMaster.getSensorCollection().setIntegratedSensorPosition(0, Constants.kTimeoutMs);
-		_driveTrain.rightMaster.getSensorCollection().setIntegratedSensorPosition(0, Constants.kTimeoutMs);
+        _driveTrain.configForPID2();
+		_driveTrain.resetPosition();
 		_driveTrain.setHeadingDegrees(0);
 		
 		SmartDashboard.putNumber("Smoothing", _smoothing);
@@ -99,15 +52,11 @@ public class AutonomousCommand extends CommandBase {
         System.out.println("AutonomousCommand - execute");
 
 		/* Configured for MotionMagic on Integrated Sensors' Sum and Auxiliary PID on Integrated Sensors' Difference */
-		_driveTrain.rightMaster.setTarget(_lockedDistance, _targetAngle);
-		_driveTrain.leftMaster.follow(_driveTrain.rightMaster, FollowerType.AuxOutput1);
-        _driveTrain.differentialDrive.feed(); 
-		_driveTrain.logPeriodic();
+		_driveTrain.setTarget2(_lockedDistance, _targetAngle);
 		
 		SmartDashboard.putNumber("PoseX", _driveTrain.getCurrentPose().getTranslation().getX());
 		SmartDashboard.putNumber("PoseY", _driveTrain.getCurrentPose().getTranslation().getY());
 		SmartDashboard.putNumber("Pose Rot", _driveTrain.getCurrentPose().getRotation().getDegrees());
-		System.out.println("target (meters) = " + _lockedDistance + " angle: " + _targetAngle);
     }
 
     // Called once after isFinished returns true
@@ -120,10 +69,6 @@ public class AutonomousCommand extends CommandBase {
     // Make this return true when this Command no longer needs to run execute()
     @Override
     public boolean isFinished() {
-		double error = _driveTrain.rightMaster.getClosedLoopError();
-		double velocity = _driveTrain.rightMaster.getActiveTrajectoryVelocity();
-        System.out.println("AutonomousCommand - error: " + error + " vel: " + velocity);
-
-        return false;
+        return _driveTrain.isTargetReached();
     }
 }    
