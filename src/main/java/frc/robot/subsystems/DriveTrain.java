@@ -16,12 +16,8 @@ import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import javax.annotation.Nullable;
-
 import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.InvertType;
-import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import frc.robot.Constants;
@@ -40,12 +36,8 @@ public class DriveTrain extends SubsystemBase {
     private final WPI_TalonFX rightFollower = new WPI_TalonFX(14);
     private final WPI_TalonFX leftFollower = new WPI_TalonFX(15);
 
-    	/** Config Objects for motor controllers */
-	TalonFXConfiguration _leftConfig = new TalonFXConfiguration();
-	TalonFXConfiguration _rightConfig = new TalonFXConfiguration();
-
     /** The NavX gyro */
-    private final DriveGyro gyro = new DriveGyro();
+    private final DriveGyro gyro = new DriveGyro(false);
 
     /** Drivetrain kinematics processor for measuring individual wheel speeds */
     private final DifferentialDriveKinematics driveKinematics = new DifferentialDriveKinematics(Constants.kWidthChassisMeters);
@@ -70,9 +62,12 @@ public class DriveTrain extends SubsystemBase {
     public DriveTrain() {
 
         leftMaster.setName("Left");
-        leftMaster.setInverted(TalonFXInvertType.Clockwise);
+        leftMaster.configFactoryDefault();
+        leftMaster.setInverted(InvertType.None);
+
         rightMaster.setName("Right");
-        rightMaster.setInverted(TalonFXInvertType.CounterClockwise);
+        rightMaster.configFactoryDefault();
+        rightMaster.setInverted(InvertType.InvertMotorOutput);
 
         leftFollower.configFactoryDefault();
         leftFollower.follow(leftMaster);
@@ -96,39 +91,16 @@ public class DriveTrain extends SubsystemBase {
     }
 
     public void configForPID() {
-        leftMaster.getAllConfigs(_leftConfig);
-        rightMaster.getAllConfigs(_rightConfig);
-
-        System.out.println("AutoDriveStraightCommand - leftConfig(before): " + _leftConfig);
-        System.out.println("AutoDriveStraightCommand - rightConfig(before): " + _rightConfig);
-
-		leftMaster.setDistanceConfigs(_leftConfig, Constants.kGains_Distanc);
-		rightMaster.setDistanceConfigs(_rightConfig, Constants.kGains_Distanc);
-
-        System.out.println("AutoDriveStraightCommand - LeftConfig(to set): " + _leftConfig);
-        System.out.println("AutoDriveStraightCommand - RightConfig(to set): " + _rightConfig);
-		leftMaster.configAllSettings(_leftConfig);
-        rightMaster.configAllSettings(_rightConfig);
+		leftMaster.setDistanceConfigs(Constants.kGains_Distanc);
+		rightMaster.setDistanceConfigs(Constants.kGains_Distanc);
         
         leftMaster.resetPosition();
 		rightMaster.resetPosition();
     }
 
     public void configForPID2() {
-        leftMaster.getAllConfigs(_leftConfig);
-        rightMaster.getAllConfigs(_rightConfig);
-
-        System.out.println("AutoDriveStraightCommand - leftConfig(before): " + _leftConfig);
-        System.out.println("AutoDriveStraightCommand - rightConfig(before): " + _rightConfig);
-
-		leftMaster.setDistanceConfigs(_leftConfig, Constants.kGains_Distanc);
-		rightMaster.setDistanceConfigs(_rightConfig, Constants.kGains_Distanc);
-		rightMaster.setTurnConfigs(_rightConfig, leftMaster.getDeviceID(), Constants.kGains_Turning);
-
-        System.out.println("AutoDriveStraightCommand - LeftConfig(to set): " + _leftConfig);
-        System.out.println("AutoDriveStraightCommand - RightConfig(to set): " + _rightConfig);
-		leftMaster.configAllSettings(_leftConfig);
-        rightMaster.configAllSettings(_rightConfig);
+		leftMaster.setDistanceConfigs(Constants.kGains_Distanc);
+		rightMaster.setDistanceAndTurnConfigs(leftMaster.getDeviceID(), Constants.kGains_Distanc, Constants.kGains_Turning);
         
         leftMaster.resetPosition();
 		rightMaster.resetPosition();
@@ -194,56 +166,48 @@ public class DriveTrain extends SubsystemBase {
      * Get the velocity of the left side of the drive.
      * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
      */
-    @Nullable
     public Double getLeftVel() { return leftMaster.getVelocity(); }
 
     /**
      * Get the velocity of the right side of the drive.
      * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
      */
-    @Nullable
     public Double getRightVel() { return rightMaster.getVelocity(); }
 
     /**
      * Get the position of the left side of the drive.
      * @return The signed position in feet, or null if the drive doesn't have encoders.
      */
-    @Nullable
     public Double getLeftPos() { return leftMaster.getPosition(); }
 
     /**
      * Get the position of the right side of the drive.
      * @return The signed position in feet, or null if the drive doesn't have encoders.
      */
-    @Nullable
     public Double getRightPos() { return rightMaster.getPosition(); }
 
     /**
      * Get the cached velocity of the left side of the drive.
      * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
      */
-    @Nullable
     public Double getLeftVelCached() { return leftMaster.getVelocityCached(); }
 
     /**
      * Get the cached velocity of the right side of the drive.
      * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
      */
-    @Nullable
     public Double getRightVelCached() { return rightMaster.getVelocityCached(); }
 
     /**
      * Get the cached position of the left side of the drive.
      * @return The signed position in feet, or null if the drive doesn't have encoders.
      */
-    @Nullable
     public Double getLeftPosCached() { return leftMaster.getPositionCached(); }
 
     /**
      * Get the cached position of the right side of the drive.
      * @return The signed position in feet, or null if the drive doesn't have encoders.
      */
-    @Nullable
     public Double getRightPosCached() { return rightMaster.getVelocityCached(); }
     
     /** Completely stop the robot by setting the voltage to each side to be 0. */

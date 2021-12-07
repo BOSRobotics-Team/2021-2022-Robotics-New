@@ -5,33 +5,58 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.kauailabs.navx.frc.AHRS;
 
-public class DriveGyro extends AHRS {
+public class DriveGyro {
     
+    private AHRS ahrs = null;
+    private double simAngle = 0.0;
+    private double simRate = 0.0;
+    private double simHeading = 0.0;
+
     /** Whether or not to use the NavX for driving straight */
     private boolean overrideGyro = false;
+
+    public DriveGyro(boolean sim) {
+        if (!sim) {
+            ahrs = new AHRS();
+        }
+    }
 
     /**
      * Set the robot's heading.
      * @param heading The heading to set to, in degrees on [-180, 180].
      */
     public void setHeadingDegrees(final double heading) {
-        this.setAngleAdjustment(heading + this.getHeadingDegrees());
+        if (ahrs != null) {
+            ahrs.setAngleAdjustment(heading + ahrs.getRotation2d().getDegrees());
+        } else {
+            simHeading += heading;
+        }
     }
 
     public double getHeadingDegrees() {
-        return this.getRotation2d().getDegrees();
+        if (ahrs != null) {
+            return ahrs.getRotation2d().getDegrees();
+        }
+        return simHeading;
     }
     
     public Rotation2d getHeading() {
-        return this.getRotation2d();
+        if (ahrs != null) {
+            return ahrs.getRotation2d();
+        }
+        return Rotation2d.fromDegrees(simHeading);
     }
 
     /**
      * Zero the robot's heading.
      */
     public void zeroHeading() {
-        this.reset();
-        this.setAngleAdjustment(this.getHeadingDegrees());
+        if (ahrs != null) {
+            ahrs.reset();
+            ahrs.setAngleAdjustment(ahrs.getRotation2d().getDegrees());
+        } else {
+            simHeading = 0.0;
+        }
     }
 
     /**
@@ -39,7 +64,10 @@ public class DriveGyro extends AHRS {
      * @return Angular velocity in degrees/sec
      */
     public double getAngularVel() {
-        return -this.getRate();
+        if (ahrs != null) {
+            return -ahrs.getRate();
+        }
+        return -simRate;
     }
 
     /**
@@ -47,7 +75,10 @@ public class DriveGyro extends AHRS {
      * @return Angular displacement in degrees.
      */
     public double getAngularDisplacement() {
-        return -this.getAngle();
+        if (ahrs != null) {
+            return -ahrs.getAngle();
+        }
+        return -simAngle;
     }
 
     /** @return true if the NavX is currently overriden, false otherwise. */
@@ -62,75 +93,77 @@ public class DriveGyro extends AHRS {
 
     public void logPeriodic() {
         /* Smart dash plots */
-//        SmartDashboard.putBoolean( "IMU_Connected",        this.isConnected());
-//        SmartDashboard.putBoolean( "IMU_IsCalibrating",    this.isCalibrating());
-        SmartDashboard.putNumber(  "IMU_Yaw",              this.getYaw());
-        SmartDashboard.putNumber(  "IMU_Pitch",            this.getPitch());
-        SmartDashboard.putNumber(  "IMU_Roll",             this.getRoll());
+        if (ahrs != null) {
+//          SmartDashboard.putBoolean( "IMU_Connected",        ahrs.isConnected());
+//          SmartDashboard.putBoolean( "IMU_IsCalibrating",    ahrs.isCalibrating());
+            SmartDashboard.putNumber(  "IMU_Yaw",              ahrs.getYaw());
+            SmartDashboard.putNumber(  "IMU_Pitch",            ahrs.getPitch());
+            SmartDashboard.putNumber(  "IMU_Roll",             ahrs.getRoll());
         
         /* Display tilt-corrected, Magnetometer-based heading (requires magnetometer calibration to be useful)                                   */
-        SmartDashboard.putNumber(  "IMU_CompassHeading",   this.getCompassHeading());
+            SmartDashboard.putNumber(  "IMU_CompassHeading",   ahrs.getCompassHeading());
 
         /* Display 9-axis Heading (requires magnetometer calibration to be useful)  */
-//        SmartDashboard.putNumber(  "IMU_FusedHeading",     this.getFusedHeading());
+//          SmartDashboard.putNumber(  "IMU_FusedHeading",     ahrs.getFusedHeading());
 
         /* These functions are compatible w/the WPI Gyro Class */
-        SmartDashboard.putNumber(  "IMU_TotalYaw",         this.getAngle());
-        SmartDashboard.putNumber(  "IMU_YawRateDPS",       this.getRate());
+            SmartDashboard.putNumber(  "IMU_TotalYaw",         ahrs.getAngle());
+            SmartDashboard.putNumber(  "IMU_YawRateDPS",       ahrs.getRate());
 
         /* Display Processed Acceleration Data (Linear Acceleration, Motion Detect) */
-//        SmartDashboard.putNumber(  "IMU_Accel_X",          this.getWorldLinearAccelX());
-//        SmartDashboard.putNumber(  "IMU_Accel_Y",          this.getWorldLinearAccelY());
-        SmartDashboard.putBoolean( "IMU_IsMoving",         this.isMoving());
-        SmartDashboard.putBoolean( "IMU_IsRotating",       this.isRotating());
+//          SmartDashboard.putNumber(  "IMU_Accel_X",          ahrs.getWorldLinearAccelX());
+//          SmartDashboard.putNumber(  "IMU_Accel_Y",          ahrs.getWorldLinearAccelY());
+            SmartDashboard.putBoolean( "IMU_IsMoving",         ahrs.isMoving());
+            SmartDashboard.putBoolean( "IMU_IsRotating",       ahrs.isRotating());
 
         /* Display estimates of velocity/displacement.  Note that these values are  */
         /* not expected to be accurate enough for estimating robot position on a    */
         /* FIRST FRC Robotics Field, due to accelerometer noise and the compounding */
         /* of these errors due to single (velocity) integration and especially      */
         /* double (displacement) integration.                                       */        
-//        SmartDashboard.putNumber(  "IMU_Temp_C",           this.getTempC());
-//        SmartDashboard.putNumber(  "Velocity_X",           this.getVelocityX() );
-//        SmartDashboard.putNumber(  "Velocity_Y",           this.getVelocityY() );
-//        SmartDashboard.putNumber(  "Displacement_X",       this.getDisplacementX() );
-//        SmartDashboard.putNumber(  "Displacement_Y",       this.getDisplacementY() );
+//          SmartDashboard.putNumber(  "IMU_Temp_C",           ahrs.getTempC());
+//          SmartDashboard.putNumber(  "Velocity_X",           ahrs.getVelocityX() );
+//          SmartDashboard.putNumber(  "Velocity_Y",           ahrs.getVelocityY() );
+//          SmartDashboard.putNumber(  "Displacement_X",       ahrs.getDisplacementX() );
+//          SmartDashboard.putNumber(  "Displacement_Y",       ahrs.getDisplacementY() );
         
         /* Display Raw Gyro/Accelerometer/Magnetometer Values                       */
         /* NOTE:  These values are not normally necessary, but are made available   */
         /* for advanced users.  Before using this data, please consider whether     */
         /* the processed data (see above) will suit your needs.                     */  
-//        SmartDashboard.putNumber(   "RawGyro_X",           this.getRawGyroX());
-//        SmartDashboard.putNumber(   "RawGyro_Y",           this.getRawGyroY());
-//        SmartDashboard.putNumber(   "RawGyro_Z",           this.getRawGyroZ());
-//        SmartDashboard.putNumber(   "RawAccel_X",          this.getRawAccelX());
-//        SmartDashboard.putNumber(   "RawAccel_Y",          this.getRawAccelY());
-//        SmartDashboard.putNumber(   "RawAccel_Z",          this.getRawAccelZ());
-//        SmartDashboard.putNumber(   "RawMag_X",            this.getRawMagX());
-//        SmartDashboard.putNumber(   "RawMag_Y",            this.getRawMagY());
-//        SmartDashboard.putNumber(   "RawMag_Z",            this.getRawMagZ());
-//        SmartDashboard.putNumber(   "IMU_Temp_C",          this.getTempC());
+//          SmartDashboard.putNumber(   "RawGyro_X",           ahrs.getRawGyroX());
+//          SmartDashboard.putNumber(   "RawGyro_Y",           ahrs.getRawGyroY());
+//          SmartDashboard.putNumber(   "RawGyro_Z",           ahrs.getRawGyroZ());
+//          SmartDashboard.putNumber(   "RawAccel_X",          ahrs.getRawAccelX());
+//          SmartDashboard.putNumber(   "RawAccel_Y",          ahrs.getRawAccelY());
+//          SmartDashboard.putNumber(   "RawAccel_Z",          ahrs.getRawAccelZ());
+//          SmartDashboard.putNumber(   "RawMag_X",            ahrs.getRawMagX());
+//          SmartDashboard.putNumber(   "RawMag_Y",            ahrs.getRawMagY());
+//          SmartDashboard.putNumber(   "RawMag_Z",            ahrs.getRawMagZ());
+//          SmartDashboard.putNumber(   "IMU_Temp_C",          ahrs.getTempC());
         
         /* Omnimount Yaw Axis Information                                           */
         /* For more info, see http://navx-mxp.kauailabs.com/installation/omnimount  */
-//        AHRS.BoardYawAxis yaw_axis = this.getBoardYawAxis();
-//        SmartDashboard.putString(  "YawAxisDirection",     yaw_axis.up ? "Up" : "Down" );
-//        SmartDashboard.putNumber(  "YawAxis",              yaw_axis.board_axis.getValue());
+//          AHRS.BoardYawAxis yaw_axis = ahrs.getBoardYawAxis();
+//          SmartDashboard.putString(  "YawAxisDirection",     yaw_axis.up ? "Up" : "Down" );
+//          SmartDashboard.putNumber(  "YawAxis",              yaw_axis.board_axis.getValue());
 
         /* Sensor Board Information                                                 */
-//        SmartDashboard.putString(  "FirmwareVersion",      this.getFirmwareVersion());
+//          SmartDashboard.putString(  "FirmwareVersion",      ahrs.getFirmwareVersion());
 
         /* Quaternion Data                                                          */
         /* Quaternions are fascinating, and are the most compact representation of  */
         /* orientation data.  All of the Yaw, Pitch and Roll Values can be derived  */
         /* from the Quaternions.  If interested in motion processing, knowledge of  */
         /* Quaternions is highly recommended.                                       */
-//        SmartDashboard.putNumber(  "QuaternionW",          this.getQuaternionW());
-//        SmartDashboard.putNumber(  "QuaternionX",          this.getQuaternionX());
-//        SmartDashboard.putNumber(  "QuaternionY",          this.getQuaternionY());
-//        SmartDashboard.putNumber(  "QuaternionZ",          this.getQuaternionZ());
+//          SmartDashboard.putNumber(  "QuaternionW",          ahrs.getQuaternionW());
+//          SmartDashboard.putNumber(  "QuaternionX",          ahrs.getQuaternionX());
+//          SmartDashboard.putNumber(  "QuaternionY",          ahrs.getQuaternionY());
+//          SmartDashboard.putNumber(  "QuaternionZ",          ahrs.getQuaternionZ());
 
         /* Connectivity Debugging Support                                           */
-//        SmartDashboard.putNumber(  "IMU_Update_Count",     this.getUpdateCount());
-//        SmartDashboard.putNumber(  "IMU_Byte_Count",       this.getByteCount());   
+//          SmartDashboard.putNumber(  "IMU_Update_Count",     ahrs.getUpdateCount());
+//          SmartDashboard.putNumber(  "IMU_Byte_Count",       ahrs.getByteCount());   
+        }
     }
 }

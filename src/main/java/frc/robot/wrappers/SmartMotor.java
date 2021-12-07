@@ -1,21 +1,10 @@
 package frc.robot.wrappers;
 
-import javax.annotation.Nullable;
-
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.DemandType;
-import com.ctre.phoenix.motorcontrol.Faults;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
-import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
-import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
-import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.motorcontrol.*;
+import com.ctre.phoenix.motorcontrol.can.*;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Convertor;
 import frc.robot.Gains;
@@ -61,6 +50,7 @@ public class SmartMotor extends WPI_TalonFX {
     
     final private Convertor convertor = new Convertor(kSensorUnitsPerRotation); //Encoder counts per revolution of the motor shaft.
 
+    private TalonFXConfiguration talonConfig = new TalonFXConfiguration();
     private SimpleMotorFeedforward feedForwardCalculator = new SimpleMotorFeedforward(0, 0, 0);
     private final Faults faults = new Faults();
 
@@ -126,8 +116,11 @@ public class SmartMotor extends WPI_TalonFX {
 //		this.configMaxIntegralAccumulator(slot, gain. maxIntegral, kTimeoutMs);
     }
 	
-    public void setDistanceConfigs(TalonFXConfiguration talonConfig, Gains gains) {
-		/* Configure the left Talon's selected sensor as local Integrated Sensor */
+    public void setDistanceConfigs(Gains gains) {
+        this.getAllConfigs(talonConfig);
+        System.out.println(this.getName() + " - Config(before): " + talonConfig);
+
+        /* Configure the left Talon's selected sensor as local Integrated Sensor */
 		talonConfig.primaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice();	// Local Feedback Source
 		talonConfig.neutralDeadband = kNeutralDeadband;
 
@@ -173,9 +166,15 @@ public class SmartMotor extends WPI_TalonFX {
         this.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, kTimeoutMs);
         this.setStatusFramePeriod(StatusFrameEnhanced.Status_10_Targets, 10, kTimeoutMs);
 		this.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
+
+        System.out.println(this.getName() + " - Config(to set): " + talonConfig);
+		this.configAllSettings(talonConfig);
+
     }
 	
-    public void setTurnConfigs(TalonFXConfiguration talonConfig, int sensorID, Gains gains) {
+    public void setDistanceAndTurnConfigs(int sensorID, Gains dgains, Gains gains) {
+        this.setDistanceConfigs(dgains);
+
         /* Configure the Remote Talon's selected sensor as a remote sensor for the right Talon */
 		talonConfig.remoteFilter0.remoteSensorDeviceID = sensorID; // Device ID of Source
 		talonConfig.remoteFilter0.remoteSensorSource = RemoteSensorSource.TalonFX_SelectedSensor; // Remote Feedback Source
@@ -214,6 +213,30 @@ public class SmartMotor extends WPI_TalonFX {
 		setStatusFramePeriod(StatusFrameEnhanced.Status_14_Turn_PIDF1, 10, kTimeoutMs);
 		setStatusFramePeriod(StatusFrameEnhanced.Status_10_Targets, 10, kTimeoutMs);
         selectProfileSlot(kSlot_Turning, PID_TURN);
+
+        System.out.println(this.getName() + " - TurnConfig(to set): " + talonConfig);
+		this.configAllSettings(talonConfig);
+    }
+
+    /**
+     * Set the rotation inversion of the motor.
+     *
+     */
+    public void setInverted(InvertType invert) {
+        switch (invert) {
+            case FollowMaster:
+                break;
+            case InvertMotorOutput:
+                this.setInverted(TalonFXInvertType.CounterClockwise);
+                break;
+            case None:
+                this.setInverted(TalonFXInvertType.Clockwise);
+                break;
+            case OpposeMaster:
+                break;
+            default:
+                break;
+        }
     }
 
     /**
@@ -221,7 +244,6 @@ public class SmartMotor extends WPI_TalonFX {
      *
      * @return The signed velocity in meters per second, or null if the drive doesn't have encoders.
      */
-    @Nullable
     public Double getVelocity() {
         return convertor.nativeUnitsToVelocity(this.getSelectedSensorVelocity(0));
     }
@@ -231,7 +253,6 @@ public class SmartMotor extends WPI_TalonFX {
      *
      * @return The signed position in meters, or null if the drive doesn't have encoders.
      */
-    @Nullable
     public Double getPosition() {
         return convertor.nativeUnitsToDistanceMeters(this.getSelectedSensorPosition(0));
     }
@@ -241,7 +262,6 @@ public class SmartMotor extends WPI_TalonFX {
      *
      * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
      */
-    @Nullable
     public Double getVelocityCached() {
         return cachedVelocity;
     }
@@ -251,7 +271,6 @@ public class SmartMotor extends WPI_TalonFX {
      *
      * @return The signed position in feet, or null if the drive doesn't have encoders.
      */
-    @Nullable
     public Double getPositionCached() {
         return cachedPosition;
     }
@@ -300,9 +319,6 @@ public class SmartMotor extends WPI_TalonFX {
     }
     public double getBatteryVoltage() {
         return this.getBusVoltage();
-    }
-    public double getOutputCurrent() {
-        return this.getSupplyCurrent();
     }
     /** Resets the position of the Talon to 0. */
     public void resetPosition() {
