@@ -34,23 +34,13 @@ public class RobotContainer {
 
   // The robot's subsystems and commands are defined here...
   public final DriveTrain driveTrain = new DriveTrain();
-  public final Shooter shooter = new Shooter();
-  public final Hopper hopper = new Hopper();
   public final Intake intake = new Intake();
-  public final Hook hook = new Hook();
-  public final Winch winch = new Winch();
+  public final Climber hook = new Climber();
 
   public final UnjamIntakeCommand m_unJamIntakeCommand = new UnjamIntakeCommand(intake);
   public final IntakeCommand m_intakeCommand = new IntakeCommand(intake);
-  public final ExtendHookCommand m_extendHookCommand = new ExtendHookCommand(hook);
-  public final RetrackHookCommand m_retractHookCommand = new RetrackHookCommand(hook);
-  public final ReverseWinchCommand m_reverseWinchCommand = new ReverseWinchCommand(winch);
-  public final RetrackWinchCommand m_retractWinchCommand = new RetrackWinchCommand(winch);
-  public final HopperCommand m_hopperCommand = new HopperCommand(hopper);
-  public final UnjamHopperCommand m_unjamHopperCommand = new UnjamHopperCommand(hopper);
-  public final ShootCommand m_shootCommand = new ShootCommand(shooter);
-  public final SpinUpShooterCommand m_spinupShooterCommand = new SpinUpShooterCommand(shooter);
-  public final RunHopperAutoCommand m_runHopperAutoCommand = new RunHopperAutoCommand(hopper);
+  public final ExtendClimberCommand m_extendClimberCommand = new ExtendClimberCommand(hook);
+  public final RetrackClimberCommand m_retractClimberCommand = new RetrackClimberCommand(hook);
 
   //Driver Controller
   public final XboxController driverController = new XboxController(0);
@@ -129,13 +119,8 @@ public class RobotContainer {
 
     b_Button_Driver.whenPressed(new DriveDistanceProfiledCommand(3, driveTrain).withTimeout(10));
 
-    a_Button_Operator.whileHeld(m_extendHookCommand);
-    b_Button_Operator.whileHeld(m_retractHookCommand);
-    y_Button_Operator.whileHeld(m_reverseWinchCommand);
-    x_Button_Operator.whileHeld(m_retractWinchCommand);
-    left_Bumper_Operator.whileHeld(m_hopperCommand);
-    right_Bumper_Operator.whileHeld(m_shootCommand);
-    back_Button_Operator.whileHeld(m_unjamHopperCommand);    
+    a_Button_Operator.whileHeld(m_extendClimberCommand);
+    b_Button_Operator.whileHeld(m_retractClimberCommand);
   }
 
   /**

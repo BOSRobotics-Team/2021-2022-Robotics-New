@@ -8,32 +8,31 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.*;
 
-public class RunHopperAutoCommand extends CommandBase {
+public class ExtendClimberCommand extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-    private final Hopper m_hopper;
+    private final Climber m_hook;
 
-    public RunHopperAutoCommand(Hopper hopper) {
-        m_hopper = hopper;
+    public ExtendClimberCommand(Climber hook) {
+        m_hook = hook;
 
-        addRequirements(m_hopper);
+        addRequirements(m_hook);
     }
 
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
-
     }
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
-       m_hopper.setMotorSpeed(Constants.kRunHopperSpeed);
+        m_hook.runClimber(Constants.kExtendHookSpeed);
     }
 
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
-       
+        m_hook.runClimber(0);
     }
 
     // Make this return true when this Command no longer needs to run execute()

@@ -5,12 +5,15 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
-public class Winch extends SubsystemBase {
-    private final WPI_VictorSPX victorSPX1 = new WPI_VictorSPX(4);
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
-    public Winch() {
+public class Climber extends SubsystemBase {
+    private final WPI_TalonFX _climberController = new WPI_TalonFX(2);
+    private final WPI_TalonFX _leftPivotLinkController = new WPI_TalonFX(3);
+    private final WPI_TalonFX _rightPivotLinkController = new WPI_TalonFX(4);
+    
+    public Climber() {
     }
 
     @Override
@@ -25,8 +28,8 @@ public class Winch extends SubsystemBase {
 
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
-    public void runWinch(double speed) {
-        victorSPX1.set(speed);
+    public void runClimber(double speed) {
+        _climberController.set(speed);
     }
 }
 

@@ -8,14 +8,14 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.*;
 
-public class UnjamHopperCommand extends CommandBase {
+public class RetrackClimberCommand extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-    private final Hopper m_hopper;
+    private final Climber m_hook;
 
-    public UnjamHopperCommand(Hopper hopper) {
-        m_hopper = hopper;
+    public RetrackClimberCommand(Climber hook) {
+        m_hook = hook;
 
-        addRequirements(m_hopper);
+        addRequirements(m_hook);
     }
 
     // Called just before this Command runs the first time
@@ -26,16 +26,16 @@ public class UnjamHopperCommand extends CommandBase {
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
-        m_hopper.setMotorSpeed(Constants.kUnjamHopperSpeed);
+        m_hook.runClimber(Constants.kRetractHookSpeed);
+    }
+
+    // Called once after isFinished returns true
+    @Override
+    public void end(boolean interrupted) {
+        m_hook.runClimber(0);
     }
 
     // Make this return true when this Command no longer needs to run execute()
-     // Called once after isFinished returns true
-    @Override
-    public void end(boolean interrupted) {
-        m_hopper.setMotorSpeed(0);
-    }
-
     @Override
     public boolean isFinished() {
         return false;
