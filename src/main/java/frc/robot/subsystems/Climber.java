@@ -5,15 +5,20 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.wrappers.SmartMotor;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 public class Climber extends SubsystemBase {
-    private final WPI_TalonFX _climberController = new WPI_TalonFX(2);
-    private final WPI_TalonFX _leftPivotLinkController = new WPI_TalonFX(3);
-    private final WPI_TalonFX _rightPivotLinkController = new WPI_TalonFX(4);
+    private final SmartMotor _climberController = new SmartMotor(2);
+    private final SmartMotor _leftPivotLinkController = new SmartMotor(3);
+    private final SmartMotor _rightPivotLinkController = new SmartMotor(4);
     
     public Climber() {
+//        _climberController.configureRatios(gearRatio, wheelRadius);
+//        _leftPivotLinkController.configureRatios(gearRatio, wheelRadius);
+//        _rightPivotLinkController.configureRatios(gearRatio, wheelRadius);
+
+        _rightPivotLinkController.follow(_leftPivotLinkController);
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants;
 import frc.robot.Convertor;
 import frc.robot.Gains;
 
@@ -31,6 +32,8 @@ public class SmartMotor extends WPI_TalonFX {
     
     public static final int kTimeoutMs = 30;
     public static final int kSensorUnitsPerRotation = 2048;
+    public static final double kGearRatio = Constants.kGearRatio;
+    public static final double kWheelRadiusInches = Constants.kWheelRadiusInches;
     public static final double kNeutralDeadband = 0.001;
 	public static final Gains kDefaultGains_Distanc = new Gains( 0.1, 0.0, 0.0, 0.0, 100, 0.80 );
 
@@ -48,7 +51,7 @@ public class SmartMotor extends WPI_TalonFX {
 	public static final double kTurnTravelUnitsPerRotation = 3600.0;
     public static final double kFeedbackCoefficient = kTurnTravelUnitsPerRotation / kEncoderUnitsPerRotation;
     
-    final private Convertor convertor = new Convertor(kSensorUnitsPerRotation); //Encoder counts per revolution of the motor shaft.
+    final private Convertor convertor = new Convertor(kSensorUnitsPerRotation, kGearRatio, kWheelRadiusInches);
 
     private TalonFXConfiguration talonConfig = new TalonFXConfiguration();
     private SimpleMotorFeedforward feedForwardCalculator = new SimpleMotorFeedforward(0, 0, 0);
@@ -106,6 +109,10 @@ public class SmartMotor extends WPI_TalonFX {
         this.configMotionAcceleration(6000, kTimeoutMs);
     }
    
+    public void configureRatios( double gearRatio, double wheelRadius ) {
+        convertor.setRatios(gearRatio, wheelRadius);
+    }
+
     public void setClosedLoopGains(int slot, Gains gain ) {
 		this.config_kP(slot, gain.kP, kTimeoutMs);
 		this.config_kI(slot, gain.kI, kTimeoutMs);

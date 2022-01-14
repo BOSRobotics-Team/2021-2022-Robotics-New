@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.InvertType;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import frc.robot.Constants;
 import frc.robot.wrappers.*;
@@ -33,8 +33,8 @@ public class DriveTrain extends SubsystemBase {
 
     public final SmartMotor rightMaster = new SmartMotor(12);
     public final SmartMotor leftMaster = new SmartMotor(13);
-    private final WPI_TalonFX rightFollower = new WPI_TalonFX(14);
-    private final WPI_TalonFX leftFollower = new WPI_TalonFX(15);
+    private final WPI_TalonSRX rightFollower = new WPI_TalonSRX(14);
+    private final WPI_TalonSRX leftFollower = new WPI_TalonSRX(15);
 
     /** The NavX gyro */
     private final DriveGyro gyro = new DriveGyro(false);
