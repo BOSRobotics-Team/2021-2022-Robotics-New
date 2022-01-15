@@ -31,10 +31,10 @@ public class DriveTrain extends SubsystemBase {
         CURVATURE
     }
 
-    public final SmartMotor rightMaster = new SmartMotor(12);
-    public final SmartMotor leftMaster = new SmartMotor(13);
-    private final WPI_TalonSRX rightFollower = new WPI_TalonSRX(14);
-    private final WPI_TalonSRX leftFollower = new WPI_TalonSRX(15);
+    public final SmartMotor rightMaster = new SmartMotor(0);
+    public final SmartMotor leftMaster = new SmartMotor(1);
+    private final WPI_TalonSRX rightFollower = new WPI_TalonSRX(3);
+    private final WPI_TalonSRX leftFollower = new WPI_TalonSRX(2);
 
     /** The NavX gyro */
     private final DriveGyro gyro = new DriveGyro(false);
@@ -376,11 +376,11 @@ public class DriveTrain extends SubsystemBase {
     }
     public void drive(XboxController ctrl) {
         if (m_DriveMode == DriveMode.ARCADE) {
-            this.setOutput(-ctrl.getLeftY(), ctrl.getRightX());
+            this.setOutput(ctrl.getLeftY(), -ctrl.getRightX());
         } else if (m_DriveMode == DriveMode.TANK) {
-            this.setOutput(-ctrl.getLeftY(), -ctrl.getRightY());
+            this.setOutput(ctrl.getLeftY(), ctrl.getRightY());
         } else if (m_DriveMode == DriveMode.CURVATURE) {
-            this.setOutput(-ctrl.getLeftY(), ctrl.getRightX());
+            this.setOutput(ctrl.getLeftY(), -ctrl.getRightX());
         }
     }
     public void setOutput(double left, double right) {

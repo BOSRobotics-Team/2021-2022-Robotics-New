@@ -9,9 +9,9 @@ import frc.robot.wrappers.SmartMotor;
 
 
 public class Climber extends SubsystemBase {
-    private final SmartMotor _climberController = new SmartMotor(2);
-    private final SmartMotor _leftPivotLinkController = new SmartMotor(3);
-    private final SmartMotor _rightPivotLinkController = new SmartMotor(4);
+    private final SmartMotor _climberController = new SmartMotor(10);
+    private final SmartMotor _leftPivotLinkController = new SmartMotor(11);
+    private final SmartMotor _rightPivotLinkController = new SmartMotor(12);
     
     public Climber() {
 //        _climberController.configureRatios(gearRatio, wheelRadius);
