@@ -18,14 +18,16 @@ public class Climber extends SubsystemBase {
     private final SmartMotor _leftPivotLinkController = new SmartMotor(11);
     //private final SmartMotor _rightPivotLinkController = new SmartMotor(12);
     private boolean _isResetClimber = false;
+    private boolean _isResetPivoting = false;
     private boolean _isClimbing = false;
+    private boolean _isPivoting = false;
     private double _targetHeight = 0;
+    private double _targetPivot = 0;
     //private double _climberFeedFwd = 0.1;
     private double kResetClimberSpeed = -0.2;
 
     public static final Gains kGains_Climber = new Gains( 0.1, 0.0, 0.0, 0.0, 100, 0.80 );
 	public static final Gains kGains_PivotArm = new Gains( 0.1, 0.0, 0.0, 0.0, 100, 0.80 );
-
     
     public Climber() {
         double climberGearRatio = Preferences.getDouble("ClimberGearRatio", 12.0);
@@ -72,11 +74,32 @@ public class Climber extends SubsystemBase {
             if (Math.abs(_climberController.getPosition() - _targetHeight) < 0.001) {
                 _isClimbing = false;
                 System.out.println("isClimbing - done");
-            }
 
-            if (_climberController.isFwdLimitSwitchClosed() == 1) {
+                if (_targetPivot > 0.0) {
+                    runPivotArm(_targetPivot);
+                }
+            } else if (_climberController.isFwdLimitSwitchClosed() == 1) {
                 _isClimbing = false;
                 System.out.println("isClimbing - limit exceeded");
+            }
+        }
+        if (_isResetPivoting) {
+            if (_leftPivotLinkController.isRevLimitSwitchClosed() == 1) {
+                _isResetPivoting = false;
+                _isPivoting = false;
+                _leftPivotLinkController.resetPosition();
+            }
+        }
+        if (_isPivoting) {
+            System.out.println("isPivoting - current distance = " + _leftPivotLinkController.getPosition() + _leftPivotLinkController.getSelectedSensorPosition(0));
+            _leftPivotLinkController.setTarget(_targetPivot); //, _climberFeedFwd);
+
+            if (Math.abs(_leftPivotLinkController.getPosition() - _targetPivot) < 0.001) {
+                _isPivoting = false;
+                System.out.println("isPivoting - done");
+            } else if (_leftPivotLinkController.isFwdLimitSwitchClosed() == 1) {
+                _isPivoting = false;
+                System.out.println("isPivoting - limit exceeded");
             }
         }
     }
@@ -90,6 +113,7 @@ public class Climber extends SubsystemBase {
     // here. Call these from Commands.
     public void runClimber(double height) {
         _targetHeight = height;
+        _targetPivot = height;
         _isClimbing = true;
 
         System.out.println("isClimbing - target (meters) = " + _targetHeight);
@@ -97,8 +121,19 @@ public class Climber extends SubsystemBase {
 
     public void resetClimber() {
         _isResetClimber = true;
-
         _climberController.set(kResetClimberSpeed);
+    }
+
+    public void runPivotArm(double distance) {
+        _targetPivot = distance;
+        _isPivoting = true;
+
+        System.out.println("isPivoting - target (meters) = " + _targetPivot);
+    }
+
+    public void resetPivotArm() {
+        _isResetPivoting = true;
+        _leftPivotLinkController.set(kResetClimberSpeed);
     }
 }
 
