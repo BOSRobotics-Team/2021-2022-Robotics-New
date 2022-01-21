@@ -4,23 +4,28 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
-import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
+import frc.robot.Gains;
+import frc.robot.wrappers.SmartMotor;
+
+import com.ctre.phoenix.motorcontrol.*;
 
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.wrappers.SmartMotor;
 
 
 public class Climber extends SubsystemBase {
     private final SmartMotor _climberController = new SmartMotor(10);
     private final SmartMotor _leftPivotLinkController = new SmartMotor(11);
-    private final SmartMotor _rightPivotLinkController = new SmartMotor(12);
+    //private final SmartMotor _rightPivotLinkController = new SmartMotor(12);
     private boolean _isResetClimber = false;
     private boolean _isClimbing = false;
     private double _targetHeight = 0;
     private double _climberFeedFwd = 0.1;
+    private double kResetClimberSpeed = -0.2;
+
+    public static final Gains kGains_Climber = new Gains( 0.1, 0.0, 0.0, 0.0, 100, 0.80 );
+	public static final Gains kGains_PivotArm = new Gains( 0.1, 0.0, 0.0, 0.0, 100, 0.80 );
+
     
     public Climber() {
         double climberGearRatio = Preferences.getDouble("ClimberGearRatio", 12.0);
@@ -28,30 +33,26 @@ public class Climber extends SubsystemBase {
         double pivotArmGearRatio = Preferences.getDouble("PivotArmGearRatio", 20.0);
         double pivotArmWheelRadius = Preferences.getDouble("PivotArmWheelRadius", 1.0);
 
-        double climberHeight1 = Preferences.getDouble("ClimberHeight1", 6.0);
-        double climberHeight2 = Preferences.getDouble("ClimberHeight2", 8.0);
+        _climberFeedFwd = Preferences.getDouble("ClimberFeedFwd", 0.1);
 
         _climberController.configureRatios(climberGearRatio, climberWheelRadius);
         _climberController.setName("Climber");
-        _climberController.configFactoryDefault();
         _climberController.enableBrakes(true);
-        _climberController.setDistanceConfigs(Constants.kGains_Distanc);
-
+        _climberController.setDistanceConfigs(kGains_Climber);
         _climberController.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0); 
         _climberController.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
         _climberController.resetPosition();
 
         _leftPivotLinkController.configureRatios(pivotArmGearRatio, pivotArmWheelRadius);
+        _leftPivotLinkController.setName("LeftPivotArm");
+        _leftPivotLinkController.enableBrakes(true);
+        _leftPivotLinkController.setDistanceConfigs(kGains_PivotArm);
         _leftPivotLinkController.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0); 
         _leftPivotLinkController.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
         _leftPivotLinkController.resetPosition();
 
-        _rightPivotLinkController.configureRatios(pivotArmGearRatio, pivotArmWheelRadius);
-        _rightPivotLinkController.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0); 
-        _rightPivotLinkController.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
-        _rightPivotLinkController.resetPosition();
-
-        _rightPivotLinkController.follow(_leftPivotLinkController);
+        //_rightPivotLinkController.setName("RightPivotArm");
+        //_rightPivotLinkController.follow(_leftPivotLinkController);
     }
 
     @Override
@@ -65,9 +66,17 @@ public class Climber extends SubsystemBase {
             }
         }
         if (_isClimbing) {
-            _climberController.setTarget(_targetHeight, _climberFeedFwd);
-            if (_climberController.getPosition() == _targetHeight) {
+            System.out.println("isClimbing - current height = " + _climberController.getPosition() + _climberController.getSelectedSensorPosition(0));
+            _climberController.setTarget(_targetHeight); //, _climberFeedFwd);
+
+            if (Math.abs(_climberController.getPosition() - _targetHeight) < 0.001) {
                 _isClimbing = false;
+                System.out.println("isClimbing - done");
+            }
+
+            if (_climberController.isFwdLimitSwitchClosed() == 1) {
+                _isClimbing = false;
+                System.out.println("isClimbing - limit exceeded");
             }
         }
     }
@@ -80,14 +89,16 @@ public class Climber extends SubsystemBase {
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
     public void runClimber(double height) {
-        _climberFeedFwd = Preferences.getDouble("ClimberFeedFwd", 0.1);
         _targetHeight = height;
         _isClimbing = true;
+
+        System.out.println("isClimbing - target (meters) = " + _targetHeight);
     }
 
     public void resetClimber() {
         _isResetClimber = true;
-        _climberController.set(-0.2);
+
+        _climberController.set(kResetClimberSpeed);
     }
 }
 

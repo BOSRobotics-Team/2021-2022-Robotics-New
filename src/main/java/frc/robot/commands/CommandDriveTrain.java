@@ -16,7 +16,6 @@ public class CommandDriveTrain extends CommandBase {
     public final DriveTrain m_driveTrain;
     public final XboxController m_controller;
 
-    private boolean _scalingOn = false;
     private double _scaling = 0.5;
 
     private boolean _lastTriggerL = false;
@@ -35,7 +34,8 @@ public class CommandDriveTrain extends CommandBase {
     public void initialize() {
         m_driveTrain.setDriveMode(DriveMode.ARCADE);
         m_driveTrain.setUseSquares(true);
-        m_driveTrain.setDriveScaling(_scalingOn ? _scaling : 1.0);
+        m_driveTrain.setUseDriveScaling(false);
+        m_driveTrain.setDriveScaling(_scaling);
         m_driveTrain.enableBrakes(true);
         m_driveTrain.enableDriveTrain(true);
 
@@ -45,15 +45,10 @@ public class CommandDriveTrain extends CommandBase {
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
-        if (m_controller.getLeftStickButtonPressed()) {
-            _scalingOn = !_scalingOn;
-            m_driveTrain.setDriveScaling(_scalingOn ? _scaling : 1.0);
-        }
-
         double triggerL = m_controller.getLeftTriggerAxis();
         if ((triggerL >= 0.5) && !_lastTriggerL) { 
             _scaling = Math.min(_scaling + 0.1, 1.0);
-            m_driveTrain.setDriveScaling(_scalingOn ? _scaling : 1.0);
+            m_driveTrain.setDriveScaling(_scaling);
         }
         _lastTriggerL = (triggerL > 0.5);
 
@@ -61,7 +56,7 @@ public class CommandDriveTrain extends CommandBase {
         if ((triggerR >= 0.5) && !_lastTriggerR)
         {
             _scaling = Math.max(_scaling - 0.1, 0.1);
-            m_driveTrain.setDriveScaling(_scalingOn ? _scaling : 1.0);
+            m_driveTrain.setDriveScaling(_scaling);
         }
         _lastTriggerR = (triggerR > 0.5);
 

@@ -53,7 +53,8 @@ public class DriveTrain extends SubsystemBase {
 
     private DriveMode m_DriveMode = DriveMode.ARCADE;
     private boolean m_UseSquares = true;
-    private double m_DriveScaling = 1.0;
+    private boolean m_UseDriveScaling = false;
+    private double m_DriveScaling = 0.5;
     private boolean m_QuickTurn = false;
 
     private double _lastLSmoothing = 0.0;
@@ -407,11 +408,19 @@ public class DriveTrain extends SubsystemBase {
         m_UseSquares = use;
         SmartDashboard.putBoolean("UseSquares", m_UseSquares);
     }
+    public boolean getUseDriveScaling() { return m_UseDriveScaling; }
+    public void setUseDriveScaling(boolean use) {
+        m_UseDriveScaling = use;
+        this.setMaxOutput(m_UseDriveScaling ? m_DriveScaling : 1.0);
+
+        SmartDashboard.putBoolean("UseDriveScaling", m_UseDriveScaling);
+    }
     public double getDriveScaling() { return m_DriveScaling; }
     public void setDriveScaling(double scaling) {
         m_DriveScaling = Math.max(Math.min(scaling, 1.0), 0.1);
-        this.setMaxOutput(m_DriveScaling);
         SmartDashboard.putNumber("DriveScaling", m_DriveScaling);
+
+        this.setMaxOutput(m_UseDriveScaling ? m_DriveScaling : 1.0);
     }
     public boolean getQuickTurn() { return m_QuickTurn; }
     public void setQuickTurn(boolean turn) {

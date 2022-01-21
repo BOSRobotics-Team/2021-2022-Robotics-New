@@ -35,12 +35,13 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   public final DriveTrain driveTrain = new DriveTrain();
   public final Intake intake = new Intake();
-  public final Climber hook = new Climber();
+  public final Climber climber = new Climber();
 
   public final UnjamIntakeCommand m_unJamIntakeCommand = new UnjamIntakeCommand(intake);
   public final IntakeCommand m_intakeCommand = new IntakeCommand(intake);
-  public final ExtendClimberCommand m_extendClimberCommand = new ExtendClimberCommand(hook);
-  public final RetrackClimberCommand m_retractClimberCommand = new RetrackClimberCommand(hook);
+  public final ExtendClimberCommand m_extendClimberCommand = new ExtendClimberCommand(climber);
+  public final RetrackClimberCommand m_retractClimberCommand = new RetrackClimberCommand(climber);
+  public final ResetClimberCommand m_resetClimberCommand = new ResetClimberCommand(climber);
 
   //Driver Controller
   public final XboxController driverController = new XboxController(0);
@@ -69,7 +70,7 @@ public class RobotContainer {
   public final JoystickButton right_Stick_Operator = new JoystickButton(operatorController, 10);
   
   //Camera
-  public final LimeLight limeLight = new LimeLight();
+  // public final LimeLight limeLight = new LimeLight();
   public final UsbCamera cam0; 
   public final UsbCamera cam1; 
 
@@ -110,17 +111,22 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    a_Button_Driver.whileHeld(m_unJamIntakeCommand);    
-    left_Bumper_Driver.whileHeld(m_intakeCommand);
-    right_Bumper_Driver.whenPressed(() -> driveTrain.setMaxOutput(0.5))
-                       .whenReleased(() -> driveTrain.setMaxOutput(1.0));
-    back_Button_Driver.whenPressed(() -> driveTrain.toggleDriveMode());
-    right_Stick_Driver.whenPressed(() -> driveTrain.setUseSquares(!driveTrain.getUseSquares()));
+    left_Bumper_Driver.whenPressed(() -> driveTrain.toggleDriveMode());
+    right_Bumper_Driver.whenPressed(() -> driveTrain.setUseSquares(!driveTrain.getUseSquares()));
+    // right_Bumper_Driver.whenPressed(() -> driveTrain.setMaxOutput(0.5))
+    //                    .whenReleased(() -> driveTrain.setMaxOutput(1.0));
 
-    b_Button_Driver.whenPressed(new DriveDistanceProfiledCommand(3, driveTrain).withTimeout(10));
+    left_Stick_Driver.whenPressed(() -> driveTrain.setUseDriveScaling(!driveTrain.getUseDriveScaling()));
+    right_Stick_Driver.whenPressed(() -> driveTrain.setQuickTurn(!driveTrain.getQuickTurn()));
 
-    a_Button_Operator.whileHeld(m_extendClimberCommand);
-    b_Button_Operator.whileHeld(m_retractClimberCommand);
+    // b_Button_Driver.whenPressed(new DriveDistanceProfiledCommand(3, driveTrain).withTimeout(10));
+
+    // a_Button_Driver.whileHeld(m_unJamIntakeCommand);    
+    // left_Bumper_Driver.whileHeld(m_intakeCommand);
+
+    a_Button_Operator.whenPressed(m_extendClimberCommand);
+    b_Button_Operator.whenPressed(m_retractClimberCommand);
+    y_Button_Operator.whenPressed(m_resetClimberCommand);
   }
 
   /**
