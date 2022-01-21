@@ -20,7 +20,7 @@ public class Climber extends SubsystemBase {
     private boolean _isResetClimber = false;
     private boolean _isClimbing = false;
     private double _targetHeight = 0;
-    private double _climberFeedFwd = 0.1;
+    //private double _climberFeedFwd = 0.1;
     private double kResetClimberSpeed = -0.2;
 
     public static final Gains kGains_Climber = new Gains( 0.1, 0.0, 0.0, 0.0, 100, 0.80 );
@@ -33,7 +33,7 @@ public class Climber extends SubsystemBase {
         double pivotArmGearRatio = Preferences.getDouble("PivotArmGearRatio", 20.0);
         double pivotArmWheelRadius = Preferences.getDouble("PivotArmWheelRadius", 1.0);
 
-        _climberFeedFwd = Preferences.getDouble("ClimberFeedFwd", 0.1);
+        //_climberFeedFwd = Preferences.getDouble("ClimberFeedFwd", 0.1);
 
         _climberController.configureRatios(climberGearRatio, climberWheelRadius);
         _climberController.setName("Climber");

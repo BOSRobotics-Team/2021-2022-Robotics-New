@@ -1,14 +1,15 @@
 package frc.robot.wrappers;
 
+import frc.robot.Constants;
+import frc.robot.Convertor;
+import frc.robot.Gains;
+
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.*;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants;
-import frc.robot.Convertor;
-import frc.robot.Gains;
 
 public class SmartMotor extends WPI_TalonFX {
 
