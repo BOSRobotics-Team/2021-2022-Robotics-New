@@ -17,12 +17,16 @@ public class ExtendClimberCommand extends CommandBase {
         m_climber = climber;
 
         addRequirements(m_climber);
+        Preferences.initDouble("ClimberHeight1", 1.5);
     }
 
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
-        m_climber.runClimber(Preferences.getDouble("ClimberHeight1", 1.5));
+        double height = Preferences.getDouble("ClimberHeight1", 1.5);
+
+        m_climber.runClimber(height);
+        System.out.println("extendClimber - height = " + height);
     }
 
     // Called repeatedly when this Command is scheduled to run
@@ -39,6 +43,9 @@ public class ExtendClimberCommand extends CommandBase {
     // Make this return true when this Command no longer needs to run execute()
     @Override
     public boolean isFinished() {
-        return true;
+        if (!m_climber.isClimbing()) {
+            System.out.println("extendClimber - isFinished");
+        }
+        return !m_climber.isClimbing();
     }
 }

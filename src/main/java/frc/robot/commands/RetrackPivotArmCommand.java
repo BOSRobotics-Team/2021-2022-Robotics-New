@@ -5,13 +5,14 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.*;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class ResetClimberCommand extends CommandBase {
+public class RetrackPivotArmCommand extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Climber m_climber;
 
-    public ResetClimberCommand(Climber climber) {
+    public RetrackPivotArmCommand(Climber climber) {
         m_climber = climber;
 
         addRequirements(m_climber);
@@ -20,9 +21,8 @@ public class ResetClimberCommand extends CommandBase {
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
-        m_climber.resetClimber();
-        m_climber.resetPivotArm();
-        System.out.println("resetClimber - initialize");
+        m_climber.runPivotArm(0.0);
+        System.out.println("retractPivotArm - distance = 0.0");
     }
 
     // Called repeatedly when this Command is scheduled to run
@@ -39,9 +39,9 @@ public class ResetClimberCommand extends CommandBase {
     // Make this return true when this Command no longer needs to run execute()
     @Override
     public boolean isFinished() {
-        if (!m_climber.isResetting()) {
-            System.out.println("resetClimber - isFinished");
+        if (!m_climber.isPivoting()) {
+            System.out.println("extendPivotArm - isFinished");
         }
-        return !m_climber.isResetting();
+        return !m_climber.isPivoting();
     }
 }

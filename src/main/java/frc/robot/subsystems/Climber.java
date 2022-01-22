@@ -21,6 +21,8 @@ public class Climber extends SubsystemBase {
     private boolean _isResetPivoting = false;
     private boolean _isClimbing = false;
     private boolean _isPivoting = false;
+    private boolean _isFwdLimitSwitchTest = false;
+    private boolean _isRevLimitSwitchTest = false;
     private double _targetHeight = 0;
     private double _targetPivot = 0;
     //private double _climberFeedFwd = 0.1;
@@ -30,12 +32,19 @@ public class Climber extends SubsystemBase {
 	public static final Gains kGains_PivotArm = new Gains( 0.1, 0.0, 0.0, 0.0, 100, 0.80 );
     
     public Climber() {
+        Preferences.initDouble("ClimberGearRatio", 12.0);
+        Preferences.initDouble("ClimberWheelRadius", 1.0);
+        Preferences.initDouble("PivotArmGearRatio", 20.0);
+        Preferences.initDouble("PivotArmWheelRadius", 1.0);
+        Preferences.initDouble("ClimberFeedFwd", 0.5);
+
         double climberGearRatio = Preferences.getDouble("ClimberGearRatio", 12.0);
         double climberWheelRadius = Preferences.getDouble("ClimberWheelRadius", 1.0);
         double pivotArmGearRatio = Preferences.getDouble("PivotArmGearRatio", 20.0);
         double pivotArmWheelRadius = Preferences.getDouble("PivotArmWheelRadius", 1.0);
 
         //_climberFeedFwd = Preferences.getDouble("ClimberFeedFwd", 0.1);
+        System.out.println("_climberController - ratios = " + climberGearRatio + "  radius = " + climberWheelRadius);
 
         _climberController.configureRatios(climberGearRatio, climberWheelRadius);
         _climberController.setName("Climber");
@@ -61,14 +70,15 @@ public class Climber extends SubsystemBase {
     public void periodic() {
         // Put code here to be run every loop
         if (_isResetClimber) {
-            if (_climberController.isRevLimitSwitchClosed() == 1) {
+            if (isClimberRevLimitSwitchClosed()) {
                 _isResetClimber = false;
                 _isClimbing = false;
+                _climberController.set(0.0);
                 _climberController.resetPosition();
             }
         }
         if (_isClimbing) {
-            System.out.println("isClimbing - current height = " + _climberController.getPosition() + _climberController.getSelectedSensorPosition(0));
+            System.out.println("isClimbing - current height = " + _climberController.getPosition() + " pos = " + _climberController.getSelectedSensorPosition(0));
             _climberController.setTarget(_targetHeight); //, _climberFeedFwd);
 
             if (Math.abs(_climberController.getPosition() - _targetHeight) < 0.001) {
@@ -78,15 +88,16 @@ public class Climber extends SubsystemBase {
                 if (_targetPivot > 0.0) {
                     runPivotArm(_targetPivot);
                 }
-            } else if (_climberController.isFwdLimitSwitchClosed() == 1) {
+            } else if (isClimberFwdLimitSwitchClosed()) {
                 _isClimbing = false;
                 System.out.println("isClimbing - limit exceeded");
             }
         }
         if (_isResetPivoting) {
-            if (_leftPivotLinkController.isRevLimitSwitchClosed() == 1) {
+            if (isPivotArmRevLimitSwitchClosed()) {
                 _isResetPivoting = false;
                 _isPivoting = false;
+                _leftPivotLinkController.set(0.0);
                 _leftPivotLinkController.resetPosition();
             }
         }
@@ -97,7 +108,7 @@ public class Climber extends SubsystemBase {
             if (Math.abs(_leftPivotLinkController.getPosition() - _targetPivot) < 0.001) {
                 _isPivoting = false;
                 System.out.println("isPivoting - done");
-            } else if (_leftPivotLinkController.isFwdLimitSwitchClosed() == 1) {
+            } else if (isPivotArmFwdLimitSwitchClosed()) {
                 _isPivoting = false;
                 System.out.println("isPivoting - limit exceeded");
             }
@@ -113,11 +124,11 @@ public class Climber extends SubsystemBase {
     // here. Call these from Commands.
     public void runClimber(double height) {
         _targetHeight = height;
-        _targetPivot = height;
         _isClimbing = true;
 
         System.out.println("isClimbing - target (meters) = " + _targetHeight);
     }
+    public boolean isClimbing() { return _isClimbing; }
 
     public void resetClimber() {
         _isResetClimber = true;
@@ -130,10 +141,25 @@ public class Climber extends SubsystemBase {
 
         System.out.println("isPivoting - target (meters) = " + _targetPivot);
     }
+    public boolean isPivoting() { return _isPivoting; }
 
     public void resetPivotArm() {
         _isResetPivoting = true;
         _leftPivotLinkController.set(kResetClimberSpeed);
     }
+    public boolean isResetting() { return _isResetClimber || _isResetPivoting; }
+    public boolean isClimberFwdLimitSwitchClosed() { return (_climberController.isFwdLimitSwitchClosed() == 1) || _isFwdLimitSwitchTest; }
+    public boolean isClimberRevLimitSwitchClosed() { return (_climberController.isRevLimitSwitchClosed() == 1) || _isRevLimitSwitchTest; }
+    public boolean isPivotArmFwdLimitSwitchClosed() { return (_leftPivotLinkController.isFwdLimitSwitchClosed() == 1) || _isFwdLimitSwitchTest; }
+    public boolean isPivotArmRevLimitSwitchClosed() { return (_leftPivotLinkController.isRevLimitSwitchClosed() == 1) || _isRevLimitSwitchTest; }
+
+
+    public void tripFwdLimitSwitches_test(boolean trip) {
+        _isFwdLimitSwitchTest = trip;
+    } 
+    public void tripRevLimitSwitches_test(boolean trip) {
+        System.out.println("tripRevLimitSwitches_test -" + trip);
+        _isRevLimitSwitchTest = trip;
+    } 
 }
 

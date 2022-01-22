@@ -44,6 +44,11 @@ public class RobotContainer {
   public final RetrackClimberCommand m_retractClimberCommand = new RetrackClimberCommand(climber);
   public final ResetClimberCommand m_resetClimberCommand = new ResetClimberCommand(climber);
 
+  public final ExtendPivotArmCommand m_extendPivotArmCommand = new ExtendPivotArmCommand(climber);
+  public final RetrackPivotArmCommand m_retractPivotArmCommand = new RetrackPivotArmCommand(climber);
+
+  public final AutoClimberCommand m_AutoClimberCommand = new AutoClimberCommand(climber);
+
   //Driver Controller
   public final XboxController driverController = new XboxController(0);
   public final JoystickButton a_Button_Driver = new JoystickButton(driverController, 1);
@@ -127,7 +132,16 @@ public class RobotContainer {
 
     a_Button_Operator.whenPressed(m_extendClimberCommand);
     b_Button_Operator.whenPressed(m_retractClimberCommand);
-    y_Button_Operator.whenPressed(m_resetClimberCommand);
+
+    x_Button_Operator.whenPressed(m_extendPivotArmCommand);
+    y_Button_Operator.whenPressed(m_retractPivotArmCommand);
+
+    start_Button_Operator.whenPressed(m_resetClimberCommand);
+    left_Bumper_Operator.whenPressed(m_AutoClimberCommand);
+
+    back_Button_Operator.whenPressed(() -> climber.tripRevLimitSwitches_test(true))
+                        .whenReleased(() -> climber.tripRevLimitSwitches_test(false));
+
   }
 
   /**

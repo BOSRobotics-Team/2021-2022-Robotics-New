@@ -5,24 +5,28 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.*;
+
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class ResetClimberCommand extends CommandBase {
+public class ExtendPivotArmCommand extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Climber m_climber;
 
-    public ResetClimberCommand(Climber climber) {
+    public ExtendPivotArmCommand(Climber climber) {
         m_climber = climber;
 
         addRequirements(m_climber);
+        Preferences.initDouble("PivotArmDistance1", 1.0);
     }
 
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
-        m_climber.resetClimber();
-        m_climber.resetPivotArm();
-        System.out.println("resetClimber - initialize");
+        double distance = Preferences.getDouble("PivotArmDistance1", 1.0);
+
+        m_climber.runPivotArm(distance);
+        System.out.println("extendPivotArm - distance = " + distance);
     }
 
     // Called repeatedly when this Command is scheduled to run
@@ -39,9 +43,9 @@ public class ResetClimberCommand extends CommandBase {
     // Make this return true when this Command no longer needs to run execute()
     @Override
     public boolean isFinished() {
-        if (!m_climber.isResetting()) {
-            System.out.println("resetClimber - isFinished");
+        if (!m_climber.isPivoting()) {
+            System.out.println("extendPivotArm - isFinished");
         }
-        return !m_climber.isResetting();
+        return !m_climber.isPivoting();
     }
 }
