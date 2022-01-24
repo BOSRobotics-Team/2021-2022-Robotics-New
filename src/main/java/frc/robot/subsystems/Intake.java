@@ -24,6 +24,10 @@ public class Intake extends SubsystemBase {
       // This method will be called once per scheduler run during simulation
     }
 
+    public void logPeriodic() {
+        // _intakeController.logPeriodic();
+     }
+
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
     public void runIntake(double speed) {

@@ -10,6 +10,7 @@ import frc.robot.wrappers.SmartMotor;
 import com.ctre.phoenix.motorcontrol.*;
 
 import edu.wpi.first.wpilibj.Preferences;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 
@@ -118,6 +119,19 @@ public class Climber extends SubsystemBase {
     @Override
     public void simulationPeriodic() {
       // This method will be called once per scheduler run during simulation
+    }
+
+    public void logPeriodic() {
+        _climberController.logPeriodic();
+        _leftPivotLinkController.logPeriodic();
+        // _rightPivotLinkController.logPeriodic();
+ 
+        SmartDashboard.putBoolean("isResetClimber", _isResetClimber);
+        SmartDashboard.putBoolean("isResetPivoting", _isResetPivoting);
+        SmartDashboard.putBoolean("isClimbing", _isClimbing);
+        SmartDashboard.putBoolean("isPivoting", _isPivoting);
+        SmartDashboard.putNumber("targetHeight", _targetHeight);
+        SmartDashboard.putNumber("targetPivot", _targetPivot);
     }
 
     // Put methods for controlling this subsystem

@@ -95,7 +95,7 @@ public class CommandClimber extends CommandBase {
         }
         _lastTriggerR = (triggerR > 0.5);
 
-//        m_climber.logPeriodic();
+       m_climber.logPeriodic();
     }
 
     // Called once after isFinished returns true

@@ -61,7 +61,7 @@ public class CommandIntake extends CommandBase {
         }
         _lastTriggerR = (triggerR > 0.5);
 
-//        m_intake.logPeriodic();
+       m_intake.logPeriodic();
     }
 
     // Called once after isFinished returns true
