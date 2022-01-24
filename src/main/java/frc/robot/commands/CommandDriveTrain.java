@@ -55,8 +55,6 @@ public class CommandDriveTrain extends CommandBase {
     public void initialize() {
         left_Bumper.whenPressed(() -> m_driveTrain.toggleDriveMode());
         right_Bumper.whenPressed(() -> m_driveTrain.setUseSquares(!m_driveTrain.getUseSquares()));
-        // right_Bumper.whenPressed(() -> m_driveTrain.setMaxOutput(0.5))
-        //                    .whenReleased(() -> m_driveTrain.setMaxOutput(1.0));
     
         left_Stick.whenPressed(() -> m_driveTrain.setUseDriveScaling(!m_driveTrain.getUseDriveScaling()));
         right_Stick.whenPressed(() -> m_driveTrain.setQuickTurn(!m_driveTrain.getQuickTurn()));
