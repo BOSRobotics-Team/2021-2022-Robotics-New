@@ -15,6 +15,16 @@ public class CommandDriveTrain extends CommandBase {
 
     public final DriveTrain m_driveTrain;
     public final XboxController m_controller;
+    // public final JoystickButton a_Button;
+    // public final JoystickButton b_Button;
+    // public final JoystickButton x_Button;
+    // public final JoystickButton y_Button;
+    public final JoystickButton left_Bumper;
+    public final JoystickButton right_Bumper;
+    // public final JoystickButton back_Button;
+    // public final JoystickButton start_Button;
+    public final JoystickButton left_Stick;
+    public final JoystickButton right_Stick;
 
     private double _scaling = 0.5;
 
@@ -27,22 +37,22 @@ public class CommandDriveTrain extends CommandBase {
 
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(m_driveTrain);
+
+        // a_Button = new JoystickButton(m_controller, 1);
+        // b_Button = new JoystickButton(m_controller, 2);
+        // x_Button = new JoystickButton(m_controller, 3);
+        // y_Button = new JoystickButton(m_controller, 4);
+        left_Bumper = new JoystickButton(m_controller, 5);
+        right_Bumper = new JoystickButton(m_controller, 6);
+        // back_Button = new JoystickButton(m_controller, 7);
+        // start_Button = new JoystickButton(m_controller, 8);
+        left_Stick = new JoystickButton(m_controller, 9);
+        right_Stick = new JoystickButton(m_controller, 10);
     }
 
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
-        // JoystickButton a_Button = new JoystickButton(m_controller, 1);
-        // JoystickButton b_Button = new JoystickButton(m_controller, 2);
-        // JoystickButton x_Button = new JoystickButton(m_controller, 3);
-        // JoystickButton y_Button = new JoystickButton(m_controller, 4);
-        JoystickButton left_Bumper = new JoystickButton(m_controller, 5);
-        JoystickButton right_Bumper = new JoystickButton(m_controller, 6);
-        // JoystickButton back_Button = new JoystickButton(m_controller, 7);
-        // JoystickButton start_Button = new JoystickButton(m_controller, 8);
-        JoystickButton left_Stick = new JoystickButton(m_controller, 9);
-        JoystickButton right_Stick = new JoystickButton(m_controller, 10);
-
         left_Bumper.whenPressed(() -> m_driveTrain.toggleDriveMode());
         right_Bumper.whenPressed(() -> m_driveTrain.setUseSquares(!m_driveTrain.getUseSquares()));
         // right_Bumper.whenPressed(() -> m_driveTrain.setMaxOutput(0.5))

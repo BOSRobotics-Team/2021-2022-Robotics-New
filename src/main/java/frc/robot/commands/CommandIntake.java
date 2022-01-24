@@ -5,7 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.subsystems.*;
 
@@ -14,9 +14,11 @@ public class CommandIntake extends CommandBase {
 
     public final Intake m_intake;
     public final XboxController m_controller;
+    public final JoystickButton back_Button;
 
-    private IntakeOnCommand _onCommand;
-    private IntakeOffCommand _offCommand;
+    private final IntakeOnCommand _onCommand;
+    private final IntakeOffCommand _offCommand;
+    private final UnjamIntakeCommand _unjamCommand;
 
     private boolean _lastTriggerL = false;
     private boolean _lastTriggerR = false;
@@ -28,14 +30,19 @@ public class CommandIntake extends CommandBase {
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(intake);
 
+        back_Button = new JoystickButton(m_controller, 7);
+
         _onCommand = new IntakeOnCommand(m_intake);
         _offCommand = new IntakeOffCommand(m_intake);
+        _unjamCommand = new UnjamIntakeCommand(m_intake);
     }
 
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
         _lastTriggerL = _lastTriggerR = false;
+
+        back_Button.whenPressed(_unjamCommand);
     }
 
     // Called repeatedly when this Command is scheduled to run
