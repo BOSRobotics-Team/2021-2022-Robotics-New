@@ -82,7 +82,7 @@ public class Climber extends SubsystemBase {
             System.out.println("isClimbing - current height = " + _climberController.getPosition() + " pos = " + _climberController.getSelectedSensorPosition(0));
             _climberController.setTarget(_targetHeight); //, _climberFeedFwd);
 
-            if (Math.abs(_climberController.getPosition() - _targetHeight) < 0.001) {
+            if (Math.abs(_climberController.getPosition() - _targetHeight) < 0.01) {
                 _isClimbing = false;
                 System.out.println("isClimbing - done");
 
@@ -106,7 +106,7 @@ public class Climber extends SubsystemBase {
             System.out.println("isPivoting - current distance = " + _leftPivotLinkController.getPosition() + _leftPivotLinkController.getSelectedSensorPosition(0));
             _leftPivotLinkController.setTarget(_targetPivot); //, _climberFeedFwd);
 
-            if (Math.abs(_leftPivotLinkController.getPosition() - _targetPivot) < 0.001) {
+            if (Math.abs(_leftPivotLinkController.getPosition() - _targetPivot) < 0.01) {
                 _isPivoting = false;
                 System.out.println("isPivoting - done");
             } else if (isPivotLinkFwdLimitSwitchClosed()) {
