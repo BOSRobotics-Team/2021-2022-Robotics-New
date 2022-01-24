@@ -44,8 +44,8 @@ public class RobotContainer {
   public final RetrackClimberCommand m_retractClimberCommand = new RetrackClimberCommand(climber);
   public final ResetClimberCommand m_resetClimberCommand = new ResetClimberCommand(climber);
 
-  public final ExtendPivotArmCommand m_extendPivotArmCommand = new ExtendPivotArmCommand(climber);
-  public final RetrackPivotArmCommand m_retractPivotArmCommand = new RetrackPivotArmCommand(climber);
+  public final ExtendPivotLinkCommand m_extendPivotLinkCommand = new ExtendPivotLinkCommand(climber);
+  public final RetrackPivotLinkCommand m_retractPivotLinkCommand = new RetrackPivotLinkCommand(climber);
 
   public final AutoClimberCommand m_AutoClimberCommand = new AutoClimberCommand(climber);
 
@@ -82,6 +82,8 @@ public class RobotContainer {
 
   public final AutonomousCommand m_autoCommand = new AutonomousCommand(this);
   public final CommandDriveTrain m_cmdDriveTrainCommand = new CommandDriveTrain(driveTrain, driverController);
+  public final CommandClimber m_cmdClimberCommand = new CommandClimber(climber, operatorController);
+  public final CommandIntake m_cmdIntakeCommand = new CommandIntake(intake, operatorController);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -89,6 +91,8 @@ public class RobotContainer {
     configureButtonBindings();
 
     driveTrain.setDefaultCommand(m_cmdDriveTrainCommand);
+    climber.setDefaultCommand(m_cmdClimberCommand);
+    intake.setDefaultCommand(m_cmdIntakeCommand);
     
     // Add commands to Autonomous Sendable Chooser
     chooser.setDefaultOption("Autonomous Command", m_autoCommand);
@@ -133,8 +137,8 @@ public class RobotContainer {
     a_Button_Operator.whenPressed(m_extendClimberCommand);
     b_Button_Operator.whenPressed(m_retractClimberCommand);
 
-    x_Button_Operator.whenPressed(m_extendPivotArmCommand);
-    y_Button_Operator.whenPressed(m_retractPivotArmCommand);
+    x_Button_Operator.whenPressed(m_extendPivotLinkCommand);
+    y_Button_Operator.whenPressed(m_retractPivotLinkCommand);
 
     start_Button_Operator.whenPressed(m_resetClimberCommand);
     left_Bumper_Operator.whenPressed(m_AutoClimberCommand);

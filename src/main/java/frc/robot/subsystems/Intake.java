@@ -5,10 +5,11 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 public class Intake extends SubsystemBase {
-    private final WPI_VictorSPX victorSPX1 = new WPI_VictorSPX(5);
+    private final WPI_TalonSRX _intakeController = new WPI_TalonSRX(5);
 
     public Intake() {
     }
@@ -26,7 +27,7 @@ public class Intake extends SubsystemBase {
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
     public void runIntake(double speed) {
-        victorSPX1.set(speed);
+        _intakeController.set(speed);
     }
 }
 

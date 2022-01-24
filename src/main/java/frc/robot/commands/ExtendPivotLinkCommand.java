@@ -6,23 +6,27 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.*;
 
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class RetrackPivotArmCommand extends CommandBase {
+public class ExtendPivotLinkCommand extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Climber m_climber;
 
-    public RetrackPivotArmCommand(Climber climber) {
+    public ExtendPivotLinkCommand(Climber climber) {
         m_climber = climber;
 
         addRequirements(m_climber);
+        Preferences.initDouble("PivotLinkDistance1", 1.0);
     }
 
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
-        m_climber.runPivotArm(0.0);
-        System.out.println("retractPivotArm - distance = 0.0");
+        double distance = Preferences.getDouble("PivotLinkDistance1", 1.0);
+
+        m_climber.runPivotLink(distance);
+        System.out.println("extendPivotLink - distance = " + distance);
     }
 
     // Called repeatedly when this Command is scheduled to run
@@ -40,7 +44,7 @@ public class RetrackPivotArmCommand extends CommandBase {
     @Override
     public boolean isFinished() {
         if (!m_climber.isPivoting()) {
-            System.out.println("extendPivotArm - isFinished");
+            System.out.println("extendPivotLink - isFinished");
         }
         return !m_climber.isPivoting();
     }

@@ -18,7 +18,7 @@ public class AutoClimberCommand extends SequentialCommandGroup {
 
         addCommands(
             new ExtendClimberCommand(climber),
-            new ExtendPivotArmCommand(climber),
+            new ExtendPivotLinkCommand(climber),
             new RetrackClimberCommand(climber)
         );
     }

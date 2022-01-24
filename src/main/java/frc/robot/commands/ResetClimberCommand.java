@@ -21,7 +21,7 @@ public class ResetClimberCommand extends CommandBase {
     @Override
     public void initialize() {
         m_climber.resetClimber();
-        m_climber.resetPivotArm();
+        m_climber.resetPivotLink();
         System.out.println("resetClimber - initialize");
     }
 
