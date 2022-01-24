@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+// import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 //import oi.limelightvision.limelight.frc.LimeLight;
-
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -38,47 +37,49 @@ public class RobotContainer {
   public final Intake intake = new Intake();
   public final Climber climber = new Climber();
 
-  public final UnjamIntakeCommand m_unJamIntakeCommand = new UnjamIntakeCommand(intake);
-  public final IntakeCommand m_intakeCommand = new IntakeCommand(intake);
-  public final ExtendClimberCommand m_extendClimberCommand = new ExtendClimberCommand(climber);
-  public final RetrackClimberCommand m_retractClimberCommand = new RetrackClimberCommand(climber);
-  public final ResetClimberCommand m_resetClimberCommand = new ResetClimberCommand(climber);
+  // public final UnjamIntakeCommand m_unJamIntakeCommand = new UnjamIntakeCommand(intake);
+  // public final IntakeOnCommand m_intakeOnCommand = new IntakeOnCommand(intake);
+  // public final IntakeOffCommand m_intakeOffCommand = new IntakeOffCommand(intake);
+  // public final ExtendClimberCommand m_extendClimberCommand = new ExtendClimberCommand(climber);
+  // public final RetrackClimberCommand m_retractClimberCommand = new RetrackClimberCommand(climber);
+  // public final ResetClimberCommand m_resetClimberCommand = new ResetClimberCommand(climber);
 
-  public final ExtendPivotLinkCommand m_extendPivotLinkCommand = new ExtendPivotLinkCommand(climber);
-  public final RetrackPivotLinkCommand m_retractPivotLinkCommand = new RetrackPivotLinkCommand(climber);
+  // public final ExtendPivotLinkCommand m_extendPivotLinkCommand = new ExtendPivotLinkCommand(climber);
+  // public final RetrackPivotLinkCommand m_retractPivotLinkCommand = new RetrackPivotLinkCommand(climber);
 
-  public final AutoClimberCommand m_AutoClimberCommand = new AutoClimberCommand(climber);
+  // public final AutoClimberCommand m_AutoClimberCommand = new AutoClimberCommand(climber);
 
-  //Driver Controller
+  // //Driver Controller
   public final XboxController driverController = new XboxController(0);
-  public final JoystickButton a_Button_Driver = new JoystickButton(driverController, 1);
-  public final JoystickButton b_Button_Driver = new JoystickButton(driverController, 2);
-  public final JoystickButton x_Button_Driver = new JoystickButton(driverController, 3);
-  public final JoystickButton y_Button_Driver = new JoystickButton(driverController, 4);
-  public final JoystickButton left_Bumper_Driver = new JoystickButton(driverController, 5);
-  public final JoystickButton right_Bumper_Driver = new JoystickButton(driverController, 6);
-  public final JoystickButton back_Button_Driver = new JoystickButton(driverController, 7);
-  public final JoystickButton start_Button_Driver = new JoystickButton(driverController, 8);
-  public final JoystickButton left_Stick_Driver = new JoystickButton(driverController, 9);
-  public final JoystickButton right_Stick_Driver = new JoystickButton(driverController, 10);
+  // public final JoystickButton a_Button_Driver = new JoystickButton(driverController, 1);
+  // public final JoystickButton b_Button_Driver = new JoystickButton(driverController, 2);
+  // public final JoystickButton x_Button_Driver = new JoystickButton(driverController, 3);
+  // public final JoystickButton y_Button_Driver = new JoystickButton(driverController, 4);
+  // public final JoystickButton left_Bumper_Driver = new JoystickButton(driverController, 5);
+  // public final JoystickButton right_Bumper_Driver = new JoystickButton(driverController, 6);
+  // public final JoystickButton back_Button_Driver = new JoystickButton(driverController, 7);
+  // public final JoystickButton start_Button_Driver = new JoystickButton(driverController, 8);
+  // public final JoystickButton left_Stick_Driver = new JoystickButton(driverController, 9);
+  // public final JoystickButton right_Stick_Driver = new JoystickButton(driverController, 10);
   
-  //Operator Controller
+  // //Operator Controller
   public final XboxController operatorController = new XboxController(1);
-  public final JoystickButton a_Button_Operator = new JoystickButton(operatorController, 1);
-  public final JoystickButton b_Button_Operator = new JoystickButton(operatorController, 2);
-  public final JoystickButton x_Button_Operator = new JoystickButton(operatorController, 3);
-  public final JoystickButton y_Button_Operator = new JoystickButton(operatorController, 4);
-  public final JoystickButton left_Bumper_Operator = new JoystickButton(operatorController, 5);
-  public final JoystickButton right_Bumper_Operator = new JoystickButton(operatorController, 6);
-  public final JoystickButton back_Button_Operator = new JoystickButton(operatorController, 7);
-  public final JoystickButton start_Button_Operator = new JoystickButton(operatorController, 8);
-  public final JoystickButton left_Stick_Operator = new JoystickButton(operatorController, 9);
-  public final JoystickButton right_Stick_Operator = new JoystickButton(operatorController, 10);
+  // public final JoystickButton a_Button_Operator = new JoystickButton(operatorController, 1);
+  // public final JoystickButton b_Button_Operator = new JoystickButton(operatorController, 2);
+  // public final JoystickButton x_Button_Operator = new JoystickButton(operatorController, 3);
+  // public final JoystickButton y_Button_Operator = new JoystickButton(operatorController, 4);
+  // public final JoystickButton left_Bumper_Operator = new JoystickButton(operatorController, 5);
+  // public final JoystickButton right_Bumper_Operator = new JoystickButton(operatorController, 6);
+  // public final JoystickButton back_Button_Operator = new JoystickButton(operatorController, 7);
+  // public final JoystickButton start_Button_Operator = new JoystickButton(operatorController, 8);
+  // public final JoystickButton left_Stick_Operator = new JoystickButton(operatorController, 9);
+  // public final JoystickButton right_Stick_Operator = new JoystickButton(operatorController, 10);
   
   //Camera
   // public final LimeLight limeLight = new LimeLight();
   public final UsbCamera cam0; 
   public final UsbCamera cam1; 
+  public final UsbCamera cam2; 
 
   public final AutonomousCommand m_autoCommand = new AutonomousCommand(this);
   public final CommandDriveTrain m_cmdDriveTrainCommand = new CommandDriveTrain(driveTrain, driverController);
@@ -112,6 +113,7 @@ public class RobotContainer {
 
     cam0 = CameraServer.startAutomaticCapture(0);
     cam1 = CameraServer.startAutomaticCapture(1);  
+    cam2 = CameraServer.startAutomaticCapture(2);  
   }
 
   /**
@@ -121,30 +123,30 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    left_Bumper_Driver.whenPressed(() -> driveTrain.toggleDriveMode());
-    right_Bumper_Driver.whenPressed(() -> driveTrain.setUseSquares(!driveTrain.getUseSquares()));
-    // right_Bumper_Driver.whenPressed(() -> driveTrain.setMaxOutput(0.5))
-    //                    .whenReleased(() -> driveTrain.setMaxOutput(1.0));
+    // left_Bumper_Driver.whenPressed(() -> driveTrain.toggleDriveMode());
+    // right_Bumper_Driver.whenPressed(() -> driveTrain.setUseSquares(!driveTrain.getUseSquares()));
+    // // right_Bumper_Driver.whenPressed(() -> driveTrain.setMaxOutput(0.5))
+    // //                    .whenReleased(() -> driveTrain.setMaxOutput(1.0));
 
-    left_Stick_Driver.whenPressed(() -> driveTrain.setUseDriveScaling(!driveTrain.getUseDriveScaling()));
-    right_Stick_Driver.whenPressed(() -> driveTrain.setQuickTurn(!driveTrain.getQuickTurn()));
+    // left_Stick_Driver.whenPressed(() -> driveTrain.setUseDriveScaling(!driveTrain.getUseDriveScaling()));
+    // right_Stick_Driver.whenPressed(() -> driveTrain.setQuickTurn(!driveTrain.getQuickTurn()));
 
     // b_Button_Driver.whenPressed(new DriveDistanceProfiledCommand(3, driveTrain).withTimeout(10));
 
     // a_Button_Driver.whileHeld(m_unJamIntakeCommand);    
     // left_Bumper_Driver.whileHeld(m_intakeCommand);
 
-    a_Button_Operator.whenPressed(m_extendClimberCommand);
-    b_Button_Operator.whenPressed(m_retractClimberCommand);
+    // a_Button_Operator.whenPressed(m_extendClimberCommand);
+    // b_Button_Operator.whenPressed(m_retractClimberCommand);
 
-    x_Button_Operator.whenPressed(m_extendPivotLinkCommand);
-    y_Button_Operator.whenPressed(m_retractPivotLinkCommand);
+    // x_Button_Operator.whenPressed(m_extendPivotLinkCommand);
+    // y_Button_Operator.whenPressed(m_retractPivotLinkCommand);
 
-    start_Button_Operator.whenPressed(m_resetClimberCommand);
-    left_Bumper_Operator.whenPressed(m_AutoClimberCommand);
+    // start_Button_Operator.whenPressed(m_resetClimberCommand);
+    // left_Bumper_Operator.whenPressed(m_AutoClimberCommand);
 
-    back_Button_Operator.whenPressed(() -> climber.tripRevLimitSwitches_test(true))
-                        .whenReleased(() -> climber.tripRevLimitSwitches_test(false));
+    // back_Button_Operator.whenPressed(() -> climber.tripRevLimitSwitches_test(true))
+    //                     .whenReleased(() -> climber.tripRevLimitSwitches_test(false));
 
   }
 

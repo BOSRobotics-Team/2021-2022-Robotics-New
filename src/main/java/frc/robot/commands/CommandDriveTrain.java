@@ -5,7 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.DriveTrain.DriveMode;
@@ -32,6 +32,25 @@ public class CommandDriveTrain extends CommandBase {
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
+        // JoystickButton a_Button = new JoystickButton(m_controller, 1);
+        // JoystickButton b_Button = new JoystickButton(m_controller, 2);
+        // JoystickButton x_Button = new JoystickButton(m_controller, 3);
+        // JoystickButton y_Button = new JoystickButton(m_controller, 4);
+        JoystickButton left_Bumper = new JoystickButton(m_controller, 5);
+        JoystickButton right_Bumper = new JoystickButton(m_controller, 6);
+        // JoystickButton back_Button = new JoystickButton(m_controller, 7);
+        // JoystickButton start_Button = new JoystickButton(m_controller, 8);
+        JoystickButton left_Stick = new JoystickButton(m_controller, 9);
+        JoystickButton right_Stick = new JoystickButton(m_controller, 10);
+
+        left_Bumper.whenPressed(() -> m_driveTrain.toggleDriveMode());
+        right_Bumper.whenPressed(() -> m_driveTrain.setUseSquares(!m_driveTrain.getUseSquares()));
+        // right_Bumper.whenPressed(() -> m_driveTrain.setMaxOutput(0.5))
+        //                    .whenReleased(() -> m_driveTrain.setMaxOutput(1.0));
+    
+        left_Stick.whenPressed(() -> m_driveTrain.setUseDriveScaling(!m_driveTrain.getUseDriveScaling()));
+        right_Stick.whenPressed(() -> m_driveTrain.setQuickTurn(!m_driveTrain.getQuickTurn()));
+
         m_driveTrain.setDriveMode(DriveMode.ARCADE);
         m_driveTrain.setUseSquares(true);
         m_driveTrain.setUseDriveScaling(false);

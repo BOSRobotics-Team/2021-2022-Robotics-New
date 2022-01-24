@@ -15,6 +15,9 @@ public class CommandIntake extends CommandBase {
     public final Intake m_intake;
     public final XboxController m_controller;
 
+    private IntakeOnCommand _onCommand;
+    private IntakeOffCommand _offCommand;
+
     private boolean _lastTriggerL = false;
     private boolean _lastTriggerR = false;
 
@@ -24,6 +27,9 @@ public class CommandIntake extends CommandBase {
 
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(intake);
+
+        _onCommand = new IntakeOnCommand(m_intake);
+        _offCommand = new IntakeOffCommand(m_intake);
     }
 
     // Called just before this Command runs the first time
@@ -37,9 +43,9 @@ public class CommandIntake extends CommandBase {
     public void execute() {
         double triggerL = m_controller.getLeftTriggerAxis();
         if ((triggerL >= 0.5) && !_lastTriggerL) { 
-            m_intake.runIntake(0.5);
+            _onCommand.schedule();
         } else if ((triggerL < 0.5) && _lastTriggerL) {
-            m_intake.runIntake(0.0);
+            _offCommand.schedule();
         }
         _lastTriggerL = (triggerL > 0.5);
 

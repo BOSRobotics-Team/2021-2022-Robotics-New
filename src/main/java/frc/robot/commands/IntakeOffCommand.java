@@ -5,14 +5,13 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants;
 import frc.robot.subsystems.*;
 
-public class IntakeCommand extends CommandBase {
+public class IntakeOffCommand extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Intake m_intake;
 
-    public IntakeCommand(Intake intake) {
+    public IntakeOffCommand(Intake intake) {
         m_intake = intake;
 
         addRequirements(m_intake);
@@ -26,13 +25,12 @@ public class IntakeCommand extends CommandBase {
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
-        m_intake.runIntake(Constants.kIntakeSpeed);
+        m_intake.runIntake(0);
     }
 
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
-        m_intake.runIntake(0);
     }
 
     // Make this return true when this Command no longer needs to run execute()

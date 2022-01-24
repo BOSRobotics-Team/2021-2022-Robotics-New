@@ -5,7 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.subsystems.*;
 
@@ -14,22 +14,57 @@ public class CommandClimber extends CommandBase {
 
     public final Climber m_climber;
     public final XboxController m_controller;
+    public final ExtendClimberCommand m_extendClimberCommand;
+    public final RetrackClimberCommand m_retractClimberCommand;
+    public final ResetClimberCommand m_resetClimberCommand;
+    public final ExtendPivotLinkCommand m_extendPivotLinkCommand;
+    public final RetrackPivotLinkCommand m_retractPivotLinkCommand;
+    public final AutoClimberCommand m_AutoClimberCommand;
 
     private boolean _lastTriggerL = false;
     private boolean _lastTriggerR = false;
-
+  
     public CommandClimber(Climber climber, XboxController controller) {
         m_climber = climber;
         m_controller = controller;
 
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(climber);
+        m_extendClimberCommand = new ExtendClimberCommand(climber);
+        m_retractClimberCommand = new RetrackClimberCommand(climber);
+        m_resetClimberCommand = new ResetClimberCommand(climber);
+        m_extendPivotLinkCommand = new ExtendPivotLinkCommand(climber);
+        m_retractPivotLinkCommand = new RetrackPivotLinkCommand(climber);
+        m_AutoClimberCommand = new AutoClimberCommand(climber);
     }
 
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
         _lastTriggerL = _lastTriggerR = false;
+
+        JoystickButton a_Button = new JoystickButton(m_controller, 1);
+        JoystickButton b_Button = new JoystickButton(m_controller, 2);
+        JoystickButton x_Button = new JoystickButton(m_controller, 3);
+        JoystickButton y_Button = new JoystickButton(m_controller, 4);
+        JoystickButton left_Bumper = new JoystickButton(m_controller, 5);
+        //JoystickButton right_Bumper = new JoystickButton(m_controller, 6);
+        JoystickButton back_Button = new JoystickButton(m_controller, 7);
+        JoystickButton start_Button = new JoystickButton(m_controller, 8);
+        //JoystickButton left_Stick = new JoystickButton(m_controller, 9);
+        //JoystickButton right_Stick = new JoystickButton(m_controller, 10);
+
+        a_Button.whenPressed(m_extendClimberCommand);
+        b_Button.whenPressed(m_retractClimberCommand);
+    
+        x_Button.whenPressed(m_extendPivotLinkCommand);
+        y_Button.whenPressed(m_retractPivotLinkCommand);
+    
+        start_Button.whenPressed(m_resetClimberCommand);
+        left_Bumper.whenPressed(m_AutoClimberCommand);
+    
+        back_Button.whenPressed(() -> m_climber.tripRevLimitSwitches_test(true))
+                            .whenReleased(() -> m_climber.tripRevLimitSwitches_test(false));
     }
 
     // Called repeatedly when this Command is scheduled to run
