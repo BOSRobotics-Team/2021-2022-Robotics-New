@@ -82,8 +82,8 @@ public class CommandClimber extends CommandBase {
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
-        m_climber.setClimber(m_controller.getLeftY());
-        m_climber.setPivotLink(m_controller.getRightY());
+        m_climber.setClimber(m_controller.getLeftY() * 0.5);
+        m_climber.setPivotLink(m_controller.getRightY()* 0.5);
 
         double triggerL = m_controller.getLeftTriggerAxis();
         if ((triggerL >= 0.5) && !_lastTriggerL) { 
