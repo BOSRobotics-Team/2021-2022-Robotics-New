@@ -20,12 +20,12 @@ public class IntakeOffCommand extends CommandBase {
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
+        m_intake.stopIntake();
     }
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
-        m_intake.runIntake(0);
     }
 
     // Called once after isFinished returns true
@@ -36,7 +36,7 @@ public class IntakeOffCommand extends CommandBase {
     // Make this return true when this Command no longer needs to run execute()
     @Override
     public boolean isFinished() {
-        return false;
+        return true;
     }
 
 }

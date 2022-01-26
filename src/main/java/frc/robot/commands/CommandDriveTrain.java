@@ -73,14 +73,14 @@ public class CommandDriveTrain extends CommandBase {
     @Override
     public void execute() {
         double triggerL = m_controller.getLeftTriggerAxis();
-        if ((triggerL >= 0.5) && !_lastTriggerL) { 
+        if ((triggerL > 0.5) && !_lastTriggerL) { 
             _scaling = Math.min(_scaling + 0.1, 1.0);
             m_driveTrain.setDriveScaling(_scaling);
         }
         _lastTriggerL = (triggerL > 0.5);
 
         double triggerR = m_controller.getRightTriggerAxis();
-        if ((triggerR >= 0.5) && !_lastTriggerR)
+        if ((triggerR > 0.5) && !_lastTriggerR)
         {
             _scaling = Math.max(_scaling - 0.1, 0.1);
             m_driveTrain.setDriveScaling(_scaling);

@@ -4,29 +4,24 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.*;
 
-import edu.wpi.first.wpilibj.Preferences;
-import edu.wpi.first.wpilibj2.command.CommandBase;
-
-public class ExtendClimberCommand extends CommandBase {
+public class ResetIntakeLiftCommand extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-    private final Climber m_climber;
+    private final Intake m_intake;
 
-    public ExtendClimberCommand(Climber climber) {
-        m_climber = climber;
+    public ResetIntakeLiftCommand(Intake intake) {
+        m_intake = intake;
 
-        addRequirements(m_climber);
-        Preferences.initDouble("ClimberHeight1", 1.5);
+        addRequirements(m_intake);
     }
 
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
-        double height = Preferences.getDouble("ClimberHeight1", 1.5);
-
-        m_climber.runClimber(height);
-        System.out.println("extendClimber - height = " + height);
+        m_intake.resetLift();
+        System.out.println("reset Intakelift");
     }
 
     // Called repeatedly when this Command is scheduled to run
@@ -37,16 +32,16 @@ public class ExtendClimberCommand extends CommandBase {
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
-        // m_hook.runClimber(0);
     }
 
     // Make this return true when this Command no longer needs to run execute()
     @Override
     public boolean isFinished() {
-        if (!m_climber.isClimbing()) {
-            System.out.println("extendClimber - isFinished");
+        if (!m_intake.isResetting()) {
+            System.out.println("Intakelift - isFinished");
             return true;
         }
         return false;
     }
+
 }

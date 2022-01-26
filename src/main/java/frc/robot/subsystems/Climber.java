@@ -85,10 +85,6 @@ public class Climber extends SubsystemBase {
             if (Math.abs(_climberController.getPosition() - _targetHeight) < 0.01) {
                 _isClimbing = false;
                 System.out.println("isClimbing - done");
-
-                if (_targetPivot > 0.0) {
-                    runPivotLink(_targetPivot);
-                }
             } else if (isClimberFwdLimitSwitchClosed()) {
                 _isClimbing = false;
                 System.out.println("isClimbing - limit exceeded");

@@ -19,8 +19,8 @@ public class CommandClimber extends CommandBase {
     public final JoystickButton x_Button;
     public final JoystickButton y_Button;
     public final JoystickButton left_Bumper;
-    public final JoystickButton right_Bumper;
-    // public final JoystickButton back_Button;
+    // public final JoystickButton right_Bumper;
+    public final JoystickButton back_Button;
     public final JoystickButton start_Button;
     // public final JoystickButton left_Stick;
     // public final JoystickButton right_Stick;
@@ -47,8 +47,9 @@ public class CommandClimber extends CommandBase {
         x_Button = new JoystickButton(m_controller, 3);
         y_Button = new JoystickButton(m_controller, 4);
         left_Bumper = new JoystickButton(m_controller, 5);
-        right_Bumper = new JoystickButton(m_controller, 6);
-        // back_Button = new JoystickButton(m_controller, 7);
+        // right_Bumper = new JoystickButton(m_controller, 6);
+
+        back_Button = new JoystickButton(m_controller, 7);
         start_Button = new JoystickButton(m_controller, 8);
         // left_Stick = new JoystickButton(m_controller, 9);
         // right_Stick = new JoystickButton(m_controller, 10);
@@ -72,10 +73,10 @@ public class CommandClimber extends CommandBase {
         x_Button.whenPressed(m_extendPivotLinkCommand);
         y_Button.whenPressed(m_retractPivotLinkCommand);
     
-        start_Button.whenPressed(m_resetClimberCommand);
         left_Bumper.whenPressed(m_AutoClimberCommand);
-    
-        right_Bumper.whenPressed(() -> m_climber.tripRevLimitSwitches_test(true))
+
+        start_Button.whenPressed(m_resetClimberCommand);    
+        back_Button.whenPressed(() -> m_climber.tripRevLimitSwitches_test(true))
                             .whenReleased(() -> m_climber.tripRevLimitSwitches_test(false));
     }
 
@@ -83,15 +84,15 @@ public class CommandClimber extends CommandBase {
     @Override
     public void execute() {
         m_climber.setClimber(m_controller.getLeftY() * 0.5);
-        m_climber.setPivotLink(m_controller.getRightY()* 0.5);
+        m_climber.setPivotLink(m_controller.getRightY() * 0.5);
 
         double triggerL = m_controller.getLeftTriggerAxis();
-        if ((triggerL >= 0.5) && !_lastTriggerL) { 
+        if ((triggerL > 0.5) && !_lastTriggerL) { 
         }
         _lastTriggerL = (triggerL > 0.5);
 
         double triggerR = m_controller.getRightTriggerAxis();
-        if ((triggerR >= 0.5) && !_lastTriggerR) {
+        if ((triggerR > 0.5) && !_lastTriggerR) {
         }
         _lastTriggerR = (triggerR > 0.5);
 
