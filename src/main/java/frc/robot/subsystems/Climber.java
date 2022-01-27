@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import frc.robot.Gains;
+import frc.robot.GearRatios;
 import frc.robot.wrappers.SmartMotor;
 
 import com.ctre.phoenix.motorcontrol.*;
@@ -29,25 +30,32 @@ public class Climber extends SubsystemBase {
     //private double _climberFeedFwd = 0.1;
     private double kResetClimberSpeed = -0.2;
 
-    public static final Gains kGains_Climber = new Gains( 0.1, 0.0, 0.0, 0.0, 100, 0.80 );
-	public static final Gains kGains_PivotLink = new Gains( 0.1, 0.0, 0.0, 0.0, 100, 0.80 );
+    private final GearRatios kGearRatio_Climber;
+	private final GearRatios kGearRatio_PivotLink;
+
+    public final Gains kGains_Climber = new Gains( 0.1, 0.0, 0.0, 0.0, 100, 0.80 );
+	public final Gains kGains_PivotLink = new Gains( 0.1, 0.0, 0.0, 0.0, 100, 0.80 );
     
     public Climber() {
         Preferences.initDouble("ClimberGearRatio", 12.0);
         Preferences.initDouble("ClimberWheelRadius", 1.0);
+        Preferences.initDouble("ClimberPulleyRatio", 1.0);
         Preferences.initDouble("PivotLinkGearRatio", 20.0);
         Preferences.initDouble("PivotLinkWheelRadius", 1.0);
+        Preferences.initDouble("PivotLinkPulleyRatio", 1.0);
         Preferences.initDouble("ClimberFeedFwd", 0.5);
 
-        double climberGearRatio = Preferences.getDouble("ClimberGearRatio", 12.0);
-        double climberWheelRadius = Preferences.getDouble("ClimberWheelRadius", 1.0);
-        double pivotArmGearRatio = Preferences.getDouble("PivotLinkGearRatio", 20.0);
-        double pivotArmWheelRadius = Preferences.getDouble("PivotLinkWheelRadius", 1.0);
+        kGearRatio_Climber = new GearRatios(Preferences.getDouble("ClimberGearRatio", 12.0), 
+                                            Preferences.getDouble("ClimberWheelRadius", 1.0), 
+                                            Preferences.getDouble("ClimberPulleyRatio", 1.0));
+        kGearRatio_PivotLink = new GearRatios(Preferences.getDouble("PivotLinkGearRatio", 20.0), 
+                                              Preferences.getDouble("PivotLinkWheelRadius", 1.0), 
+                                              Preferences.getDouble("PivotLinkPulleyRatio", 1.0));
+        System.out.println("_climberController - ratios = " + kGearRatio_Climber);
 
         //_climberFeedFwd = Preferences.getDouble("ClimberFeedFwd", 0.1);
-        System.out.println("_climberController - ratios = " + climberGearRatio + "  radius = " + climberWheelRadius);
 
-        _climberController.configureRatios(climberGearRatio, climberWheelRadius);
+        _climberController.configureRatios(kGearRatio_Climber);
         _climberController.setName("Climber");
         _climberController.enableBrakes(true);
         _climberController.setDistanceConfigs(kGains_Climber);
@@ -55,7 +63,7 @@ public class Climber extends SubsystemBase {
         _climberController.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
         _climberController.resetPosition();
 
-        _leftPivotLinkController.configureRatios(pivotArmGearRatio, pivotArmWheelRadius);
+        _leftPivotLinkController.configureRatios(kGearRatio_PivotLink);
         _leftPivotLinkController.setName("LeftPivotLink");
         _leftPivotLinkController.enableBrakes(true);
         _leftPivotLinkController.setDistanceConfigs(kGains_PivotLink);

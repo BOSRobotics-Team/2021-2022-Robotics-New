@@ -4,10 +4,10 @@
 
 package frc.robot.subsystems;
 
+import frc.robot.*;
+import frc.robot.wrappers.*;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Convertor;
-import frc.robot.Gains;
-import frc.robot.wrappers.SmartMotor;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -27,8 +27,6 @@ public class Intake extends SubsystemBase {
     private boolean _isRevLimitSwitchTest = false;
     private double _targetPos = 0;
     private double kResetLiftSpeed = -0.2;
-    private double kLiftGearRatio = 12.0;
-    private double kLiftWheelRadius = 1.0;
 
     private boolean _isIntake = false;
     private double _targetVel = 0.0;
@@ -36,17 +34,39 @@ public class Intake extends SubsystemBase {
     private final int kSlotLift = 0;
     private final int kTimeoutMs = SmartMotor.kTimeoutMs;
     private final int kPIDLoopIdx = SmartMotor.PID_PRIMARY;
-    private final Convertor _liftConvertor = new Convertor(4096, kLiftGearRatio, kLiftWheelRadius);
+
+    private final Convertor _intakeConvertor = new Convertor(4096);
+    private final Convertor _liftConvertor = new Convertor(4096);
+    private final GearRatios kGearRatio_Lift;
+    private final GearRatios kGearRatio_Intake;
 
 	public static final Gains kDefaultGains_Velocity = new Gains( 0.1, 0.0, 20.0, 1023.0/6800.0,  300,  0.50 );
     public static final Gains kDefaultGains_Distanc = new Gains( 0.1, 0.0, 0.0, 0.0, 100, 0.80 );
 
     public Intake() {
-        this.configController(_intakeController, kDefaultGains_Velocity);
-        _intakeController.setNeutralMode(NeutralMode.Coast);
-        
+        Preferences.initDouble("LiftGearRatio", 12.0);
+        Preferences.initDouble("LiftWheelRadius", 1.0);
+        Preferences.initDouble("LiftPulleyRatio", 1.0);
+        Preferences.initDouble("IntakeGearRatio", 12.0);
+        Preferences.initDouble("IntakeWheelRadius", 1.0);
+        Preferences.initDouble("IntakePulleyRatio", 1.0);
+
+        kGearRatio_Lift = new GearRatios(Preferences.getDouble("LiftGearRatio", 12.0), 
+                                            Preferences.getDouble("LiftWheelRadius", 1.0), 
+                                            Preferences.getDouble("LiftPulleyRatio", 1.0));
+        kGearRatio_Intake = new GearRatios(Preferences.getDouble("IntakeGearRatio", 12.0), 
+                                            Preferences.getDouble("IntakeWheelRadius", 1.0), 
+                                            Preferences.getDouble("IntakePulleyRatio", 1.0));
+        System.out.println("_liftController - ratios = " + kGearRatio_Lift);
+        System.out.println("_intakeController - ratios = " + kGearRatio_Intake);
+
         this.configController(_liftController, kDefaultGains_Distanc);
         _liftController.setNeutralMode(NeutralMode.Brake);
+        _liftConvertor.setRatios(kGearRatio_Lift);
+ 
+        this.configController(_intakeController, kDefaultGains_Velocity);
+        _intakeController.setNeutralMode(NeutralMode.Coast);
+        _intakeConvertor.setRatios(kGearRatio_Intake);       
     }
 
     public void configController(WPI_TalonSRX _controller, Gains gain) {

@@ -1,8 +1,6 @@
 package frc.robot.wrappers;
 
-import frc.robot.Constants;
-import frc.robot.Convertor;
-import frc.robot.Gains;
+import frc.robot.*;
 
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.*;
@@ -32,10 +30,9 @@ public class SmartMotor extends WPI_TalonFX {
 	public static final int kSlot_MotProf = SLOT_3;
     
     public static final int kTimeoutMs = 30;
-    public static final int kSensorUnitsPerRotation = 2048;
-    public static final double kGearRatio = Constants.kGearRatio;
-    public static final double kWheelRadiusInches = Constants.kWheelRadiusInches;
     public static final double kNeutralDeadband = 0.001;
+    public static final int kSensorUnitsPerRotation = 2048;
+    public static final GearRatios kDefaultGearRatio = new GearRatios(Constants.kGearRatio, Constants.kWheelRadiusInches, 1.0);
 	public static final Gains kDefaultGains_Distanc = new Gains( 0.1, 0.0, 0.0, 0.0, 100, 0.80 );
 
     /**
@@ -52,7 +49,7 @@ public class SmartMotor extends WPI_TalonFX {
 	public static final double kTurnTravelUnitsPerRotation = 3600.0;
     public static final double kFeedbackCoefficient = kTurnTravelUnitsPerRotation / kEncoderUnitsPerRotation;
     
-    final private Convertor convertor = new Convertor(kSensorUnitsPerRotation, kGearRatio, kWheelRadiusInches);
+    final private Convertor convertor = new Convertor(kSensorUnitsPerRotation);
 
     private TalonFXConfiguration talonConfig = new TalonFXConfiguration();
     private SimpleMotorFeedforward feedForwardCalculator = new SimpleMotorFeedforward(0, 0, 0);
@@ -108,10 +105,12 @@ public class SmartMotor extends WPI_TalonFX {
    		/* Set acceleration and vcruise velocity - see documentation */
         this.configMotionCruiseVelocity(15000, kTimeoutMs);
         this.configMotionAcceleration(6000, kTimeoutMs);
+
+        convertor.setRatios(kDefaultGearRatio);
     }
    
-    public void configureRatios( double gearRatio, double wheelRadius ) {
-        convertor.setRatios(gearRatio, wheelRadius);
+    public void configureRatios( GearRatios gearRatio ) {
+        convertor.setRatios(gearRatio);
     }
 
     public void setClosedLoopGains(int slot, Gains gain ) {
@@ -202,7 +201,7 @@ public class SmartMotor extends WPI_TalonFX {
 		/* Check if we're inverted */
 		if (this.getInverted()) {
 			talonConfig.sum0Term = TalonFXFeedbackDevice.IntegratedSensor.toFeedbackDevice(); //Local Integrated Sensor
-			talonConfig.sum1Term = TalonFXFeedbackDevice.RemoteSensor0.toFeedbackDevice();   //Aux Selected Sensor
+			talonConfig.sum1Term = TalonFXFeedbackDevice.RemoteSensor1.toFeedbackDevice();   //Aux Selected Sensor
 			talonConfig.auxiliaryPID.selectedFeedbackSensor = TalonFXFeedbackDevice.SensorSum.toFeedbackDevice(); //Sum0 + Sum1
 			talonConfig.auxPIDPolarity = true;
 		} else {
