@@ -36,6 +36,7 @@ public class RobotContainer {
   public final DriveTrain driveTrain = new DriveTrain();
   public final Intake intake = new Intake();
   public final Climber climber = new Climber();
+  public final Lights lights = new Lights();
 
   // public final UnjamIntakeCommand m_unJamIntakeCommand = new UnjamIntakeCommand(intake);
   // public final IntakeOnCommand m_intakeOnCommand = new IntakeOnCommand(intake);
@@ -85,6 +86,7 @@ public class RobotContainer {
   public final CommandDriveTrain m_cmdDriveTrainCommand = new CommandDriveTrain(driveTrain, driverController);
   public final CommandClimber m_cmdClimberCommand = new CommandClimber(climber, operatorController);
   public final CommandIntake m_cmdIntakeCommand = new CommandIntake(intake, operatorController);
+  public final CommandLights m_cmdLightsCommand = new CommandLights(lights, operatorController);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -94,6 +96,7 @@ public class RobotContainer {
     driveTrain.setDefaultCommand(m_cmdDriveTrainCommand);
     climber.setDefaultCommand(m_cmdClimberCommand);
     intake.setDefaultCommand(m_cmdIntakeCommand);
+    lights.setDefaultCommand(m_cmdLightsCommand);
     
     // Add commands to Autonomous Sendable Chooser
     chooser.setDefaultOption("Autonomous Command", m_autoCommand);

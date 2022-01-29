@@ -4,11 +4,12 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.DriveTrain.DriveMode;
+
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 public class CommandDriveTrain extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
@@ -26,7 +27,7 @@ public class CommandDriveTrain extends CommandBase {
     public final JoystickButton left_Stick;
     public final JoystickButton right_Stick;
 
-    private double _scaling = 0.5;
+    private double _scaling = 0.2;
 
     private boolean _lastTriggerL = false;
     private boolean _lastTriggerR = false;
@@ -61,7 +62,7 @@ public class CommandDriveTrain extends CommandBase {
 
         m_driveTrain.setDriveMode(DriveMode.ARCADE);
         m_driveTrain.setUseSquares(true);
-        m_driveTrain.setUseDriveScaling(false);
+        m_driveTrain.setUseDriveScaling(true);
         m_driveTrain.setDriveScaling(_scaling);
         m_driveTrain.enableBrakes(true);
         m_driveTrain.enableDriveTrain(true);
@@ -88,7 +89,6 @@ public class CommandDriveTrain extends CommandBase {
         _lastTriggerR = (triggerR > 0.5);
 
         m_driveTrain.drive(m_controller);
-
         m_driveTrain.logPeriodic();
     }
 

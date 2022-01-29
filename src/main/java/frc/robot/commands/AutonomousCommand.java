@@ -4,10 +4,11 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.*;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class AutonomousCommand extends CommandBase {
 @SuppressWarnings({ "PMD.UnusedPrivateField", "PMD.SingularField" })
@@ -40,8 +41,8 @@ public class AutonomousCommand extends CommandBase {
 		
 		SmartDashboard.putNumber("Smoothing", _smoothing);
 
-        _targetAngle = _driveTrain.rightMaster.getSelectedSensorPosition(1);
-        _lockedDistance = _driveTrain.rightMaster.getSelectedSensorPosition(0);
+        _targetAngle = _driveTrain.getRightAuxPos();
+        _lockedDistance = _driveTrain.getRightPos();
    
         System.out.println("_lockedDistance = " + _lockedDistance + " _targetAngle = " + _targetAngle);
     }
