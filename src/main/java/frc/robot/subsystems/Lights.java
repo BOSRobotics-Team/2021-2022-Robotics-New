@@ -30,7 +30,7 @@ public class Lights extends SubsystemBase {
     }
     private AnimationTypes m_currentAnimation;
     private Animation m_toAnimate = null;
-    private final int LedCount = 8;
+    private final int LedCount = 128;
 
     public Lights() {
         changeAnimation(AnimationTypes.SetAll);
@@ -145,7 +145,7 @@ public class Lights extends SubsystemBase {
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
     public void runLights(int red, int green, int blue) {
-        m_candle.setLEDs(red, green, blue); 
+        m_candle.setLEDs(red, green, blue, 255, 1, 107); 
         // System.out.println("runLights - red:" + red + " green:" + green + " blue:" + blue);
     }
     public void setOnboardLights(int red, int green, int blue) {

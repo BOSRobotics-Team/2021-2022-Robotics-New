@@ -20,6 +20,8 @@ public class CommandLights extends CommandBase {
 
     private final LEDIncAnimationCommand _incAnimationCommand;
     private final LEDDecAnimationCommand _decAnimationCommand;
+    private final LEDStripOnCommand _stripOnCommand;
+    private final LEDOnboardOnCommand _onboardOnCommand;
 
     // private boolean _lastTriggerL = false;
     // private boolean _lastTriggerR = false;
@@ -36,6 +38,8 @@ public class CommandLights extends CommandBase {
 
         _incAnimationCommand = new LEDIncAnimationCommand(lights);
         _decAnimationCommand = new LEDDecAnimationCommand(lights);
+        _stripOnCommand = new LEDStripOnCommand(lights);
+        _onboardOnCommand = new LEDOnboardOnCommand(lights);
     }
 
     // Called just before this Command runs the first time
@@ -44,7 +48,7 @@ public class CommandLights extends CommandBase {
         // _lastTriggerL = _lastTriggerR = false;
 
         left_Stick.whenPressed(_incAnimationCommand);
-        right_Stick.whenPressed(_decAnimationCommand);
+        right_Stick.whenPressed(_onboardOnCommand);
     }
 
     // Called repeatedly when this Command is scheduled to run

@@ -10,9 +10,9 @@ public class SmartMotorHelper {
     public static final int kAux = 1;
     
 	/** ---- Flat constants, you should not need to change these ---- */
-    public static final int kTalonNone = -1;
-    public static final int kTalonSRX = 0;
-    public static final int kTalonFX = 1;
+    public static final int kTalonNone = 0;
+    public static final int kTalonSRX = 1;
+    public static final int kTalonFX = 2;
 
 	/* We allow either a 0 or 1 when selecting an ordinal for remote devices [You can have up to 2 devices assigned remotely to a talon/victor] */
 	public static final int REMOTE_0 = 0;
@@ -34,7 +34,7 @@ public class SmartMotorHelper {
     public static final int kTimeoutMs = 30;
     public static final double kNeutralDeadband = 0.001;
 
-    public static final int kSensorUnitsPerRotation[] = { 4096, 2048 };
+    public static final int kSensorUnitsPerRotation[] = { 4096, 4096, 2048 };
     public static final FeedbackDevice kDefaultFeedbackDevice[] = { FeedbackDevice.CTRE_MagEncoder_Relative, FeedbackDevice.IntegratedSensor };
 
     public static final GearRatios kDefaultGearRatio = new GearRatios(Constants.kGearRatio, Constants.kWheelRadiusInches, 1.0);
@@ -75,6 +75,8 @@ public class SmartMotorHelper {
     public SmartMotorHelper( final BaseTalon talon, final InvertType invert, final BaseTalon auxTalon, final InvertType auxInvert ) {
         _controller = talon;
         _auxController = auxTalon;
+
+        System.out.println("SMARTMOTORHELPER: " + talon.getClass().getSimpleName() + " : " + _controller.getClass().getSimpleName());
 
         if (_controller.getClass().getSimpleName() == "WPI_TalonFX")
             _controllerType = kTalonFX;
