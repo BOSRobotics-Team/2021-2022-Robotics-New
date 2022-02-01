@@ -4,9 +4,6 @@
 
 package frc.robot.subsystems;
 
-import frc.robot.*;
-import frc.robot.wrappers.*;
-
 import com.ctre.phoenix.led.*;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.CANdle.VBatOutputMode;
@@ -33,7 +30,7 @@ public class Lights extends SubsystemBase {
     }
     private AnimationTypes m_currentAnimation;
     private Animation m_toAnimate = null;
-    private final int LedCount = 300;
+    private final int LedCount = 8;
 
     public Lights() {
         changeAnimation(AnimationTypes.SetAll);
@@ -42,7 +39,7 @@ public class Lights extends SubsystemBase {
         configAll.statusLedOffWhenActive = true;
         configAll.disableWhenLOS = false;
         configAll.stripType = LEDStripType.GRB;
-        configAll.brightnessScalar = 0.1;
+        configAll.brightnessScalar = 0.5;
         configAll.vBatOutputMode = VBatOutputMode.Modulated;
         m_candle.configAllSettings(configAll, 100);
     }
@@ -131,6 +128,9 @@ public class Lights extends SubsystemBase {
     @Override
     public void periodic() {
         // Put code here to be run every loop
+        if (isAnimating()) {
+            m_candle.animate(m_toAnimate);
+        }
     }
 
     @Override
@@ -145,14 +145,19 @@ public class Lights extends SubsystemBase {
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
     public void runLights(int red, int green, int blue) {
- 
         m_candle.setLEDs(red, green, blue); 
         // System.out.println("runLights - red:" + red + " green:" + green + " blue:" + blue);
     }
-    public void runAnimation() {
-        if (m_toAnimate != null) {
-            m_candle.animate(m_toAnimate);
-        }
+    public void setOnboardLights(int red, int green, int blue) {
+        m_candle.setLEDs(red, green, blue, 255, 0, 8); 
+        // System.out.println("runLights - red:" + red + " green:" + green + " blue:" + blue);
+    }
+    public void setStripLights(int red, int green, int blue) {
+        m_candle.setLEDs(red, green, blue, 255, 8, LedCount - 8); 
+        // System.out.println("runLights - red:" + red + " green:" + green + " blue:" + blue);
+    }
+    public boolean isAnimating() {
+        return m_toAnimate != null;
     }
 }
 

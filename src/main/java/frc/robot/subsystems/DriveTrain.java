@@ -35,8 +35,7 @@ public class DriveTrain extends SubsystemBase {
     private final WPI_TalonSRX rightFollower = new WPI_TalonSRX(3);
     private final WPI_TalonSRX leftFollower = new WPI_TalonSRX(2);
 
-    public final SmartMotorHelper rightController = new SmartMotorHelper(rightMaster, InvertType.None);
-    public final SmartMotorHelper leftController = new SmartMotorHelper(leftMaster, InvertType.InvertMotorOutput);
+    public final SmartMotorHelper smartController;
 
     /** The NavX gyro */
     private final DriveGyro gyro = new DriveGyro(false);
@@ -51,7 +50,7 @@ public class DriveTrain extends SubsystemBase {
     private final Field2d m_field = new Field2d();
 
 //    private boolean voltageCompEnabled = false;
-    private Double maxSpeed;
+    // private Double maxSpeed;
 
     private DriveMode m_DriveMode = DriveMode.ARCADE;
     private boolean m_UseSquares = true;
@@ -63,6 +62,8 @@ public class DriveTrain extends SubsystemBase {
     private double _lastRSmoothing = 0.0;
 
     public DriveTrain() {    
+
+        smartController = new SmartMotorHelper(rightMaster, InvertType.None, leftMaster, InvertType.InvertMotorOutput);
 
         leftFollower.configFactoryDefault();
         leftFollower.follow(leftMaster);
@@ -85,12 +86,12 @@ public class DriveTrain extends SubsystemBase {
 
     public void configForPID() {
         resetPosition();
-        rightController.setDistanceConfigs(Constants.kGains_Distanc, leftMaster);        
+        smartController.setDistanceConfigs(Constants.kGains_Distanc);        
     }
 
     public void configForPID2() {
         resetPosition();
-        rightController.setDistanceAndTurnConfigs(Constants.kGains_Distanc, Constants.kGains_Turning, leftMaster);        
+        smartController.setDistanceAndTurnConfigs(Constants.kGains_Distanc, Constants.kGains_Turning);        
     }
 
     public void configMotionSCurveStrength(int smoothing) {
@@ -101,8 +102,7 @@ public class DriveTrain extends SubsystemBase {
 
     public void setTarget(double distance) {
 //        leftMaster.setTarget(distance);
-		rightController.setTarget(distance);
-		leftMaster.follow(rightMaster);
+		smartController.setTarget(distance);
         differentialDrive.feed(); 
 		logPeriodic();
 
@@ -111,8 +111,7 @@ public class DriveTrain extends SubsystemBase {
 
     public void setTarget2(double distance, double angle) {
 		/* Configured for MotionMagic on Integrated Sensors' Sum and Auxiliary PID on Integrated Sensors' Difference */
-		rightController.setTarget(distance, angle);
-		leftMaster.follow(rightMaster, FollowerType.AuxOutput1);
+		smartController.setTarget(distance, angle);
         differentialDrive.feed(); 
 		logPeriodic();
 
@@ -137,81 +136,40 @@ public class DriveTrain extends SubsystemBase {
     }
     
     /**
-     * Set the output of each side of the drive.
-     *
-     * @param left The output for the left side of the drive, from [-1, 1]
-     * @param right the output for the right side of the drive, from [-1, 1]
-     */
-    public void setVelocity(double leftVelocity, double rightVelocity) {
-        // scale by the max speed
-        if (maxSpeed != null) {
-            leftController.setVelocityUPS(leftVelocity * maxSpeed);
-            rightController.setVelocityUPS(rightVelocity * maxSpeed);
-        } else {
-            leftMaster.set(ControlMode.PercentOutput, leftVelocity);
-            rightMaster.set(ControlMode.PercentOutput, rightVelocity);
-        }
-    }
-
-    /**
      * Get the velocity of the left side of the drive.
      * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
      */
-    public Double getLeftVel() { return leftController.getVelocity(leftMaster); }
+    public Double getLeftVel() { return leftMaster.getSelectedSensorVelocity(0); }
 
     /**
      * Get the velocity of the right side of the drive.
      * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
      */
-    public Double getRightVel() { return rightController.getVelocity(rightMaster); }
+    public Double getRightVel() { return rightMaster.getSelectedSensorVelocity(0); }
 
     /**
      * Get the position of the left side of the drive.
      * @return The signed position in feet, or null if the drive doesn't have encoders.
      */
-    public Double getLeftPos() { return leftController.getPosition(leftMaster); }
+    public Double getLeftPos() { return leftMaster.getSelectedSensorPosition(0); }
 
     /**
      * Get the position of the right side of the drive.
      * @return The signed position in feet, or null if the drive doesn't have encoders.
      */
-    public Double getRightPos() { return rightController.getPosition(rightMaster); }
+    public Double getRightPos() { return rightMaster.getSelectedSensorPosition(0); }
 
     /**
      * Get the position of the left side of the drive.
      * @return The signed position in feet, or null if the drive doesn't have encoders.
      */
-    public Double getLeftAuxPos() { return leftController.getAuxPosition(leftMaster); }
+    public Double getLeftAuxPos() { return leftMaster.getSelectedSensorVelocity(1); }
 
     /**
      * Get the position of the right side of the drive.
      * @return The signed position in feet, or null if the drive doesn't have encoders.
      */
-    public Double getRightAuxPos() { return rightController.getAuxPosition(rightMaster); }
-
-    /**
-     * Get the cached velocity of the left side of the drive.
-     * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
-     */
-    public Double getLeftVelCached() { return leftController.getVelocityCached(); }
-
-    /**
-     * Get the cached velocity of the right side of the drive.
-     * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
-     */
-    public Double getRightVelCached() { return rightController.getVelocityCached(); }
-
-    /**
-     * Get the cached position of the left side of the drive.
-     * @return The signed position in feet, or null if the drive doesn't have encoders.
-     */
-    public Double getLeftPosCached() { return leftController.getPositionCached(); }
-
-    /**
-     * Get the cached position of the right side of the drive.
-     * @return The signed position in feet, or null if the drive doesn't have encoders.
-     */
-    public Double getRightPosCached() { return rightController.getVelocityCached(); }
+    public Double getRightAuxPos() { return rightMaster.getSelectedSensorVelocity(1); }
     
     /** Completely stop the robot by setting the voltage to each side to be 0. */
     public void fullStop() {
@@ -238,7 +196,6 @@ public class DriveTrain extends SubsystemBase {
     
         m_field.setRobotPose(driveOdometry.getPoseMeters());
         SmartDashboard.putString("Heading", driveOdometry.getPoseMeters().getRotation().toString());
-
     }
 
     /** @return Current estimated pose based on odometry tracker data */
@@ -270,17 +227,7 @@ public class DriveTrain extends SubsystemBase {
      * @param pos the position to stop at
      */
     public void holdPosition(final double pos) {
-        holdPosition(pos, pos);
-    }
-
-    /**
-     * Hold the current position.
-     * @param leftPos the position to stop the left side at
-     * @param rightPos the position to stop the right side at
-     */
-    public void holdPosition(final double leftPos, final double rightPos) {
-        leftController.setSetpoint(leftPos);
-        rightController.setSetpoint(rightPos);
+        smartController.setSetpoint(pos);
     }
 
     public void setPercentVoltage(double leftPctVolts, double rightPctVolts) {
@@ -290,16 +237,13 @@ public class DriveTrain extends SubsystemBase {
 
     /** Resets the position of the Talon to 0. */
     public void resetPosition() {
-        leftController.resetPosition(leftMaster);
-        rightController.resetPosition(rightMaster);
+        smartController.resetPosition();
     }
            
     public void logPeriodic() {
        // This method will be called once per scheduler run
        updateOdometry();
-
-       leftController.update(leftMaster);
-       rightController.update(rightMaster);
+       smartController.update();
 
        /* Instrumentation */
 //       Instrumentation.ProcessGyro(gyro);
@@ -308,7 +252,7 @@ public class DriveTrain extends SubsystemBase {
 
        gyro.logPeriodic();
     //    leftController.logPeriodic(leftMaster);
-    //    rightController.logPeriodic(rightMaster);
+    //    smartController.logPeriodic(rightMaster);
 
         SmartDashboard.putData("Field2d", m_field);
     }
@@ -325,12 +269,7 @@ public class DriveTrain extends SubsystemBase {
     }
 
     public void enableBrakes(boolean enabled) {
-        leftController.enableBrakes(enabled);
-        rightController.enableBrakes(enabled);
-    }
-
-    public double getAverageEncoderDistance() {
-        return (leftController.getPosition(leftMaster) + rightController.getPosition(rightMaster)) / 2.0;
+        smartController.enableBrakes(enabled);
     }
 
     public void zeroHeading() {
@@ -369,7 +308,7 @@ public class DriveTrain extends SubsystemBase {
         differentialDrive.curvatureDrive(speed, rotation, quickTurn);
     }
     public void driveToTarget(double meters) {
-        rightController.setTarget(meters);
+        smartController.setTarget(meters);
         leftMaster.follow(rightMaster);
     }
     public void tankDriveVolts(double leftVolts, double rightVolts) {

@@ -6,6 +6,9 @@ import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 
 public class SmartMotorHelper {
+    public static final int kMain = 0;
+    public static final int kAux = 1;
+    
 	/** ---- Flat constants, you should not need to change these ---- */
     public static final int kTalonNone = -1;
     public static final int kTalonSRX = 0;
@@ -52,12 +55,15 @@ public class SmartMotorHelper {
     public static final double kFeedbackCoefficient = kTurnTravelUnitsPerRotation / kEncoderUnitsPerRotation;
     
     private final BaseTalon _controller;
+    private final BaseTalon _auxController;
+
     private final int _controllerType;
     private final Convertor _convertor;
     private final Faults _faults = new Faults();
     private final SimpleMotorFeedforward _feedForwardCalculator = new SimpleMotorFeedforward(0, 0, 0);
 
     private FeedbackDevice _feedbackDevice = FeedbackDevice.None;
+
     private double _setpoint = 0.0;          // The most recently set setpoint.
     private double _nativeSetpoint = 0.0;    // The setpoint in native units. Field to avoid garbage collection.
 
@@ -66,121 +72,142 @@ public class SmartMotorHelper {
     private double _cachedPosition = Double.NaN;
 
 
-    public SmartMotorHelper( final BaseTalon talon, final InvertType invert ) {
+    public SmartMotorHelper( final BaseTalon talon, final InvertType invert, final BaseTalon auxTalon, final InvertType auxInvert ) {
         _controller = talon;
-        _controllerType = _controller.getClass().getSimpleName() == "WPI_TalonFX" ? kTalonFX : kTalonSRX;
+        _auxController = auxTalon;
 
-        _feedbackDevice = kDefaultFeedbackDevice[_controllerType];
+        if (_controller.getClass().getSimpleName() == "WPI_TalonFX")
+            _controllerType = kTalonFX;
+        else if (_controller.getClass().getSimpleName() == "WPI_TalonSRX")
+            _controllerType = kTalonSRX;
+        else 
+            _controllerType = kTalonNone;
+        
         _convertor = new Convertor(kSensorUnitsPerRotation[_controllerType]);
         _convertor.setRatios(kDefaultGearRatio);
         
         _controller.configFactoryDefault();
         _controller.setInverted(invert);
+        _feedbackDevice = kDefaultFeedbackDevice[_controllerType];
+
+        if (_auxController != null) {
+            _auxController.configFactoryDefault();
+            _auxController.setInverted(auxInvert);
+        }
+    }
+
+    public SmartMotorHelper( final BaseTalon talon, final InvertType invert ) {
+        _controller = talon;
+        _auxController = null;
+
+        if (_controller.getClass().getSimpleName() == "WPI_TalonFX")
+            _controllerType = kTalonFX;
+        else if (_controller.getClass().getSimpleName() == "WPI_TalonSRX")
+            _controllerType = kTalonSRX;
+        else 
+            _controllerType = kTalonNone;
+        
+        _convertor = new Convertor(kSensorUnitsPerRotation[_controllerType]);
+        _convertor.setRatios(kDefaultGearRatio);
+        
+        _controller.configFactoryDefault();
+        _controller.setInverted(invert);
+        _feedbackDevice = kDefaultFeedbackDevice[_controllerType];
     }
 
     public void initController() {
-
-        /* Configure Sensor Source for Primary PID */
-        _controller.configSelectedFeedbackSensor(_feedbackDevice, PID_PRIMARY, kTimeoutMs);
-
-        /* set deadband to super small 0.001 (0.1 %). The default deadband is 0.04 (4 %) */
-        _controller.configNeutralDeadband(kNeutralDeadband, kTimeoutMs);
-
-        //_controller.setSensorPhase(false);
-        //_controller.setInverted(invert);
-        _controller.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0); 
-        _controller.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
-
-     	/* Set relevant frame periods to be at least as fast as periodic rate */
-        _controller.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, kTimeoutMs);
-        _controller.setStatusFramePeriod(StatusFrameEnhanced.Status_10_Targets, 10, kTimeoutMs);
- 
-        /* Set the peak and nominal outputs */
-		_controller.configNominalOutputForward(0, kTimeoutMs);
-		_controller.configNominalOutputReverse(0, kTimeoutMs);
-		_controller.configPeakOutputForward(1, kTimeoutMs);
-        _controller.configPeakOutputReverse(-1, kTimeoutMs);
-        
-		/* Set Motion Magic gains in slot0 - see documentation */
-        setClosedLoopGains(kSlot_Distanc, kDefaultGains_Distanc); 
-        _controller.configMotionAcceleration(6000, kTimeoutMs);
-        _controller.configMotionCruiseVelocity(15000, kTimeoutMs);
-
-     	/* Set relevant frame periods to be at least as fast as periodic rate */
-         _controller.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, kTimeoutMs);
-         _controller.setStatusFramePeriod(StatusFrameEnhanced.Status_10_Targets, 10, kTimeoutMs);
-
-         _controller.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
+        initController(_controller);
+        if (_auxController != null)
+            initController(_auxController);
     }
 
     public void configureRatios( GearRatios gearRatio ) {
         _convertor.setRatios(gearRatio);
     }
 
-    public void setClosedLoopGains(int slot, Gains gain ) {
-		_controller.config_kP(slot, gain.kP, kTimeoutMs);
-		_controller.config_kI(slot, gain.kI, kTimeoutMs);
-		_controller.config_kD(slot, gain.kD, kTimeoutMs);
-		_controller.config_kF(slot, gain.kF, kTimeoutMs);
-		_controller.config_IntegralZone(slot, gain.kIzone, kTimeoutMs);
-		_controller.configClosedLoopPeakOutput(slot, gain.kPeakOutput);
-		_controller.configAllowableClosedloopError(slot, 0, kTimeoutMs);
-//		_controller.configMaxIntegralAccumulator(slot, gain. maxIntegral, kTimeoutMs);
+    private void initController(BaseTalon talon) {
+
+        /* Configure Sensor Source for Primary PID */
+        talon.configSelectedFeedbackSensor(_feedbackDevice, PID_PRIMARY, kTimeoutMs);
+
+        /* set deadband to super small 0.001 (0.1 %). The default deadband is 0.04 (4 %) */
+        talon.configNeutralDeadband(kNeutralDeadband, kTimeoutMs);
+
+        //_controller.setSensorPhase(false);
+        //_controller.setInverted(invert);
+        talon.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0); 
+        talon.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
+
+     	/* Set relevant frame periods to be at least as fast as periodic rate */
+         talon.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, kTimeoutMs);
+         talon.setStatusFramePeriod(StatusFrameEnhanced.Status_10_Targets, 10, kTimeoutMs);
+ 
+        /* Set the peak and nominal outputs */
+		talon.configNominalOutputForward(0, kTimeoutMs);
+		talon.configNominalOutputReverse(0, kTimeoutMs);
+		talon.configPeakOutputForward(1, kTimeoutMs);
+        talon.configPeakOutputReverse(-1, kTimeoutMs);
+        
+		/* Set Motion Magic gains in slot0 - see documentation */
+        setClosedLoopGains(talon, kSlot_Distanc, kDefaultGains_Distanc); 
+        talon.configMotionAcceleration(6000, kTimeoutMs);
+        talon.configMotionCruiseVelocity(15000, kTimeoutMs);
+
+     	/* Set relevant frame periods to be at least as fast as periodic rate */
+         talon.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, kTimeoutMs);
+         talon.setStatusFramePeriod(StatusFrameEnhanced.Status_10_Targets, 10, kTimeoutMs);
+
+         talon.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
+    }
+
+    private void setClosedLoopGains(BaseTalon talon, int slot, Gains gain ) {
+		talon.config_kP(slot, gain.kP, kTimeoutMs);
+		talon.config_kI(slot, gain.kI, kTimeoutMs);
+		talon.config_kD(slot, gain.kD, kTimeoutMs);
+		talon.config_kF(slot, gain.kF, kTimeoutMs);
+		talon.config_IntegralZone(slot, gain.kIzone, kTimeoutMs);
+		talon.configClosedLoopPeakOutput(slot, gain.kPeakOutput);
+		talon.configAllowableClosedloopError(slot, 0, kTimeoutMs);
+//		talon.configMaxIntegralAccumulator(slot, gain. maxIntegral, kTimeoutMs);
 
 //      Set acceleration and vcruise velocity - see documentation
-        _controller.configClosedLoopPeriod(slot, 1);
+        talon.configClosedLoopPeriod(slot, 1);
     }
 	
     public void setDistanceConfigs(Gains gains) {
-        setClosedLoopGains(kSlot_Distanc, gains);
-
-        _controller.configMotionAcceleration(6000, kTimeoutMs);
-        _controller.configMotionCruiseVelocity(15000, kTimeoutMs);
+        setClosedLoopGains(_controller, kSlot_Distanc, gains);
 
      	/* Set relevant frame periods to be at least as fast as periodic rate */
         _controller.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, kTimeoutMs);
         _controller.setStatusFramePeriod(StatusFrameEnhanced.Status_10_Targets, 10, kTimeoutMs);
 
         _controller.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
-    }
 
-    public void setDistanceConfigs(Gains gains, BaseTalon auxTalon ) {    
-        _controller.configRemoteFeedbackFilter(auxTalon.getDeviceID(), 
-                                                RemoteSensorSource.TalonSRX_SelectedSensor, 
-                                                REMOTE_0);
-        /* Check if we're inverted */
-        if (_controller.getInverted()) {
-            _controller.configSensorTerm(SensorTerm.Diff0, _feedbackDevice);
-            _controller.configSensorTerm(SensorTerm.Diff1, FeedbackDevice.RemoteSensor0);
-            _controller.configSelectedFeedbackSensor(FeedbackDevice.SensorDifference, PID_PRIMARY, kTimeoutMs);
-        } else {
-            /* Master is not inverted, both sides are positive so we can sum them. */
-            _controller.configSensorTerm(SensorTerm.Sum0, FeedbackDevice.RemoteSensor0);
-            _controller.configSensorTerm(SensorTerm.Sum1, _feedbackDevice);
-            _controller.configSelectedFeedbackSensor(FeedbackDevice.SensorSum, PID_PRIMARY, kTimeoutMs);
+        if (_auxController != null) {
+            _controller.configRemoteFeedbackFilter(_auxController.getDeviceID(), 
+                                                   RemoteSensorSource.TalonSRX_SelectedSensor, 
+                                                   REMOTE_0);
+
+            /* Check if we're inverted */
+            if (_controller.getInverted()) {
+                _controller.configSensorTerm(SensorTerm.Diff0, _feedbackDevice);
+                _controller.configSensorTerm(SensorTerm.Diff1, FeedbackDevice.RemoteSensor0);
+                _controller.configSelectedFeedbackSensor(FeedbackDevice.SensorDifference, PID_PRIMARY, kTimeoutMs);
+            } else {
+                /* Master is not inverted, both sides are positive so we can sum them. */
+                _controller.configSensorTerm(SensorTerm.Sum0, FeedbackDevice.RemoteSensor0);
+                _controller.configSensorTerm(SensorTerm.Sum1, _feedbackDevice);
+                _controller.configSelectedFeedbackSensor(FeedbackDevice.SensorSum, PID_PRIMARY, kTimeoutMs);
+            }
+            _controller.configSelectedFeedbackCoefficient(0.5, PID_PRIMARY, kTimeoutMs);
+            _auxController.follow(_controller, FollowerType.PercentOutput);
         }
-        _controller.configSelectedFeedbackCoefficient(0.5, PID_PRIMARY, kTimeoutMs);
     }
-    
-    public void setDistanceAndTurnConfigs(Gains dgains, Gains gains, BaseTalon auxTalon) {
-        setDistanceConfigs(dgains, auxTalon);
 
-		/* Check if we're inverted */
-		if (_controller.getInverted()) {
-            _controller.configSensorTerm(SensorTerm.Sum0, _feedbackDevice);
-            _controller.configSensorTerm(SensorTerm.Sum1, FeedbackDevice.RemoteSensor0);
-            _controller.configSelectedFeedbackSensor(FeedbackDevice.SensorSum, PID_TURN, kTimeoutMs);
-            _controller.configAuxPIDPolarity(true, kTimeoutMs);
-        } else {
-            /* Master is not inverted, both sides are positive so we can diff them. */
-            _controller.configSensorTerm(SensorTerm.Diff0, FeedbackDevice.RemoteSensor0);
-            _controller.configSensorTerm(SensorTerm.Diff1, _feedbackDevice);
-            _controller.configSelectedFeedbackSensor(FeedbackDevice.SensorDifference, PID_TURN, kTimeoutMs);
-            _controller.configAuxPIDPolarity(true, kTimeoutMs);
-		}
-        _controller.configSelectedFeedbackCoefficient(kFeedbackCoefficient, PID_TURN, kTimeoutMs);
+    public void setDistanceAndTurnConfigs(Gains dgains, Gains tgains) {
+        setDistanceConfigs(dgains);
 
-        this.setClosedLoopGains(kSlot_Turning, gains);
+        setClosedLoopGains(_controller, kSlot_Turning, tgains);
 
 		_controller.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 5, kTimeoutMs);
 		_controller.setStatusFramePeriod(StatusFrameEnhanced.Status_12_Feedback1, 10, kTimeoutMs);
@@ -189,7 +216,26 @@ public class SmartMotorHelper {
 		_controller.setStatusFramePeriod(StatusFrameEnhanced.Status_10_Targets, 10, kTimeoutMs);
         _controller.selectProfileSlot(kSlot_Turning, PID_TURN);
 
-        auxTalon.follow(_controller, FollowerType.AuxOutput1);
+        if (_auxController != null) {
+            _controller.configRemoteFeedbackFilter(_auxController.getDeviceID(), 
+                                                   RemoteSensorSource.TalonSRX_SelectedSensor, 
+                                                   REMOTE_0);
+            /* Check if we're inverted */
+            if (_controller.getInverted()) {
+                _controller.configSensorTerm(SensorTerm.Sum0, _feedbackDevice);
+                _controller.configSensorTerm(SensorTerm.Sum1, FeedbackDevice.RemoteSensor0);
+                _controller.configSelectedFeedbackSensor(FeedbackDevice.SensorSum, PID_TURN, kTimeoutMs);
+                _controller.configAuxPIDPolarity(true, kTimeoutMs);
+            } else {
+                /* Master is not inverted, both sides are positive so we can diff them. */
+                _controller.configSensorTerm(SensorTerm.Diff0, FeedbackDevice.RemoteSensor0);
+                _controller.configSensorTerm(SensorTerm.Diff1, _feedbackDevice);
+                _controller.configSelectedFeedbackSensor(FeedbackDevice.SensorDifference, PID_TURN, kTimeoutMs);
+                _controller.configAuxPIDPolarity(true, kTimeoutMs);
+            }
+            _controller.configSelectedFeedbackCoefficient(kFeedbackCoefficient, PID_TURN, kTimeoutMs);
+            _auxController.follow(_controller, FollowerType.AuxOutput1);
+        }
     }
 
     /**
@@ -197,7 +243,7 @@ public class SmartMotorHelper {
      *
      * @return The signed velocity in meters per second, or null if the drive doesn't have encoders.
      */
-    public Double getVelocity(BaseTalon talon) {
+    public Double getVelocity() {
         return _convertor.nativeUnitsToVelocity(_controller.getSelectedSensorVelocity(PID_PRIMARY));
     }
     /**
@@ -205,7 +251,7 @@ public class SmartMotorHelper {
      *
      * @return The signed velocity in meters per second, or null if the drive doesn't have encoders.
      */
-    public Double getAuxVelocity(BaseTalon talon) {
+    public Double getAuxVelocity() {
         return _convertor.nativeUnitsToVelocity(_controller.getSelectedSensorVelocity(PID_TURN));
     }
 
@@ -214,7 +260,7 @@ public class SmartMotorHelper {
      *
      * @return The signed position in meters, or null if the drive doesn't have encoders.
      */
-    public Double getPosition(BaseTalon talon) {
+    public Double getPosition() {
         return _convertor.nativeUnitsToDistanceMeters(_controller.getSelectedSensorPosition(PID_PRIMARY));
     }
 
@@ -223,7 +269,7 @@ public class SmartMotorHelper {
      *
      * @return The signed position in meters, or null if the drive doesn't have encoders.
      */
-    public Double getAuxPosition(BaseTalon talon) {
+    public Double getAuxPosition() {
         return _convertor.nativeUnitsToDistanceMeters(_controller.getSelectedSensorPosition(PID_TURN));
     }
 
@@ -247,9 +293,13 @@ public class SmartMotorHelper {
 
     public void setTarget(double meters) {
         _controller.set(ControlMode.MotionMagic, _convertor.distanceMetersToNativeUnits(meters));
+        if (_auxController != null)
+            _auxController.follow(_controller);
     }
     public void setTarget(double meters, double aux) {
         _controller.set(ControlMode.MotionMagic, _convertor.distanceMetersToNativeUnits(meters), DemandType.AuxPID, aux);
+        if (_auxController != null)
+    		_auxController.follow(_controller, FollowerType.AuxOutput1);
     }
 
     public void setVelocityUPS(final double velocity) {
@@ -262,6 +312,8 @@ public class SmartMotorHelper {
             _nativeSetpoint,
             DemandType.ArbitraryFeedForward,
             _feedForwardCalculator.calculate(velocity) / 12.);
+        if (_auxController != null)
+            _auxController.follow(_controller, FollowerType.PercentOutput);
     }
 
     public double getSetpoint() {
@@ -271,18 +323,28 @@ public class SmartMotorHelper {
         _setpoint = pt;
     }
     /** Resets the position of the Talon to 0. */
-    public void resetPosition(BaseTalon talon) {
+    public void resetPosition() {
         _controller.setSelectedSensorPosition(0, PID_PRIMARY, kTimeoutMs);
+        if (_auxController != null) 
+            _auxController.setSelectedSensorPosition(0, PID_PRIMARY, kTimeoutMs);
         // _controller.getSensorCollection().setIntegratedSensorPosition(0, kTimeoutMs);
+    }
+    /** Resets the position of the Talon to 0. */
+    public void resetAuxPosition() {
+        _controller.setSelectedSensorPosition(0, PID_TURN, kTimeoutMs);
+        if (_auxController != null) 
+            _auxController.setSelectedSensorPosition(0, PID_TURN, kTimeoutMs);
     }
     public void enableBrakes(boolean enabled) {
         _controller.setNeutralMode(enabled ? NeutralMode.Brake : NeutralMode.Coast);
+        if (_auxController != null) 
+            _auxController.setNeutralMode(enabled ? NeutralMode.Brake : NeutralMode.Coast);
     }
 
     /** Updates all cached values with current ones. */
-    public void update(BaseTalon talon) {
-        _cachedVelocity = getVelocity(talon);
-        _cachedPosition = getPosition(talon);
+    public void update() {
+        _cachedVelocity = getVelocity();
+        _cachedPosition = getPosition();
 
         _controller.getFaults(_faults);
         if (_faults.SensorOutOfPhase) {

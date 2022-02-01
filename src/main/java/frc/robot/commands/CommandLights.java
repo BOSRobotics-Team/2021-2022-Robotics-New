@@ -18,9 +18,11 @@ public class CommandLights extends CommandBase {
     public final JoystickButton left_Stick;
     public final JoystickButton right_Stick;
 
-    private boolean _isAnimate = false;
-    private boolean _lastTriggerL = false;
-    private boolean _lastTriggerR = false;
+    private final LEDIncAnimationCommand _incAnimationCommand;
+    private final LEDDecAnimationCommand _decAnimationCommand;
+
+    // private boolean _lastTriggerL = false;
+    // private boolean _lastTriggerR = false;
 
     public CommandLights(Lights lights, XboxController controller) {
         m_lights = lights;
@@ -31,22 +33,24 @@ public class CommandLights extends CommandBase {
 
         left_Stick = new JoystickButton(m_controller, 9);
         right_Stick = new JoystickButton(m_controller, 10);
+
+        _incAnimationCommand = new LEDIncAnimationCommand(lights);
+        _decAnimationCommand = new LEDDecAnimationCommand(lights);
     }
 
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
-        _lastTriggerL = _lastTriggerR = false;
+        // _lastTriggerL = _lastTriggerR = false;
 
-        left_Stick.whenPressed(() -> m_lights.runAnimation());
-        right_Stick.whenPressed(() -> m_lights.incrementAnimation());
+        left_Stick.whenPressed(_incAnimationCommand);
+        right_Stick.whenPressed(_decAnimationCommand);
     }
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
-        if (!_isAnimate) {
-
+        if (!m_lights.isAnimating()) {
             double lx = m_controller.getLeftX();
             double rx = m_controller.getRightX();
 
@@ -81,6 +85,7 @@ public class CommandLights extends CommandBase {
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        m_lights.setColors();
         m_lights.runLights(0, 0, 0);
     }
 
