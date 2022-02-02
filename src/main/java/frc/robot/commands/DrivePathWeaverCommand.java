@@ -104,7 +104,7 @@ public class DrivePathWeaverCommand extends CommandBase {
         new PIDController(Constants.kPDriveVel, 0, 0),
         new PIDController(Constants.kPDriveVel, 0, 0),
         // RamseteCommand passes volts to the callback
-        m_driveTrain::tankDriveVolts,
+        m_driveTrain::driveTank,
         m_driveTrain);
 
         m_driveTrain.resetOdometry(m_trajectory.getInitialPose());
@@ -123,7 +123,7 @@ public class DrivePathWeaverCommand extends CommandBase {
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    m_driveTrain.tankDriveVolts(0, 0);
+    m_driveTrain.driveTank(0, 0);
     m_driveTrain.setUseSquares(true);
     m_driveTrain.enableBrakes(true);
     m_driveTrain.setDriveScaling(1.0);

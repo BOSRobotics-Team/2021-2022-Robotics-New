@@ -42,11 +42,11 @@ public class DriveMotionProfileArcCommand extends CommandBase {
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    m_driveTrain.tankDriveVolts(0, 0);
-    m_driveTrain.setUseSquares(true);
-    m_driveTrain.enableBrakes(true);
-    m_driveTrain.setDriveScaling(1.0);
+    m_driveTrain.driveTank(0, 0);
     m_driveTrain.setDriveMode(DriveMode.ARCADE);
+    m_driveTrain.enableBrakes(true);
+    m_driveTrain.setUseSquares(true);
+    m_driveTrain.setDriveScaling(1.0);
     m_driveTrain.enableDriveTrain(false);
 }
 

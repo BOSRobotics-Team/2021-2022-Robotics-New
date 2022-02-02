@@ -6,27 +6,23 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.*;
 
-import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class ExtendClimberCommand extends CommandBase {
+public class ClimberRetrackCommand extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Climber m_climber;
 
-    public ExtendClimberCommand(Climber climber) {
+    public ClimberRetrackCommand(Climber climber) {
         m_climber = climber;
 
         addRequirements(m_climber);
-        Preferences.initDouble("ClimberHeight1", 1.5);
     }
 
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
-        double height = Preferences.getDouble("ClimberHeight1", 1.5);
-
-        m_climber.runClimber(height);
-        System.out.println("extendClimber - height = " + height);
+        m_climber.runClimber(0.0);
+        System.out.println("retractClimber - height = 0.0");
     }
 
     // Called repeatedly when this Command is scheduled to run
@@ -44,9 +40,8 @@ public class ExtendClimberCommand extends CommandBase {
     @Override
     public boolean isFinished() {
         if (!m_climber.isClimbing()) {
-            System.out.println("extendClimber - isFinished");
-            return true;
+            System.out.println("retractClimber - isFinished");
         }
-        return false;
+        return !m_climber.isClimbing();
     }
 }

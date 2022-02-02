@@ -6,22 +6,24 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.Lights.LEDColor;
 
-public class ResetIntakeLiftCommand extends CommandBase {
+public class LEDStripLightCommand extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-    private final Intake m_intake;
+    private final Lights m_lights;
+    private final LEDColor m_color;
 
-    public ResetIntakeLiftCommand(Intake intake) {
-        m_intake = intake;
+    public LEDStripLightCommand(Lights lights, LEDColor color) {
+        m_lights = lights;
+        m_color = color;
 
-        addRequirements(m_intake);
+        addRequirements(m_lights);
     }
 
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
-        m_intake.resetLift();
-        System.out.println("reset Intakelift");
+        m_lights.setStripLights(m_color);
     }
 
     // Called repeatedly when this Command is scheduled to run
@@ -37,11 +39,7 @@ public class ResetIntakeLiftCommand extends CommandBase {
     // Make this return true when this Command no longer needs to run execute()
     @Override
     public boolean isFinished() {
-        if (!m_intake.isResetting()) {
-            System.out.println("Intakelift - isFinished");
-            return true;
-        }
-        return false;
+        return true;
     }
 
 }

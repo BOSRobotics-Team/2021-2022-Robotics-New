@@ -35,7 +35,7 @@ public class DriveTrain extends SubsystemBase {
     private final WPI_TalonSRX rightFollower = new WPI_TalonSRX(3);
     private final WPI_TalonSRX leftFollower = new WPI_TalonSRX(2);
 
-    public final SmartMotorHelper smartController;
+    public final SmartMotorHelper smartController = new SmartMotorHelper(rightMaster, InvertType.None, leftMaster, InvertType.InvertMotorOutput);
 
     /** The NavX gyro */
     private final DriveGyro gyro = new DriveGyro(false);
@@ -63,7 +63,7 @@ public class DriveTrain extends SubsystemBase {
 
     public DriveTrain() {    
 
-        smartController = new SmartMotorHelper(rightMaster, InvertType.None, leftMaster, InvertType.InvertMotorOutput);
+        smartController.initController();
 
         leftFollower.configFactoryDefault();
         leftFollower.follow(leftMaster);
@@ -91,6 +91,7 @@ public class DriveTrain extends SubsystemBase {
 
     public void configForPID2() {
         resetPosition();
+        setHeadingDegrees(0);
         smartController.setDistanceAndTurnConfigs(Constants.kGains_Distanc, Constants.kGains_Turning);        
     }
 
@@ -109,7 +110,7 @@ public class DriveTrain extends SubsystemBase {
         System.out.println("target (meters) = " + distance);
     }
 
-    public void setTarget2(double distance, double angle) {
+    public void setTarget(double distance, double angle) {
 		/* Configured for MotionMagic on Integrated Sensors' Sum and Auxiliary PID on Integrated Sensors' Difference */
 		smartController.setTarget(distance, angle);
         differentialDrive.feed(); 
@@ -135,6 +136,10 @@ public class DriveTrain extends SubsystemBase {
       // This method will be called once per scheduler run during simulation
     }
     
+    public Double getVelocity() { return smartController.getVelocity(); }
+    public Double getPosition() { return smartController.getPosition(); }
+    public Double getAuxPosition() { return smartController.getAuxPosition(); }
+
     /**
      * Get the velocity of the left side of the drive.
      * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
@@ -231,8 +236,7 @@ public class DriveTrain extends SubsystemBase {
     }
 
     public void setPercentVoltage(double leftPctVolts, double rightPctVolts) {
-        leftMaster.set(leftPctVolts);
-        rightMaster.set(rightPctVolts);
+        smartController.set(leftPctVolts, rightPctVolts);
     } 
 
     /** Resets the position of the Talon to 0. */
@@ -249,10 +253,7 @@ public class DriveTrain extends SubsystemBase {
 //       Instrumentation.ProcessGyro(gyro);
 //       Instrumentation.ProcessMotor(leftMaster);
 //       Instrumentation.ProcessMotor(rightMaster);
-
        gyro.logPeriodic();
-    //    leftController.logPeriodic(leftMaster);
-    //    smartController.logPeriodic(rightMaster);
 
         SmartDashboard.putData("Field2d", m_field);
     }
@@ -260,8 +261,7 @@ public class DriveTrain extends SubsystemBase {
     public void enableDriveTrain(boolean enable) {
         differentialDrive.setSafetyEnabled(enable);
         if (enable) {
-            leftMaster.set(ControlMode.PercentOutput, 0.0);
-            rightMaster.set(ControlMode.PercentOutput, 0.0);
+            smartController.set(0.0, 0.0);
         } else {
             leftMaster.set(ControlMode.Disabled, 0.0);
             rightMaster.set(ControlMode.Disabled, 0.0);
@@ -309,13 +309,8 @@ public class DriveTrain extends SubsystemBase {
     }
     public void driveToTarget(double meters) {
         smartController.setTarget(meters);
-        leftMaster.follow(rightMaster);
     }
-    public void tankDriveVolts(double leftVolts, double rightVolts) {
-        leftMaster.setVoltage(leftVolts);
-        rightMaster.setVoltage(rightVolts);
-        differentialDrive.feed();
-    }
+
     public void drive(XboxController ctrl) {
         if (m_DriveMode == DriveMode.ARCADE) {
             this.setOutput(ctrl.getLeftY(), -ctrl.getRightX());

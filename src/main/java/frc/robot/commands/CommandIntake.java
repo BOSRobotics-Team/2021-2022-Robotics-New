@@ -5,7 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+// import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.subsystems.*;
 
@@ -14,17 +14,17 @@ public class CommandIntake extends CommandBase {
 
     public final Intake m_intake;
     public final XboxController m_controller;
-    public final JoystickButton right_Bumper;
-    public final JoystickButton left_Stick;
-    public final JoystickButton right_Stick;
+    // public final JoystickButton right_Bumper;
+    // public final JoystickButton left_Stick;
+    // public final JoystickButton right_Stick;
 
     private final IntakeOnCommand _onCommand;
     private final IntakeOffCommand _offCommand;
-    private final UnjamIntakeCommand _unjamCommand;
+    // private final IntakeUnjamCommand _unjamCommand;
 
     private final IntakeLiftUpCommand _upCommand;
     private final IntakeLiftDownCommand _dnCommand;
-    private final ResetIntakeLiftCommand _resetLiftCommand;
+    // private final IntakeLiftResetCommand _resetLiftCommand;
 
     private boolean _lastTriggerL = false;
     private boolean _lastTriggerR = false;
@@ -36,17 +36,17 @@ public class CommandIntake extends CommandBase {
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(intake);
 
-        right_Bumper = new JoystickButton(m_controller, 6);
-        left_Stick = new JoystickButton(m_controller, 9);
-        right_Stick = new JoystickButton(m_controller, 10);
+        // right_Bumper = new JoystickButton(m_controller, 6);
+        // left_Stick = new JoystickButton(m_controller, 9);
+        // right_Stick = new JoystickButton(m_controller, 10);
 
         _onCommand = new IntakeOnCommand(m_intake);
         _offCommand = new IntakeOffCommand(m_intake);
-        _unjamCommand = new UnjamIntakeCommand(m_intake);
+        // _unjamCommand = new IntakeUnjamCommand(m_intake);
 
         _upCommand = new IntakeLiftUpCommand(m_intake);
         _dnCommand = new IntakeLiftDownCommand(m_intake);
-        _resetLiftCommand = new ResetIntakeLiftCommand(m_intake);
+        // _resetLiftCommand = new IntakeLiftResetCommand(m_intake);
     }
 
     // Called just before this Command runs the first time
@@ -54,8 +54,8 @@ public class CommandIntake extends CommandBase {
     public void initialize() {
         _lastTriggerL = _lastTriggerR = false;
 
-        left_Stick.whenPressed(_resetLiftCommand);
-        right_Stick.whenPressed(_unjamCommand);
+        // left_Stick.whenPressed(_resetLiftCommand);
+        // right_Stick.whenPressed(_unjamCommand);
     }
 
     // Called repeatedly when this Command is scheduled to run

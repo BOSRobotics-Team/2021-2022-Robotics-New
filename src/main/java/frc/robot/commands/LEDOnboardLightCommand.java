@@ -6,13 +6,16 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.Lights.LEDColor;
 
-public class LEDIncAnimationCommand extends CommandBase {
+public class LEDOnboardLightCommand extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Lights m_lights;
+    private final LEDColor m_color;
 
-    public LEDIncAnimationCommand(Lights lights) {
+    public LEDOnboardLightCommand(Lights lights, LEDColor color) {
         m_lights = lights;
+        m_color = color;
 
         addRequirements(m_lights);
     }
@@ -20,7 +23,7 @@ public class LEDIncAnimationCommand extends CommandBase {
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
-        m_lights.incrementAnimation();
+        m_lights.setOnboardLights(m_color);
     }
 
     // Called repeatedly when this Command is scheduled to run

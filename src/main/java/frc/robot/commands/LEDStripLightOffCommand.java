@@ -6,12 +6,13 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.Lights.LEDColor;
 
-public class LEDOnboardOffCommand extends CommandBase {
+public class LEDStripLightOffCommand extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Lights m_lights;
 
-    public LEDOnboardOffCommand(Lights lights) {
+    public LEDStripLightOffCommand(Lights lights) {
         m_lights = lights;
 
         addRequirements(m_lights);
@@ -20,7 +21,7 @@ public class LEDOnboardOffCommand extends CommandBase {
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
-        m_lights.setOnboardLights(0, 0, 0);
+        m_lights.setStripLights(LEDColor.kOff);
     }
 
     // Called repeatedly when this Command is scheduled to run

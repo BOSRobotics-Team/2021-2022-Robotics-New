@@ -8,11 +8,11 @@ import frc.robot.subsystems.*;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class RetrackClimberCommand extends CommandBase {
+public class ClimberTripLimitSwitchesCommand extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Climber m_climber;
 
-    public RetrackClimberCommand(Climber climber) {
+    public ClimberTripLimitSwitchesCommand(Climber climber) {
         m_climber = climber;
 
         addRequirements(m_climber);
@@ -21,8 +21,7 @@ public class RetrackClimberCommand extends CommandBase {
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
-        m_climber.runClimber(0.0);
-        System.out.println("retractClimber - height = 0.0");
+        m_climber.tripRevLimitSwitches_test(true);
     }
 
     // Called repeatedly when this Command is scheduled to run
@@ -39,9 +38,7 @@ public class RetrackClimberCommand extends CommandBase {
     // Make this return true when this Command no longer needs to run execute()
     @Override
     public boolean isFinished() {
-        if (!m_climber.isClimbing()) {
-            System.out.println("retractClimber - isFinished");
-        }
-        return !m_climber.isClimbing();
+        m_climber.tripRevLimitSwitches_test(false);
+        return true;
     }
 }

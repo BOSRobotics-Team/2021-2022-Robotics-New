@@ -15,6 +15,38 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Lights extends SubsystemBase {
 
+    public static class LEDColor {
+        public int red = 255;
+        public int green = 255;
+        public int blue = 255;
+        public int white = 255;
+        public int startIndex = 0;
+        public int count = 500;
+        public static LEDColor kOff = new LEDColor(0, 0, 0);
+        public static LEDColor kWhite = new LEDColor(255, 255, 255);
+        public static LEDColor kRed = new LEDColor(255, 0, 0);
+        public static LEDColor kGreen = new LEDColor(0, 255, 0);
+        public static LEDColor kBlue = new LEDColor(0, 0, 255);
+        public static LEDColor kPurple = new LEDColor(255, 0, 255);
+        public static LEDColor kOrange = new LEDColor(0, 255, 255);
+        public static LEDColor kYellow = new LEDColor(255, 255, 0);
+
+        public LEDColor( int r, int g, int b, int w, int start, int cnt ) {
+            red = r;
+            green = g;
+            blue = b;
+            white = w;
+            startIndex = start;
+            count = cnt;
+        }
+        public LEDColor( int r, int g, int b ) {
+            red = r;
+            green = g;
+            blue = b;
+        }
+    }
+    
+
     public final CANdle m_candle = new CANdle(0);
     public enum AnimationTypes {
         ColorFlow,
@@ -145,16 +177,21 @@ public class Lights extends SubsystemBase {
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
     public void runLights(int red, int green, int blue) {
-        m_candle.setLEDs(red, green, blue, 255, 1, 107); 
-        // System.out.println("runLights - red:" + red + " green:" + green + " blue:" + blue);
+        m_candle.setLEDs(red, green, blue); 
     }
-    public void setOnboardLights(int red, int green, int blue) {
-        m_candle.setLEDs(red, green, blue, 255, 0, 8); 
-        // System.out.println("runLights - red:" + red + " green:" + green + " blue:" + blue);
+    public void runLights(LEDColor color) {
+        int count = Math.min(color.count - color.startIndex, LedCount);
+        m_candle.setLEDs(color.red, color.green, color.blue, color.white, color.startIndex, count); 
     }
-    public void setStripLights(int red, int green, int blue) {
-        m_candle.setLEDs(red, green, blue, 255, 8, LedCount - 8); 
-        // System.out.println("runLights - red:" + red + " green:" + green + " blue:" + blue);
+    public void setOnboardLights(LEDColor color) {
+        int start = Math.min(color.startIndex, 7);
+        int count = Math.min(color.count - color.startIndex, 8);
+        m_candle.setLEDs(color.red, color.green, color.blue, color.white, start, count); 
+    }
+    public void setStripLights(LEDColor color) {
+        int start = Math.max(color.startIndex + 8, 8);
+        int count = Math.min(color.count - color.startIndex, LedCount - 8);
+        m_candle.setLEDs(color.red, color.green, color.blue, color.white, start, count); 
     }
     public boolean isAnimating() {
         return m_toAnimate != null;

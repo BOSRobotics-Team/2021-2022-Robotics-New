@@ -4,23 +4,29 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.*;
 
-public class LEDDecAnimationCommand extends CommandBase {
+import edu.wpi.first.wpilibj.Preferences;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+
+public class ClimberExtendCommand extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-    private final Lights m_lights;
+    private final Climber m_climber;
 
-    public LEDDecAnimationCommand(Lights lights) {
-        m_lights = lights;
+    public ClimberExtendCommand(Climber climber) {
+        m_climber = climber;
 
-        addRequirements(m_lights);
+        addRequirements(m_climber);
+        Preferences.initDouble("ClimberHeight1", 1.5);
     }
 
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
-        m_lights.decrementAnimation();
+        double height = Preferences.getDouble("ClimberHeight1", 1.5);
+
+        m_climber.runClimber(height);
+        System.out.println("extendClimber - height = " + height);
     }
 
     // Called repeatedly when this Command is scheduled to run
@@ -31,12 +37,16 @@ public class LEDDecAnimationCommand extends CommandBase {
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        // m_hook.runClimber(0);
     }
 
     // Make this return true when this Command no longer needs to run execute()
     @Override
     public boolean isFinished() {
-        return true;
+        if (!m_climber.isClimbing()) {
+            System.out.println("extendClimber - isFinished");
+            return true;
+        }
+        return false;
     }
-
 }

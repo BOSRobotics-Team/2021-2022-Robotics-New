@@ -4,27 +4,24 @@
 
 package frc.robot.commands;
 
-import frc.robot.RobotContainer;
 import frc.robot.subsystems.*;
-
+import frc.robot.subsystems.DriveTrain.DriveMode;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class AutonomousCommand extends CommandBase {
 @SuppressWarnings({ "PMD.UnusedPrivateField", "PMD.SingularField" })
 
-    private final RobotContainer _robot;
-    private final DriveTrain _driveTrain;
+    private final DriveTrain m_driveTrain;
 
     double _lockedDistance = 0;
 	double _targetAngle = 0;
-	int _smoothing;
+	int _smoothing = 0;
 
-    public AutonomousCommand(RobotContainer container) {
-        _robot = container;
-        _driveTrain = _robot.driveTrain;
+    public AutonomousCommand(DriveTrain driveTrain) {
+        m_driveTrain = driveTrain;
 
-		addRequirements(_driveTrain);
+		addRequirements(m_driveTrain);
     }
    
     // Called just before this Command runs the first time
@@ -33,16 +30,17 @@ public class AutonomousCommand extends CommandBase {
     public void initialize() {
         System.out.println("AutonomousCommand - initialize");
 
-        _driveTrain.enableDriveTrain(false);
-        _driveTrain.enableBrakes(false);
-        _driveTrain.configForPID2();
-		_driveTrain.resetPosition();
-		_driveTrain.setHeadingDegrees(0);
+        m_driveTrain.setDriveMode(DriveMode.ARCADE);
+        m_driveTrain.setUseSquares(true);
+        m_driveTrain.setUseDriveScaling(false);
+        m_driveTrain.enableBrakes(true);
+        m_driveTrain.enableDriveTrain(false);
+        m_driveTrain.configForPID2();
 		
 		SmartDashboard.putNumber("Smoothing", _smoothing);
 
-        _targetAngle = _driveTrain.getRightAuxPos();
-        _lockedDistance = _driveTrain.getRightPos();
+        _targetAngle = m_driveTrain.getAuxPosition();
+        _lockedDistance = m_driveTrain.getPosition();
    
         System.out.println("_lockedDistance = " + _lockedDistance + " _targetAngle = " + _targetAngle);
     }
@@ -53,23 +51,23 @@ public class AutonomousCommand extends CommandBase {
         System.out.println("AutonomousCommand - execute");
 
 		/* Configured for MotionMagic on Integrated Sensors' Sum and Auxiliary PID on Integrated Sensors' Difference */
-		_driveTrain.setTarget2(_lockedDistance, _targetAngle);
+		m_driveTrain.setTarget(_lockedDistance, _targetAngle);
 		
-		SmartDashboard.putNumber("PoseX", _driveTrain.getCurrentPose().getTranslation().getX());
-		SmartDashboard.putNumber("PoseY", _driveTrain.getCurrentPose().getTranslation().getY());
-		SmartDashboard.putNumber("Pose Rot", _driveTrain.getCurrentPose().getRotation().getDegrees());
+		SmartDashboard.putNumber("PoseX", m_driveTrain.getCurrentPose().getTranslation().getX());
+		SmartDashboard.putNumber("PoseY", m_driveTrain.getCurrentPose().getTranslation().getY());
+		SmartDashboard.putNumber("Pose Rot", m_driveTrain.getCurrentPose().getRotation().getDegrees());
     }
 
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
         System.out.println("AutonomousCommand - end");
-        _driveTrain.enableDriveTrain(false);
+        m_driveTrain.enableDriveTrain(false);
     }
 
     // Make this return true when this Command no longer needs to run execute()
     @Override
     public boolean isFinished() {
-        return _driveTrain.isTargetReached();
+        return m_driveTrain.isTargetReached();
     }
 }    

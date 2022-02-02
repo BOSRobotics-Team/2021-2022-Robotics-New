@@ -8,11 +8,11 @@ import frc.robot.subsystems.*;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class RetrackPivotLinkCommand extends CommandBase {
+public class PivotLinkRetractCommand extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Climber m_climber;
 
-    public RetrackPivotLinkCommand(Climber climber) {
+    public PivotLinkRetractCommand(Climber climber) {
         m_climber = climber;
 
         addRequirements(m_climber);

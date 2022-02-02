@@ -82,7 +82,7 @@ public class RobotContainer {
   public final UsbCamera cam1; 
   public final UsbCamera cam2; 
 
-  public final AutonomousCommand m_autoCommand = new AutonomousCommand(this);
+  public final AutonomousCommand m_autoCommand = new AutonomousCommand(driveTrain);
   public final CommandDriveTrain m_cmdDriveTrainCommand = new CommandDriveTrain(driveTrain, driverController);
   public final CommandClimber m_cmdClimberCommand = new CommandClimber(climber, operatorController);
   public final CommandIntake m_cmdIntakeCommand = new CommandIntake(intake, operatorController);
@@ -100,14 +100,14 @@ public class RobotContainer {
     
     // Add commands to Autonomous Sendable Chooser
     chooser.setDefaultOption("Autonomous Command", m_autoCommand);
-    chooser.addOption("AutoDriveStraight Command", new AutoDriveStraightCommand(this));
-    chooser.addOption("AutoDriveTurn Command", new AutoDriveTurnCommand(this));
+    chooser.addOption("AutoDriveStraight Command", new AutoDriveStraightCommand(driveTrain, driverController));
+    chooser.addOption("AutoDriveTurn Command", new AutoDriveTurnCommand(driveTrain, driverController));
     chooser.addOption("PathWeaver Command", new DrivePathWeaverCommand( "paths/PathWeaver/Paths/BarrelRun", driveTrain));
 
     // SmartDashboard Buttons
     SmartDashboard.putData("Autonomous Command",m_autoCommand);
-    SmartDashboard.putData("Autonomous AutoDriveStraight",new AutoDriveStraightCommand(this));
-    SmartDashboard.putData("Autonomous AutoDrive", new AutoDriveTurnCommand(this));
+    SmartDashboard.putData("Autonomous AutoDriveStraight",new AutoDriveStraightCommand(driveTrain, driverController));
+    SmartDashboard.putData("Autonomous AutoDrive", new AutoDriveTurnCommand(driveTrain, driverController));
     SmartDashboard.putData("DrivePathWeaverCommand", new DrivePathWeaverCommand( "paths/PathWeaver/Paths/BarrelRun", driveTrain));
     SmartDashboard.putData("CommandDriveTrain", m_cmdDriveTrainCommand);
     SmartDashboard.putData("Auto mode", chooser);

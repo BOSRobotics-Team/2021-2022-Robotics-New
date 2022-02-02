@@ -4,21 +4,23 @@
 
 package frc.robot.subsystems;
 
-import frc.robot.Gains;
-import frc.robot.GearRatios;
-import frc.robot.wrappers.SmartMotor;
+import frc.robot.*;
 
 import com.ctre.phoenix.motorcontrol.*;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-
 public class Climber extends SubsystemBase {
-    private final SmartMotor _climberController = new SmartMotor(10);
-    private final SmartMotor _leftPivotLinkController = new SmartMotor(11);
-    //private final SmartMotor _rightPivotLinkController = new SmartMotor(12);
+    private final WPI_TalonFX _climberController = new WPI_TalonFX(10);
+    private final WPI_TalonFX _leftPivotLinkController = new WPI_TalonFX(11);
+    private final WPI_TalonFX _rightPivotLinkController = new WPI_TalonFX(12);
+
+    private final SmartMotorHelper smartClimberController = new SmartMotorHelper(_climberController, InvertType.None);
+    private final SmartMotorHelper smartPivotLinkController = new SmartMotorHelper(_rightPivotLinkController, InvertType.None, _leftPivotLinkController, InvertType.InvertMotorOutput);
+
     private boolean _isResetClimber = false;
     private boolean _isResetPivoting = false;
     private boolean _isClimbing = false;
@@ -51,28 +53,19 @@ public class Climber extends SubsystemBase {
         kGearRatio_PivotLink = new GearRatios(Preferences.getDouble("PivotLinkGearRatio", 20.0), 
                                               Preferences.getDouble("PivotLinkWheelRadius", 1.0), 
                                               Preferences.getDouble("PivotLinkPulleyRatio", 1.0));
-        System.out.println("_climberController - ratios = " + kGearRatio_Climber);
-
         //_climberFeedFwd = Preferences.getDouble("ClimberFeedFwd", 0.1);
 
-        _climberController.configureRatios(kGearRatio_Climber);
-        _climberController.setName("Climber");
-        _climberController.enableBrakes(true);
-        _climberController.setDistanceConfigs(kGains_Climber);
-        _climberController.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0); 
-        _climberController.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
-        _climberController.resetPosition();
+        smartClimberController.initController();
+        smartClimberController.configureRatios(kGearRatio_Climber);
+        smartClimberController.enableBrakes(true);
+        smartClimberController.setDistanceConfigs(kGains_Climber);
+        smartClimberController.resetPosition();
 
-        _leftPivotLinkController.configureRatios(kGearRatio_PivotLink);
-        _leftPivotLinkController.setName("LeftPivotLink");
-        _leftPivotLinkController.enableBrakes(true);
-        _leftPivotLinkController.setDistanceConfigs(kGains_PivotLink);
-        _leftPivotLinkController.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0); 
-        _leftPivotLinkController.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
-        _leftPivotLinkController.resetPosition();
-
-        //_rightPivotLinkController.setName("RightPivotLink");
-        //_rightPivotLinkController.follow(_leftPivotLinkController);
+        smartPivotLinkController.initController();
+        smartPivotLinkController.configureRatios(kGearRatio_PivotLink);
+        smartPivotLinkController.enableBrakes(true);
+        smartPivotLinkController.setDistanceConfigs(kGains_PivotLink);
+        smartPivotLinkController.resetPosition();
     }
 
     @Override
@@ -82,15 +75,15 @@ public class Climber extends SubsystemBase {
             if (isClimberRevLimitSwitchClosed()) {
                 _isResetClimber = false;
                 _isClimbing = false;
-                _climberController.set(0.0);
-                _climberController.resetPosition();
+                smartClimberController.set(0.0);
+                smartClimberController.resetPosition();
             }
         }
         if (_isClimbing) {
-            System.out.println("isClimbing - current height = " + _climberController.getPosition() + " pos = " + _climberController.getSelectedSensorPosition(0));
-            _climberController.setTarget(_targetHeight); //, _climberFeedFwd);
+            System.out.println("isClimbing - current height = " + smartClimberController.getPosition() + " pos = " + smartClimberController.getNativePosition());
+            smartClimberController.setTarget(_targetHeight); //, _climberFeedFwd);
 
-            if (Math.abs(_climberController.getPosition() - _targetHeight) < 0.01) {
+            if (Math.abs(smartClimberController.getPosition() - _targetHeight) < 0.01) {
                 _isClimbing = false;
                 System.out.println("isClimbing - done");
             } else if (isClimberFwdLimitSwitchClosed()) {
@@ -102,15 +95,15 @@ public class Climber extends SubsystemBase {
             if (isPivotLinkRevLimitSwitchClosed()) {
                 _isResetPivoting = false;
                 _isPivoting = false;
-                _leftPivotLinkController.set(0.0);
-                _leftPivotLinkController.resetPosition();
+                smartPivotLinkController.set(0.0);
+                smartPivotLinkController.resetPosition();
             }
         }
         if (_isPivoting) {
-            System.out.println("isPivoting - current distance = " + _leftPivotLinkController.getPosition() + _leftPivotLinkController.getSelectedSensorPosition(0));
-            _leftPivotLinkController.setTarget(_targetPivot); //, _climberFeedFwd);
+            System.out.println("isPivoting - current distance = " + smartPivotLinkController.getPosition() + smartPivotLinkController.getNativePosition());
+            smartPivotLinkController.setTarget(_targetPivot); //, _climberFeedFwd);
 
-            if (Math.abs(_leftPivotLinkController.getPosition() - _targetPivot) < 0.01) {
+            if (Math.abs(smartPivotLinkController.getPosition() - _targetPivot) < 0.01) {
                 _isPivoting = false;
                 System.out.println("isPivoting - done");
             } else if (isPivotLinkFwdLimitSwitchClosed()) {
@@ -126,9 +119,8 @@ public class Climber extends SubsystemBase {
     }
 
     public void logPeriodic() {
-        _climberController.logPeriodic();
-        _leftPivotLinkController.logPeriodic();
-        // _rightPivotLinkController.logPeriodic();
+        smartClimberController.update();
+        smartPivotLinkController.update();
  
         SmartDashboard.putBoolean("isResetClimber", _isResetClimber);
         SmartDashboard.putBoolean("isResetPivoting", _isResetPivoting);
@@ -149,13 +141,13 @@ public class Climber extends SubsystemBase {
     public boolean isClimbing() { return _isClimbing; }
     public void setClimber(double speed) {
         if (!_isClimbing && !_isResetClimber) {
-            _climberController.set(speed);
+            smartClimberController.set(speed);
         }
     }
 
     public void resetClimber() {
         _isResetClimber = true;
-        _climberController.set(kResetClimberSpeed);
+        smartClimberController.set(kResetClimberSpeed);
     }
 
     public void runPivotLink(double distance) {
@@ -167,20 +159,19 @@ public class Climber extends SubsystemBase {
     public boolean isPivoting() { return _isPivoting; }
     public void setPivotLink(double speed) {
         if (!_isPivoting && !_isResetPivoting) {
-            _leftPivotLinkController.set(speed);
+            smartPivotLinkController.set(speed);
         }
     }
 
     public void resetPivotLink() {
         _isResetPivoting = true;
-        _leftPivotLinkController.set(kResetClimberSpeed);
+        smartPivotLinkController.set(kResetClimberSpeed);
     }
     public boolean isResetting() { return _isResetClimber || _isResetPivoting; }
-    public boolean isClimberFwdLimitSwitchClosed() { return (_climberController.isFwdLimitSwitchClosed() == 1) || _isFwdLimitSwitchTest; }
-    public boolean isClimberRevLimitSwitchClosed() { return (_climberController.isRevLimitSwitchClosed() == 1) || _isRevLimitSwitchTest; }
-    public boolean isPivotLinkFwdLimitSwitchClosed() { return (_leftPivotLinkController.isFwdLimitSwitchClosed() == 1) || _isFwdLimitSwitchTest; }
-    public boolean isPivotLinkRevLimitSwitchClosed() { return (_leftPivotLinkController.isRevLimitSwitchClosed() == 1) || _isRevLimitSwitchTest; }
-
+    public boolean isClimberFwdLimitSwitchClosed() { return smartClimberController.isFwdLimitSwitchClosed() || _isFwdLimitSwitchTest; }
+    public boolean isClimberRevLimitSwitchClosed() { return smartClimberController.isRevLimitSwitchClosed() || _isRevLimitSwitchTest; }
+    public boolean isPivotLinkFwdLimitSwitchClosed() { return smartPivotLinkController.isFwdLimitSwitchClosed() || _isFwdLimitSwitchTest; }
+    public boolean isPivotLinkRevLimitSwitchClosed() { return smartPivotLinkController.isRevLimitSwitchClosed() || _isRevLimitSwitchTest; }
 
     public void tripFwdLimitSwitches_test(boolean trip) {
         _isFwdLimitSwitchTest = trip;

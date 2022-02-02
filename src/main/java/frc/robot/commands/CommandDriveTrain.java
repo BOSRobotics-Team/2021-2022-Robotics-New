@@ -54,10 +54,10 @@ public class CommandDriveTrain extends CommandBase {
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
-        left_Bumper.whenPressed(() -> m_driveTrain.toggleDriveMode());
-        right_Bumper.whenPressed(() -> m_driveTrain.setUseSquares(!m_driveTrain.getUseSquares()));
-    
-        left_Stick.whenPressed(() -> m_driveTrain.setUseDriveScaling(!m_driveTrain.getUseDriveScaling()));
+        left_Bumper.whenPressed(() -> m_driveTrain.toggleDriveMode());    
+        right_Bumper.whenPressed(() -> m_driveTrain.setUseDriveScaling(!m_driveTrain.getUseDriveScaling()));
+
+        left_Stick.whenPressed(() -> m_driveTrain.setUseSquares(!m_driveTrain.getUseSquares()));
         right_Stick.whenPressed(() -> m_driveTrain.setQuickTurn(!m_driveTrain.getQuickTurn()));
 
         m_driveTrain.setDriveMode(DriveMode.ARCADE);
@@ -95,7 +95,7 @@ public class CommandDriveTrain extends CommandBase {
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
-        m_driveTrain.tankDriveVolts(0, 0);
+        m_driveTrain.driveTank(0, 0);
         m_driveTrain.setUseSquares(true);
         m_driveTrain.enableBrakes(true);
         m_driveTrain.setDriveScaling(1.0);

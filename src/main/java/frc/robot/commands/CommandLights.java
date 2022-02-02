@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.subsystems.*;
+// import frc.robot.subsystems.Lights.LEDColor;
 
 public class CommandLights extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
@@ -18,10 +19,15 @@ public class CommandLights extends CommandBase {
     public final JoystickButton left_Stick;
     public final JoystickButton right_Stick;
 
-    private final LEDIncAnimationCommand _incAnimationCommand;
-    private final LEDDecAnimationCommand _decAnimationCommand;
-    private final LEDStripOnCommand _stripOnCommand;
-    private final LEDOnboardOnCommand _onboardOnCommand;
+    // private final LEDAnimationCommand _animationCommand;
+    private final LEDAnimationRotateCommand _animationRotateCommand;
+    private final LEDAnimationOffCommand _animationOffCommand;
+
+    // private final LEDOnboardLightCommand _onboardLightCommand;
+    // private final LEDOnboardLightOffCommand _onboardLightOffCommand;
+
+    // private final LEDStripLightCommand _stripLightCommand;
+    // private final LEDStripLightOffCommand _stripLightOffCommand;
 
     // private boolean _lastTriggerL = false;
     // private boolean _lastTriggerR = false;
@@ -36,10 +42,13 @@ public class CommandLights extends CommandBase {
         left_Stick = new JoystickButton(m_controller, 9);
         right_Stick = new JoystickButton(m_controller, 10);
 
-        _incAnimationCommand = new LEDIncAnimationCommand(lights);
-        _decAnimationCommand = new LEDDecAnimationCommand(lights);
-        _stripOnCommand = new LEDStripOnCommand(lights);
-        _onboardOnCommand = new LEDOnboardOnCommand(lights);
+        // _animationCommand = new LEDAnimationCommand(lights);
+        _animationRotateCommand = new LEDAnimationRotateCommand(lights, true);
+        _animationOffCommand = new LEDAnimationOffCommand(lights);
+        // _onboardLightCommand = new LEDOnboardLightCommand(lights, LEDColor.kWhite);
+        // _onboardLightOffCommand = new LEDOnboardLightOffCommand(lights);
+        // _stripLightCommand = new LEDStripLightCommand(lights, LEDColor.kWhite);
+        // _stripLightOffCommand = new LEDStripLightOffCommand(lights);
     }
 
     // Called just before this Command runs the first time
@@ -47,8 +56,8 @@ public class CommandLights extends CommandBase {
     public void initialize() {
         // _lastTriggerL = _lastTriggerR = false;
 
-        left_Stick.whenPressed(_incAnimationCommand);
-        right_Stick.whenPressed(_onboardOnCommand);
+        left_Stick.whenPressed(_animationRotateCommand);
+        right_Stick.whenPressed(_animationOffCommand);
     }
 
     // Called repeatedly when this Command is scheduled to run

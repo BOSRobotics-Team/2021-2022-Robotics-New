@@ -90,12 +90,17 @@ public class SmartMotorHelper {
         
         _controller.configFactoryDefault();
         _controller.setInverted(invert);
+        _controller.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0); 
+        _controller.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
+
         _feedbackDevice = kDefaultFeedbackDevice[_controllerType];
 
         if (_auxController != null) {
             _auxController.configFactoryDefault();
             _auxController.setInverted(auxInvert);
-        }
+            _auxController.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0); 
+            _auxController.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
+            }
     }
 
     public SmartMotorHelper( final BaseTalon talon, final InvertType invert ) {
@@ -265,6 +270,9 @@ public class SmartMotorHelper {
     public Double getPosition() {
         return _convertor.nativeUnitsToDistanceMeters(_controller.getSelectedSensorPosition(PID_PRIMARY));
     }
+    public Double getNativePosition() {
+        return _controller.getSelectedSensorPosition(PID_PRIMARY);
+    }
 
     /**
      * Get the position2 of the drive.
@@ -273,6 +281,9 @@ public class SmartMotorHelper {
      */
     public Double getAuxPosition() {
         return _convertor.nativeUnitsToDistanceMeters(_controller.getSelectedSensorPosition(PID_TURN));
+    }
+    public Double getAuxNativePosition() {
+        return _controller.getSelectedSensorPosition(PID_TURN);
     }
 
     /**
@@ -291,6 +302,17 @@ public class SmartMotorHelper {
      */
     public Double getPositionCached() {
         return _cachedPosition;
+    }
+
+    public void set(double pctOutput) {
+        _controller.set(ControlMode.PercentOutput, pctOutput);
+        if (_auxController != null)
+            _auxController.follow(_controller);
+    }
+    public void set(double pctOutput, double auxOutput) {
+        _controller.set(ControlMode.PercentOutput, pctOutput);
+        if (_auxController != null)
+            _auxController.set(ControlMode.PercentOutput, auxOutput);
     }
 
     public void setTarget(double meters) {
@@ -317,6 +339,9 @@ public class SmartMotorHelper {
         if (_auxController != null)
             _auxController.follow(_controller, FollowerType.PercentOutput);
     }
+
+    public boolean isFwdLimitSwitchClosed() { return _controller.isFwdLimitSwitchClosed() == 1; }
+    public boolean isRevLimitSwitchClosed() { return _controller.isRevLimitSwitchClosed() == 1; }
 
     public double getSetpoint() {
         return _setpoint;

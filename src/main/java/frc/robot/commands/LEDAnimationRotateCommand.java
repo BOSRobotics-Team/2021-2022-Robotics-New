@@ -7,12 +7,14 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.*;
 
-public class LEDOnboardOnCommand extends CommandBase {
+public class LEDAnimationRotateCommand extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Lights m_lights;
+    private final boolean m_increment;
 
-    public LEDOnboardOnCommand(Lights lights) {
+    public LEDAnimationRotateCommand(Lights lights, boolean increment) {
         m_lights = lights;
+        m_increment = increment;
 
         addRequirements(m_lights);
     }
@@ -20,7 +22,10 @@ public class LEDOnboardOnCommand extends CommandBase {
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
-        m_lights.setOnboardLights(255, 255, 255);
+        if (m_increment)
+            m_lights.incrementAnimation();
+        else
+            m_lights.decrementAnimation();
     }
 
     // Called repeatedly when this Command is scheduled to run
