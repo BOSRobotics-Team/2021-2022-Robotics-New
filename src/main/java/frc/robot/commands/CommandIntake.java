@@ -4,10 +4,12 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
-// import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.subsystems.*;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.*;
+// import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+
 
 public class CommandIntake extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
@@ -44,7 +46,7 @@ public class CommandIntake extends CommandBase {
         _offCommand = new IntakeOffCommand(m_intake);
         // _unjamCommand = new IntakeUnjamCommand(m_intake);
 
-        _upCommand = new IntakeLiftUpCommand(m_intake);
+        _upCommand = new IntakeLiftUpCommand(m_intake, 1.2);
         _dnCommand = new IntakeLiftDownCommand(m_intake);
         // _resetLiftCommand = new IntakeLiftResetCommand(m_intake);
     }
@@ -52,6 +54,7 @@ public class CommandIntake extends CommandBase {
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
+        Shuffleboard.addEventMarker("CommandIntake init.", this.getClass().getSimpleName(), EventImportance.kNormal);
         _lastTriggerL = _lastTriggerR = false;
 
         // left_Stick.whenPressed(_resetLiftCommand);
@@ -83,6 +86,10 @@ public class CommandIntake extends CommandBase {
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        if (interrupted) {
+            Shuffleboard.addEventMarker("CommandLights Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
+        }
+        Shuffleboard.addEventMarker("CommandLights end.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
 
     // Make this return true when this Command no longer needs to run execute()

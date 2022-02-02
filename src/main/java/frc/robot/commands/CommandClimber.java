@@ -4,10 +4,11 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.subsystems.*;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.*;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class CommandClimber extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
@@ -56,11 +57,11 @@ public class CommandClimber extends CommandBase {
         // left_Stick = new JoystickButton(m_controller, 9);
         // right_Stick = new JoystickButton(m_controller, 10);
 
-        m_climberExtendCommand = new ClimberExtendCommand(climber);
+        m_climberExtendCommand = new ClimberExtendCommand(climber, 1.5);
         m_climberRetractCommand = new ClimberRetrackCommand(climber);
         m_climberResetCommand = new ClimberResetCommand(climber);
         m_climberTripLimitSwitchesCommand = new ClimberTripLimitSwitchesCommand(climber);
-        m_pivotLinkExtendCommand = new PivotLinkExtendCommand(climber);
+        m_pivotLinkExtendCommand = new PivotLinkExtendCommand(climber, 0.75);
         m_pivotLinkRetractCommand = new PivotLinkRetractCommand(climber);
         m_autoClimberCommand = new AutoClimberCommand(climber);
     }
@@ -68,6 +69,7 @@ public class CommandClimber extends CommandBase {
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
+        Shuffleboard.addEventMarker("CommandClimber init.", this.getClass().getSimpleName(), EventImportance.kNormal);
         _lastTriggerL = _lastTriggerR = false;
         _lastPOV = -1;
 
@@ -119,6 +121,10 @@ public class CommandClimber extends CommandBase {
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        if (interrupted) {
+            Shuffleboard.addEventMarker("CommandClimber Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
+        }
+        Shuffleboard.addEventMarker("CommandClimber end.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
 
     // Make this return true when this Command no longer needs to run execute()

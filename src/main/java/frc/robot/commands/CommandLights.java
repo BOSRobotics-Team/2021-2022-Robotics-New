@@ -4,11 +4,12 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.subsystems.*;
 // import frc.robot.subsystems.Lights.LEDColor;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.*;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class CommandLights extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
@@ -54,6 +55,7 @@ public class CommandLights extends CommandBase {
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
+        Shuffleboard.addEventMarker("CommandLights init.", this.getClass().getSimpleName(), EventImportance.kNormal);
         // _lastTriggerL = _lastTriggerR = false;
 
         left_Stick.whenPressed(_animationRotateCommand);
@@ -100,6 +102,10 @@ public class CommandLights extends CommandBase {
     public void end(boolean interrupted) {
         m_lights.setColors();
         m_lights.runLights(0, 0, 0);
+        if (interrupted) {
+            Shuffleboard.addEventMarker("CommandLights Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
+        }
+        Shuffleboard.addEventMarker("CommandLights end.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
 
     // Make this return true when this Command no longer needs to run execute()

@@ -4,8 +4,9 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.*;
+import edu.wpi.first.wpilibj.shuffleboard.*;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class IntakeLiftResetCommand extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
@@ -20,28 +21,24 @@ public class IntakeLiftResetCommand extends CommandBase {
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
+        Shuffleboard.addEventMarker("IntakeLiftResetCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
         m_intake.resetLift();
         System.out.println("reset Intakelift");
-    }
-
-    // Called repeatedly when this Command is scheduled to run
-    @Override
-    public void execute() {
     }
 
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        if (interrupted) {
+            Shuffleboard.addEventMarker("IntakeLiftResetCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
+        }
+        Shuffleboard.addEventMarker("IntakeLiftResetCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
 
     // Make this return true when this Command no longer needs to run execute()
     @Override
     public boolean isFinished() {
-        if (!m_intake.isResetting()) {
-            System.out.println("Intakelift - isFinished");
-            return true;
-        }
-        return false;
+        return !m_intake.isResetting();
     }
 
 }

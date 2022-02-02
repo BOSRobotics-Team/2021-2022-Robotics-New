@@ -1,7 +1,6 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 import frc.robot.subsystems.*;
@@ -10,7 +9,7 @@ import frc.robot.subsystems.*;
 public class DriveMotorsStopCommand extends InstantCommand {
 
     /** The subsystem to execute this command on. */
-    private final DriveTrain subsystem;
+    private final DriveTrain m_driveTrain;
 
     /**
      * Default constructor
@@ -18,7 +17,7 @@ public class DriveMotorsStopCommand extends InstantCommand {
      * @param subsystem The subsystem to execute this command on.
      */
     public DriveMotorsStopCommand(DriveTrain subsystem) {
-        this.subsystem = subsystem;
+        m_driveTrain = subsystem;
     }
 
     /** Log when this command is initialized */
@@ -30,7 +29,7 @@ public class DriveMotorsStopCommand extends InstantCommand {
     /** Do the state change. */
     @Override
     public void execute() {
-        subsystem.fullStop();
+        m_driveTrain.fullStop();
     }
 
     /** Log when this command ends */

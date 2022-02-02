@@ -1,14 +1,12 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-
 import frc.robot.subsystems.*;
+import edu.wpi.first.wpilibj.shuffleboard.*;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 public class DriveMotorsEnableCommand extends InstantCommand {
     /** The subsystem to execute this command on. */
-    private final DriveTrain subsystem;
+    private final DriveTrain m_driveTrain;
     
     /**
      * Default constructor
@@ -16,7 +14,7 @@ public class DriveMotorsEnableCommand extends InstantCommand {
      * @param subsystem The subsystem to execute this command on.
      */
     public DriveMotorsEnableCommand(DriveTrain subsystem) {
-        this.subsystem = subsystem;
+        m_driveTrain = subsystem;
     }
     
     /** Log when this command is initialized */
@@ -28,7 +26,7 @@ public class DriveMotorsEnableCommand extends InstantCommand {
     /** Do the state change. */
     @Override
     public void execute() {
-        subsystem.enableDriveTrain(true);
+        m_driveTrain.enableDriveTrain(true);
     }
     
     /** Log when this command ends */

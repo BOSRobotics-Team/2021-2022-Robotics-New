@@ -4,11 +4,12 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Lights.LEDColor;
+import edu.wpi.first.wpilibj.shuffleboard.*;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 
-public class LEDOnboardLightOffCommand extends CommandBase {
+public class LEDOnboardLightOffCommand extends InstantCommand {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Lights m_lights;
 
@@ -21,23 +22,21 @@ public class LEDOnboardLightOffCommand extends CommandBase {
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
-        m_lights.setOnboardLights(LEDColor.kOff);
+        Shuffleboard.addEventMarker("LEDOnboardLightOffCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
+        m_lights.setOnboardLights(LEDColor.kOff);
     }
 
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        if (interrupted) {
+            Shuffleboard.addEventMarker("LEDOnboardLightOffCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
+        }
+        Shuffleboard.addEventMarker("LEDOnboardLightOffCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
-
-    // Make this return true when this Command no longer needs to run execute()
-    @Override
-    public boolean isFinished() {
-        return true;
-    }
-
 }

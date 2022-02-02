@@ -5,7 +5,7 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.*;
-
+import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class ClimberRetrackCommand extends CommandBase {
@@ -21,27 +21,23 @@ public class ClimberRetrackCommand extends CommandBase {
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
+        Shuffleboard.addEventMarker("ClimberRetrackCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
         m_climber.runClimber(0.0);
         System.out.println("retractClimber - height = 0.0");
-    }
-
-    // Called repeatedly when this Command is scheduled to run
-    @Override
-    public void execute() {
     }
 
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
-        // m_hook.runClimber(0);
+        if (interrupted) {
+            Shuffleboard.addEventMarker("ClimberRetrackCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
+        }
+        Shuffleboard.addEventMarker("ClimberRetrackCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
 
     // Make this return true when this Command no longer needs to run execute()
     @Override
     public boolean isFinished() {
-        if (!m_climber.isClimbing()) {
-            System.out.println("retractClimber - isFinished");
-        }
         return !m_climber.isClimbing();
     }
 }

@@ -4,9 +4,10 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.*;
+import edu.wpi.first.wpilibj.shuffleboard.*;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class IntakeUnjamCommand extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
@@ -23,6 +24,7 @@ public class IntakeUnjamCommand extends CommandBase {
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
+        Shuffleboard.addEventMarker("IntakeUnjamCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
         m_intake.runIntake(Constants.kUnjamIntakeSpeed);
     }
 
@@ -36,6 +38,10 @@ public class IntakeUnjamCommand extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         m_intake.stopIntake();
+        if (interrupted) {
+            Shuffleboard.addEventMarker("IntakeUnjamCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
+        }
+        Shuffleboard.addEventMarker("IntakeUnjamCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
 
     // Make this return true when this Command no longer needs to run execute()

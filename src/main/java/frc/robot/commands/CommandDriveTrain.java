@@ -8,8 +8,9 @@ import frc.robot.subsystems.*;
 import frc.robot.subsystems.DriveTrain.DriveMode;
 
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class CommandDriveTrain extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
@@ -54,6 +55,8 @@ public class CommandDriveTrain extends CommandBase {
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
+        Shuffleboard.addEventMarker("CommandDriveTrain init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+
         left_Bumper.whenPressed(() -> m_driveTrain.toggleDriveMode());    
         right_Bumper.whenPressed(() -> m_driveTrain.setUseDriveScaling(!m_driveTrain.getUseDriveScaling()));
 
@@ -101,6 +104,11 @@ public class CommandDriveTrain extends CommandBase {
         m_driveTrain.setDriveScaling(1.0);
         m_driveTrain.setDriveMode(DriveMode.ARCADE);
         m_driveTrain.enableDriveTrain(false);
+
+        if (interrupted) {
+            Shuffleboard.addEventMarker("CommandDriveTrain Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
+        }
+        Shuffleboard.addEventMarker("CommandDriveTrain end.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
 
     // Make this return true when this Command no longer needs to run execute()

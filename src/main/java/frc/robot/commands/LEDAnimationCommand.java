@@ -4,11 +4,12 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Lights.AnimationTypes;
+import edu.wpi.first.wpilibj.shuffleboard.*;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 
-public class LEDAnimationCommand extends CommandBase {
+public class LEDAnimationCommand extends InstantCommand {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Lights m_lights;
     private final AnimationTypes m_type;
@@ -29,23 +30,21 @@ public class LEDAnimationCommand extends CommandBase {
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
-        m_lights.changeAnimation(m_type);
+        Shuffleboard.addEventMarker("LEDAnimationCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
+        m_lights.changeAnimation(m_type);
     }
 
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        if (interrupted) {
+            Shuffleboard.addEventMarker("LEDAnimationCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
+        }
+        Shuffleboard.addEventMarker("LEDAnimationCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
-
-    // Make this return true when this Command no longer needs to run execute()
-    @Override
-    public boolean isFinished() {
-        return true;
-    }
-
 }

@@ -1,4 +1,4 @@
-package frc.robot.commands;
+package frc.robot.commands.unused;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
@@ -11,10 +11,10 @@ import frc.robot.subsystems.*;
 public class SimpleUnidirectionalDriveCommand extends CommandBase {
 
   /** The OI used for input. */
-  public final XboxController controller;
+  public final XboxController m_controller;
 
   /** The subsystem to execute this command on. */
-  private final DriveTrain subsystem;
+  private final DriveTrain m_driveTrain;
 
   /**
    * Default constructor
@@ -23,8 +23,8 @@ public class SimpleUnidirectionalDriveCommand extends CommandBase {
    * @param controller The OI that gives the input to this command.
    */
   public SimpleUnidirectionalDriveCommand(DriveTrain subsystem, XboxController controller) {
-    this.controller = controller;
-    this.subsystem = subsystem;
+    m_controller = controller;
+    m_driveTrain = subsystem;
     // Default commands need to require their subsystems.
     addRequirements(subsystem);
   }
@@ -32,13 +32,13 @@ public class SimpleUnidirectionalDriveCommand extends CommandBase {
   /** Stop the drive for safety reasons. */
   @Override
   public void initialize() {
-    subsystem.fullStop();
+    m_driveTrain.fullStop();
   }
 
   /** Give output to the motors based on the stick inputs. */
   @Override
   public void execute() {
-    subsystem.drive(this.controller);
+    m_driveTrain.drive(this.m_controller);
   }
 
   /**
@@ -61,6 +61,6 @@ public class SimpleUnidirectionalDriveCommand extends CommandBase {
           EventImportance.kNormal);
     }
     // Brake for safety!
-    subsystem.fullStop();
+    m_driveTrain.fullStop();
   }
 }

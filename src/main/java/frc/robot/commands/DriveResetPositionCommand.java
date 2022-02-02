@@ -1,23 +1,22 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 import frc.robot.subsystems.*;
 
-public class ResetPositionCommand extends InstantCommand {
+public class DriveResetPositionCommand extends InstantCommand {
 
     /** The subsystem to execute this command on. */
-    private final DriveTrain subsystem;
+    private final DriveTrain m_driveTrain;
     
     /**
      * Default constructor
      *
      * @param subsystem The subsystem to execute this command on.
      */
-    public ResetPositionCommand(DriveTrain subsystem) {
-        this.subsystem = subsystem;
+    public DriveResetPositionCommand(DriveTrain subsystem) {
+        m_driveTrain = subsystem;
     }
     
     /** Log when this command is initialized */
@@ -29,7 +28,7 @@ public class ResetPositionCommand extends InstantCommand {
     /** Do the state change. */
     @Override
     public void execute() {
-        subsystem.resetPosition();
+        m_driveTrain.resetPosition();
     }
     
     /** Log when this command ends */

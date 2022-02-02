@@ -5,7 +5,7 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.*;
-
+import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class PivotLinkRetractCommand extends CommandBase {
@@ -21,27 +21,23 @@ public class PivotLinkRetractCommand extends CommandBase {
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
+        Shuffleboard.addEventMarker("PivotLinkRetractCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
         m_climber.runPivotLink(0.0);
-        System.out.println("retractPivotLink - distance = 0.0");
-    }
-
-    // Called repeatedly when this Command is scheduled to run
-    @Override
-    public void execute() {
+        System.out.println("extendPivotLink - distance = 0.0");
     }
 
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
-        // m_hook.runClimber(0);
+        if (interrupted) {
+            Shuffleboard.addEventMarker("PivotLinkRetractCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
+        }
+        Shuffleboard.addEventMarker("PivotLinkRetractCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
 
     // Make this return true when this Command no longer needs to run execute()
     @Override
     public boolean isFinished() {
-        if (!m_climber.isPivoting()) {
-            System.out.println("extendPivotLink - isFinished");
-        }
         return !m_climber.isPivoting();
     }
 }

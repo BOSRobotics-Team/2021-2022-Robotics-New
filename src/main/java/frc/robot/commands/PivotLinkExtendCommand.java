@@ -5,28 +5,27 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.*;
-
-import edu.wpi.first.wpilibj.Preferences;
+import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class PivotLinkExtendCommand extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Climber m_climber;
+    private final double m_distance;
 
-    public PivotLinkExtendCommand(Climber climber) {
+    public PivotLinkExtendCommand(Climber climber, double distance) {
         m_climber = climber;
+        m_distance = distance;
 
         addRequirements(m_climber);
-        Preferences.initDouble("PivotLinkDistance1", 1.0);
     }
 
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
-        double distance = Preferences.getDouble("PivotLinkDistance1", 1.0);
-
-        m_climber.runPivotLink(distance);
-        System.out.println("extendPivotLink - distance = " + distance);
+        Shuffleboard.addEventMarker("PivotLinkExtendCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        m_climber.runPivotLink(m_distance);
+        System.out.println("extendPivotLink - distance = " + m_distance);
     }
 
     // Called repeatedly when this Command is scheduled to run
@@ -37,15 +36,15 @@ public class PivotLinkExtendCommand extends CommandBase {
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
-        // m_hook.runClimber(0);
+        if (interrupted) {
+            Shuffleboard.addEventMarker("PivotLinkExtendCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
+        }
+        Shuffleboard.addEventMarker("PivotLinkExtendCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
 
     // Make this return true when this Command no longer needs to run execute()
     @Override
     public boolean isFinished() {
-        if (!m_climber.isPivoting()) {
-            System.out.println("extendPivotLink - isFinished");
-        }
         return !m_climber.isPivoting();
     }
 }

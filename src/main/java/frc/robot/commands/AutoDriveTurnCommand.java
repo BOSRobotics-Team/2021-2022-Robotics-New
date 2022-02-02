@@ -4,10 +4,11 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.*;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.*;
+import edu.wpi.first.wpilibj.smartdashboard.*;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class AutoDriveTurnCommand extends CommandBase {
 	@SuppressWarnings({ "PMD.UnusedPrivateField", "PMD.SingularField" })
@@ -32,7 +33,7 @@ public class AutoDriveTurnCommand extends CommandBase {
     
     @Override
     public void initialize() {
-        System.out.println("AutoDriveTurnCommand - initialize");
+        Shuffleboard.addEventMarker("AutoDriveTurnCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
 
         m_driveTrain.enableDriveTrain(false);
         m_driveTrain.enableBrakes(false);
@@ -76,6 +77,11 @@ public class AutoDriveTurnCommand extends CommandBase {
     public void end(boolean interrupted) {
         System.out.println("AutoDriveTurnCommand - end");
         m_driveTrain.enableDriveTrain(false);
+
+        if (interrupted) {
+            Shuffleboard.addEventMarker("AutoDriveTurnCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
+        }
+        Shuffleboard.addEventMarker("AutoDriveTurnCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
 
     // Make this return true when this Command no longer needs to run execute()

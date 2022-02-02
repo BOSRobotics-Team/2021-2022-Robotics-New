@@ -6,7 +6,8 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.DriveTrain.DriveMode;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.shuffleboard.*;
+import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class AutonomousCommand extends CommandBase {
@@ -28,6 +29,7 @@ public class AutonomousCommand extends CommandBase {
     
     @Override
     public void initialize() {
+        Shuffleboard.addEventMarker("AutonomousCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
         System.out.println("AutonomousCommand - initialize");
 
         m_driveTrain.setDriveMode(DriveMode.ARCADE);
@@ -63,6 +65,11 @@ public class AutonomousCommand extends CommandBase {
     public void end(boolean interrupted) {
         System.out.println("AutonomousCommand - end");
         m_driveTrain.enableDriveTrain(false);
+
+        if (interrupted) {
+            Shuffleboard.addEventMarker("AutonomousCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
+        }
+        Shuffleboard.addEventMarker("AutonomousCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
 
     // Make this return true when this Command no longer needs to run execute()

@@ -4,10 +4,11 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.*;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.*;
+import edu.wpi.first.wpilibj.smartdashboard.*;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class AutoDriveStraightCommand extends CommandBase {
 	@SuppressWarnings({ "PMD.UnusedPrivateField", "PMD.SingularField" })
@@ -31,7 +32,7 @@ public class AutoDriveStraightCommand extends CommandBase {
     
     @Override
     public void initialize() {
-        System.out.println("AutoDriveStraightCommand - initialize");
+        Shuffleboard.addEventMarker("AutoDriveStraightCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
 
         m_driveTrain.enableDriveTrain(false);
         m_driveTrain.enableBrakes(false);
@@ -68,7 +69,10 @@ public class AutoDriveStraightCommand extends CommandBase {
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
-        System.out.println("AutoDriveStraightCommand - end");
+        if (interrupted) {
+            Shuffleboard.addEventMarker("AutoDriveStraightCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
+        }
+        Shuffleboard.addEventMarker("AutoDriveStraightCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
         m_driveTrain.enableDriveTrain(false);
     }
 

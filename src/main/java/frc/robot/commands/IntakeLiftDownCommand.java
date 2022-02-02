@@ -4,8 +4,9 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.*;
+import edu.wpi.first.wpilibj.shuffleboard.*;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class IntakeLiftDownCommand extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
@@ -20,6 +21,7 @@ public class IntakeLiftDownCommand extends CommandBase {
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
+        Shuffleboard.addEventMarker("IntakeLiftDownCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
         m_intake.runLift(0.0);
         System.out.println("Intakelift - height = 0.0");
     }
@@ -32,16 +34,16 @@ public class IntakeLiftDownCommand extends CommandBase {
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        if (interrupted) {
+            Shuffleboard.addEventMarker("IntakeLiftDownCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
+        }
+        Shuffleboard.addEventMarker("IntakeLiftDownCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
 
     // Make this return true when this Command no longer needs to run execute()
     @Override
     public boolean isFinished() {
-        if (!m_intake.isLifting()) {
-            System.out.println("Intakelift - isFinished");
-            return true;
-        }
-        return false;
+        return !m_intake.isLifting();
     }
 
 }

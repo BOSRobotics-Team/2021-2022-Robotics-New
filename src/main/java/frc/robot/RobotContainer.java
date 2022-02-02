@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.commands.*;
+import frc.robot.commands.unused.DrivePathWeaverCommand;
 import frc.robot.subsystems.*;
 
 import edu.wpi.first.wpilibj.GenericHID;

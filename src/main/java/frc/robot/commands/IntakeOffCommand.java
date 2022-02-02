@@ -4,10 +4,11 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.*;
+import edu.wpi.first.wpilibj.shuffleboard.*;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 
-public class IntakeOffCommand extends CommandBase {
+public class IntakeOffCommand extends InstantCommand {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Intake m_intake;
 
@@ -20,23 +21,21 @@ public class IntakeOffCommand extends CommandBase {
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
-        m_intake.stopIntake();
+        Shuffleboard.addEventMarker("IntakeOffCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
+        m_intake.stopIntake();
     }
 
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        if (interrupted) {
+            Shuffleboard.addEventMarker("IntakeOffCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
+        }
+        Shuffleboard.addEventMarker("IntakeOffCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
-
-    // Make this return true when this Command no longer needs to run execute()
-    @Override
-    public boolean isFinished() {
-        return true;
-    }
-
 }
