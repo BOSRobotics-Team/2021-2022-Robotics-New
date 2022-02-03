@@ -4,6 +4,8 @@ import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.*;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.sim.PhysicsSim;
 
 public class SmartMotorHelper {
     public static final int kMain = 0;
@@ -20,6 +22,7 @@ public class SmartMotorHelper {
 	/* We allow either a 0 or 1 when selecting a PID Index, where 0 is primary and 1 is auxiliary */
 	public static final int PID_PRIMARY = 0;
 	public static final int PID_TURN = 1;
+	public static final int PID_AUX = 1;
 	/* Firmware currently supports slots [0, 3] and can be used for either PID Set */
 	public static final int SLOT_0 = 0;
 	public static final int SLOT_1 = 1;
@@ -72,30 +75,41 @@ public class SmartMotorHelper {
     private boolean _isDistance = false;
     private boolean _isDistanceAux = false;
 
-    /** Cached values for various sensor readings. */
-    private double _cachedVelocity = Double.NaN;
-    private double _cachedPosition = Double.NaN;
+    // /** Cached values for various sensor readings. */
+    // private double _cachedVelocity = Double.NaN;
+    // private double _cachedPosition = Double.NaN;
 
 
     public SmartMotorHelper( final BaseTalon talon, final BaseTalon auxTalon ) {
         _controller = talon;
         _auxController = auxTalon;
 
-        if (_controller.getClass() == WPI_TalonFX.class)
+        _controller.configFactoryDefault();
+        if (_controller.getClass() == WPI_TalonFX.class) {
             _controllerType = kTalonFX;
-        else if (_controller.getClass() == WPI_TalonSRX.class)
+            if (RobotBase.isSimulation())
+                PhysicsSim.getInstance().addTalonFX((WPI_TalonFX)_controller, 0.2, 6800);
+        } else if (_controller.getClass() == WPI_TalonSRX.class) {
             _controllerType = kTalonSRX;
-        else 
+            if (RobotBase.isSimulation())
+                PhysicsSim.getInstance().addTalonSRX((WPI_TalonSRX)_controller, 0.2, 6800);
+        } else {
             _controllerType = kTalonNone;
-        
+        }
+        _feedbackDevice = kDefaultFeedbackDevice[_controllerType];
+
         _convertor = new Convertor(kSensorUnitsPerRotation[_controllerType]);
         _convertor.setRatios(kDefaultGearRatio);
         
-        _controller.configFactoryDefault();
-        _feedbackDevice = kDefaultFeedbackDevice[_controllerType];
-
         if (_auxController != null) {
             _auxController.configFactoryDefault();
+            if (RobotBase.isSimulation()) {
+                if (_auxController.getClass() == WPI_TalonFX.class) {
+                    PhysicsSim.getInstance().addTalonFX((WPI_TalonFX)_auxController, 0.2, 6800);
+                } else if (_auxController.getClass() == WPI_TalonSRX.class) {
+                    PhysicsSim.getInstance().addTalonSRX((WPI_TalonSRX)_auxController, 0.2, 6800);
+                }
+            } 
         }
     }
 
@@ -166,88 +180,100 @@ public class SmartMotorHelper {
     public void setDistanceConfigs(Gains gains) {
         setClosedLoopGains(_controller, kSlot_Distanc, gains);
 
-     	/* Set relevant frame periods to be at least as fast as periodic rate */
-        _controller.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, kTimeoutMs);
-        _controller.setStatusFramePeriod(StatusFrameEnhanced.Status_10_Targets, 10, kTimeoutMs);
-
         _controller.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
 
-        if (_auxController != null) {
-            _controller.configRemoteFeedbackFilter(_auxController.getDeviceID(), 
-                                                   RemoteSensorSource.TalonSRX_SelectedSensor, 
-                                                   REMOTE_0);
+        /* Configure Sensor Source for Primary PID */
+        _controller.configSelectedFeedbackSensor(_feedbackDevice, PID_PRIMARY, kTimeoutMs);
 
+        if (_auxController != null) {
+            setClosedLoopGains(_auxController, kSlot_Distanc, gains);
+            _auxController.configRemoteFeedbackFilter(_controller.getDeviceID(), 
+                                                   RemoteSensorSource.TalonFX_SelectedSensor, 
+                                                   REMOTE_0);
             /* Check if we're inverted */
-            if (_controller.getInverted()) {
-                _controller.configSensorTerm(SensorTerm.Diff0, _feedbackDevice);
-                _controller.configSensorTerm(SensorTerm.Diff1, FeedbackDevice.RemoteSensor0);
-                _controller.configSelectedFeedbackSensor(FeedbackDevice.SensorDifference, PID_PRIMARY, kTimeoutMs);
+            if (_auxController.getInverted()) {
+                _auxController.configSensorTerm(SensorTerm.Diff0, _feedbackDevice);
+                _auxController.configSensorTerm(SensorTerm.Diff1, FeedbackDevice.RemoteSensor0);
+                _auxController.configSelectedFeedbackSensor(FeedbackDevice.SensorDifference, PID_PRIMARY, kTimeoutMs);
             } else {
-                /* Master is not inverted, both sides are positive so we can sum them. */
-                _controller.configSensorTerm(SensorTerm.Sum0, FeedbackDevice.RemoteSensor0);
-                _controller.configSensorTerm(SensorTerm.Sum1, _feedbackDevice);
-                _controller.configSelectedFeedbackSensor(FeedbackDevice.SensorSum, PID_PRIMARY, kTimeoutMs);
+                _auxController.configSensorTerm(SensorTerm.Sum0, FeedbackDevice.RemoteSensor0);
+                _auxController.configSensorTerm(SensorTerm.Sum1, _feedbackDevice);
+                _auxController.configSelectedFeedbackSensor(FeedbackDevice.SensorSum, PID_PRIMARY, kTimeoutMs);
             }
-            _controller.configSelectedFeedbackCoefficient(0.5, PID_PRIMARY, kTimeoutMs);
-            _auxController.follow(_controller, FollowerType.PercentOutput);
-        }
-    }
+            _auxController.configSelectedFeedbackCoefficient(0.5, PID_PRIMARY, kTimeoutMs);
+            _auxController.setStatusFramePeriod(StatusFrame.Status_12_Feedback1, 20, kTimeoutMs);
+            _auxController.setStatusFramePeriod(StatusFrame.Status_13_Base_PIDF0, 20, kTimeoutMs);
+            _auxController.setStatusFramePeriod(StatusFrame.Status_14_Turn_PIDF1, 20, kTimeoutMs);
+            _auxController.setStatusFramePeriod(StatusFrame.Status_10_Targets, 20, kTimeoutMs);
+            _auxController.setStatusFramePeriod(StatusFrameEnhanced.Status_10_Targets, 10); 
+       }
+     	/* Set relevant frame periods to be at least as fast as periodic rate */
+         _controller.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 5, kTimeoutMs);
+         _controller.setStatusFramePeriod(StatusFrameEnhanced.Status_12_Feedback1, 10, kTimeoutMs);
+         _controller.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, kTimeoutMs);
+         _controller.setStatusFramePeriod(StatusFrameEnhanced.Status_10_Targets, 10, kTimeoutMs);
+     }
 
     public void setDistanceAndTurnConfigs(Gains dgains, Gains tgains) {
         setDistanceConfigs(dgains);
 
         setClosedLoopGains(_controller, kSlot_Turning, tgains);
 
-		_controller.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 5, kTimeoutMs);
-		_controller.setStatusFramePeriod(StatusFrameEnhanced.Status_12_Feedback1, 10, kTimeoutMs);
-		_controller.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, kTimeoutMs);
-		_controller.setStatusFramePeriod(StatusFrameEnhanced.Status_14_Turn_PIDF1, 10, kTimeoutMs);
-		_controller.setStatusFramePeriod(StatusFrameEnhanced.Status_10_Targets, 10, kTimeoutMs);
         _controller.selectProfileSlot(kSlot_Turning, PID_TURN);
 
         if (_auxController != null) {
-            _controller.configRemoteFeedbackFilter(_auxController.getDeviceID(), 
-                                                   RemoteSensorSource.TalonSRX_SelectedSensor, 
-                                                   REMOTE_0);
+            setClosedLoopGains(_auxController, kSlot_Turning, tgains);
+            _auxController.configRemoteFeedbackFilter(_controller.getDeviceID(), 
+                                                   RemoteSensorSource.TalonFX_SelectedSensor, 
+                                                   REMOTE_1);
             /* Check if we're inverted */
-            if (_controller.getInverted()) {
-                _controller.configSensorTerm(SensorTerm.Sum0, _feedbackDevice);
-                _controller.configSensorTerm(SensorTerm.Sum1, FeedbackDevice.RemoteSensor0);
-                _controller.configSelectedFeedbackSensor(FeedbackDevice.SensorSum, PID_TURN, kTimeoutMs);
-                _controller.configAuxPIDPolarity(true, kTimeoutMs);
+            if (_auxController.getInverted()) {
+                _auxController.configSensorTerm(SensorTerm.Sum0, _feedbackDevice);
+                _auxController.configSensorTerm(SensorTerm.Sum1, FeedbackDevice.RemoteSensor1);
+                _auxController.configSelectedFeedbackSensor(FeedbackDevice.SensorSum, PID_TURN, kTimeoutMs);
+                _auxController.configAuxPIDPolarity(true, kTimeoutMs);
             } else {
-                /* Master is not inverted, both sides are positive so we can diff them. */
-                _controller.configSensorTerm(SensorTerm.Diff0, FeedbackDevice.RemoteSensor0);
-                _controller.configSensorTerm(SensorTerm.Diff1, _feedbackDevice);
-                _controller.configSelectedFeedbackSensor(FeedbackDevice.SensorDifference, PID_TURN, kTimeoutMs);
-                _controller.configAuxPIDPolarity(true, kTimeoutMs);
+                _auxController.configSensorTerm(SensorTerm.Diff0, FeedbackDevice.RemoteSensor1);
+                _auxController.configSensorTerm(SensorTerm.Diff1, _feedbackDevice);
+                _auxController.configSelectedFeedbackSensor(FeedbackDevice.SensorDifference, PID_TURN, kTimeoutMs);
+                _auxController.configAuxPIDPolarity(true, kTimeoutMs);
             }
-            _controller.configSelectedFeedbackCoefficient(kFeedbackCoefficient, PID_TURN, kTimeoutMs);
-            _auxController.follow(_controller, FollowerType.AuxOutput1);
+            _auxController.configSelectedFeedbackCoefficient(kFeedbackCoefficient, PID_TURN, kTimeoutMs);
+            _auxController.setStatusFramePeriod(StatusFrame.Status_12_Feedback1, 20, kTimeoutMs);
+            _auxController.setStatusFramePeriod(StatusFrame.Status_13_Base_PIDF0, 20, kTimeoutMs);
+            _auxController.setStatusFramePeriod(StatusFrame.Status_14_Turn_PIDF1, 20, kTimeoutMs);
+            _auxController.setStatusFramePeriod(StatusFrame.Status_10_Targets, 20, kTimeoutMs);
+            _auxController.setStatusFramePeriod(StatusFrameEnhanced.Status_10_Targets, 10);
         }
-    }
+     	/* Set relevant frame periods to be at least as fast as periodic rate */
+         _controller.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 5, kTimeoutMs);
+         _controller.setStatusFramePeriod(StatusFrameEnhanced.Status_12_Feedback1, 10, kTimeoutMs);
+         _controller.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, kTimeoutMs);
+         _controller.setStatusFramePeriod(StatusFrameEnhanced.Status_14_Turn_PIDF1, 10, kTimeoutMs);
+         _controller.setStatusFramePeriod(StatusFrameEnhanced.Status_10_Targets, 10, kTimeoutMs);
+     }
 
     /**
      * Get the velocity of the drive.
      *
      * @return The signed velocity in meters per second, or null if the drive doesn't have encoders.
      */
-    public Double getVelocity() {
-        return _convertor.nativeUnitsToVelocity(_controller.getSelectedSensorVelocity(PID_PRIMARY));
-    }
     public Double getNativeVelocity() {
-        return _controller.getSelectedSensorVelocity(PID_PRIMARY);
+        return (_auxController != null) ? _auxController.getSelectedSensorVelocity(PID_PRIMARY) : _controller.getSelectedSensorVelocity(PID_PRIMARY);
+    }
+    public Double getVelocity() {
+        return _convertor.nativeUnitsToVelocity(getNativeVelocity());
     }
     /**
      * Get the velocity of the drive.
      *
      * @return The signed velocity in meters per second, or null if the drive doesn't have encoders.
      */
-    public Double getAuxVelocity() {
-        return _convertor.nativeUnitsToVelocity(_controller.getSelectedSensorVelocity(PID_TURN));
-    }
     public Double getAuxNativeVelocity() {
-        return _controller.getSelectedSensorVelocity(PID_TURN);
+        return (_auxController != null) ? _auxController.getSelectedSensorVelocity(PID_TURN) : _controller.getSelectedSensorVelocity(PID_TURN);
+    }
+    public Double getAuxVelocity() {
+        return _convertor.nativeUnitsToVelocity(getAuxNativeVelocity());
     }
 
     /**
@@ -255,11 +281,11 @@ public class SmartMotorHelper {
      *
      * @return The signed position in meters, or null if the drive doesn't have encoders.
      */
-    public Double getPosition() {
-        return _convertor.nativeUnitsToDistanceMeters(_controller.getSelectedSensorPosition(PID_PRIMARY));
-    }
     public Double getNativePosition() {
-        return _controller.getSelectedSensorPosition(PID_PRIMARY);
+        return (_auxController != null) ? _auxController.getSelectedSensorPosition(PID_PRIMARY) : _controller.getSelectedSensorPosition(PID_PRIMARY);
+    }
+    public Double getPosition() {
+        return _convertor.nativeUnitsToDistanceMeters(getNativePosition());
     }
 
     /**
@@ -267,11 +293,11 @@ public class SmartMotorHelper {
      *
      * @return The signed position in meters, or null if the drive doesn't have encoders.
      */
-    public Double getAuxPosition() {
-        return _convertor.nativeUnitsToDistanceMeters(_controller.getSelectedSensorPosition(PID_TURN));
-    }
     public Double getAuxNativePosition() {
-        return _controller.getSelectedSensorPosition(PID_TURN);
+        return (_auxController != null) ? _auxController.getSelectedSensorPosition(PID_TURN) : _controller.getSelectedSensorPosition(PID_TURN);
+    }
+    public Double getAuxPosition() {
+        return _convertor.nativeUnitsToDistanceMeters(getAuxNativePosition());
     }
 
     public void set(double pctOutput) {
@@ -292,10 +318,6 @@ public class SmartMotorHelper {
 
         _setpoint = meters;
         _nativeSetpoint = _convertor.distanceMetersToNativeUnits(meters);
-
-        if (_auxController != null)
-            _auxController.follow(_controller, FollowerType.PercentOutput);
-        _controller.set(ControlMode.MotionMagic, _nativeSetpoint);
         _isDistance = true;
     }
     public void setTarget(double meters, double aux) {
@@ -306,10 +328,6 @@ public class SmartMotorHelper {
         _auxpoint = aux;
         _nativeAuxpoint = aux;
 
-        // System.out.println("target (units) = " + _convertor.distanceMetersToNativeUnits(meters) + " angle: " + aux);
-        if (_auxController != null)
-    		_auxController.follow(_controller, FollowerType.AuxOutput1);
-        _controller.set(ControlMode.MotionMagic, _nativeSetpoint, DemandType.AuxPID, _nativeAuxpoint);
         _isDistanceAux = true;
     }
 
@@ -320,15 +338,7 @@ public class SmartMotorHelper {
         _nativeSetpoint = _convertor.velocityToNativeUnits(_setpoint);
         _nativeAuxpoint = _feedForwardCalculator.calculate(velocity) / 12.;
 
-        if (_auxController != null)
-            _auxController.follow(_controller, FollowerType.PercentOutput);
-
         _controller.config_kF(0, 0, 0);
-        _controller.set(
-            ControlMode.Velocity,
-            _nativeSetpoint,
-            DemandType.ArbitraryFeedForward,
-            _nativeAuxpoint);
         _isVelocity = true;
     }
 
@@ -337,15 +347,19 @@ public class SmartMotorHelper {
 
     /** Resets the position of the Talon to 0. */
     public void resetPosition() {
-        _controller.setSelectedSensorPosition(0, PID_PRIMARY, kTimeoutMs);
-        if (_auxController != null) 
-            _auxController.setSelectedSensorPosition(0, PID_PRIMARY, kTimeoutMs);
-    }
-    /** Resets the position of the Talon to 0. */
-    public void resetAuxPosition() {
-        _controller.setSelectedSensorPosition(0, PID_TURN, kTimeoutMs);
-        if (_auxController != null) 
-            _auxController.setSelectedSensorPosition(0, PID_TURN, kTimeoutMs);
+        if (_controllerType == kTalonFX) {
+            ((WPI_TalonFX)_controller).getSensorCollection().setIntegratedSensorPosition(0, kTimeoutMs);
+            if (_auxController != null)
+                ((WPI_TalonFX)_auxController).getSensorCollection().setIntegratedSensorPosition(0, kTimeoutMs);
+        } else if (_controllerType == kTalonSRX) {
+            ((WPI_TalonSRX)_controller).getSensorCollection().setQuadraturePosition(0, kTimeoutMs);
+            if (_auxController != null)
+                ((WPI_TalonSRX)_auxController).getSensorCollection().setQuadraturePosition(0, kTimeoutMs);
+        } else {
+            _controller.setSelectedSensorPosition(0, PID_PRIMARY, kTimeoutMs);
+            if (_auxController != null) 
+                _auxController.setSelectedSensorPosition(0, PID_PRIMARY, kTimeoutMs);
+        }
     }
     public void enableBrakes(boolean enabled) {
         _controller.setNeutralMode(enabled ? NeutralMode.Brake : NeutralMode.Coast);
@@ -362,12 +376,33 @@ public class SmartMotorHelper {
 
     /** Updates all cached values with current ones. */
     public void update() {
+        if (RobotBase.isSimulation()) {
+            PhysicsSim.getInstance().run();
+        }
+
         if (_isDistance) {
-            _controller.set(ControlMode.MotionMagic, _nativeSetpoint);
+            /* Determine which slot affects which PID */
+            if (_auxController != null) {
+                _auxController.set(ControlMode.MotionMagic, _nativeSetpoint);            
+                _controller.follow(_auxController, FollowerType.PercentOutput);
+            } else {
+                _controller.set(ControlMode.MotionMagic, _nativeSetpoint);            
+            }
         } else if (_isDistanceAux) {
-            _controller.set(ControlMode.MotionMagic, _nativeSetpoint, DemandType.AuxPID, _nativeAuxpoint);
+            if (_auxController != null) {
+                _auxController.set(ControlMode.MotionMagic, _nativeSetpoint, DemandType.AuxPID, _nativeAuxpoint);
+                _controller.follow(_auxController, FollowerType.AuxOutput1);
+            } else {
+                _controller.set(ControlMode.MotionMagic, _nativeSetpoint, DemandType.AuxPID, _nativeAuxpoint);
+            }
         } else if (_isVelocity) {
-            _controller.set(ControlMode.Velocity, _nativeSetpoint, DemandType.ArbitraryFeedForward, _nativeAuxpoint);    
+            _controller.set(
+                ControlMode.Velocity,
+                _nativeSetpoint,
+                DemandType.ArbitraryFeedForward,
+                _nativeAuxpoint);
+            if (_auxController != null)
+                _auxController.follow(_controller, FollowerType.PercentOutput);
         }
 
         // _cachedVelocity = getVelocity();

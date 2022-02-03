@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import frc.robot.*;
 import frc.robot.wrappers.*;
+import frc.robot.sim.PhysicsSim;
 
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.*;
@@ -19,6 +20,7 @@ import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -40,23 +42,23 @@ public class DriveTrain extends SubsystemBase {
     private final WPI_TalonSRX rightFollower = new WPI_TalonSRX(3);
     private final WPI_TalonSRX leftFollower = new WPI_TalonSRX(2);
 
-    /* Object for simulated inputs into Talon. */
-    private final TalonFXSimCollection leftMasterSim = leftMaster.getSimCollection();
-    private final TalonFXSimCollection rightMasterSim = rightMaster.getSimCollection();
+    // /* Object for simulated inputs into Talon. */
+    // private final TalonFXSimCollection leftMasterSim = leftMaster.getSimCollection();
+    // private final TalonFXSimCollection rightMasterSim = rightMaster.getSimCollection();
     
     public final SmartMotorHelper smartController = new SmartMotorHelper(leftMaster, rightMaster);
 
     /** Simulation stuff */
-    private final Convertor convertorSim = new Convertor(2048);
-    private final DifferentialDrivetrainSim driveSim = new DifferentialDrivetrainSim(
-        DCMotor.getCIM(2),        //2 CIMS on each side of the drivetrain.
-        Constants.kGearRatio,     //Standard AndyMark Gearing reduction.
-        2.1,                      //MOI of 2.1 kg m^2 (from CAD model).
-        26.5,                     //Mass of the robot is 26.5 kg.
-        Units.inchesToMeters(Constants.kWheelRadiusInches),  //Robot uses 3" radius (6" diameter) wheels.
-        0.546,                    //Distance between wheels is _ meters.
-        null //VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005) //Uncomment this line to add measurement noise.
-    );
+    // private final Convertor convertorSim = new Convertor(2048);
+    // private final DifferentialDrivetrainSim driveSim = new DifferentialDrivetrainSim(
+    //     DCMotor.getCIM(2),        //2 CIMS on each side of the drivetrain.
+    //     Constants.kGearRatio,     //Standard AndyMark Gearing reduction.
+    //     2.1,                      //MOI of 2.1 kg m^2 (from CAD model).
+    //     26.5,                     //Mass of the robot is 26.5 kg.
+    //     Units.inchesToMeters(Constants.kWheelRadiusInches),  //Robot uses 3" radius (6" diameter) wheels.
+    //     0.546,                    //Distance between wheels is _ meters.
+    //     null //VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005) //Uncomment this line to add measurement noise.
+    // );
 
     /** The NavX gyro */
     private final DriveGyro gyro = new DriveGyro(false);
@@ -104,9 +106,13 @@ public class DriveTrain extends SubsystemBase {
         differentialDrive.setMaxOutput(0.75);
         differentialDrive.setDeadband(0.02);
 
-        resetPosition();
-        convertorSim.setRatios(Constants.kGearRatio, Constants.kWheelRadiusInches, 1.0);
+        // if (RobotBase.isSimulation()) {
+        //     // convertorSim.setRatios(Constants.kGearRatio, Constants.kWheelRadiusInches, 1.0);
+        //     PhysicsSim.getInstance().addTalonFX(leftMaster, 0.2, 6800);
+		//     PhysicsSim.getInstance().addTalonFX(rightMaster, 0.2, 6800);
+        // }
 
+        resetPosition();
         addChild("Differential Drive", differentialDrive);
     }
 
@@ -156,28 +162,28 @@ public class DriveTrain extends SubsystemBase {
 
     @Override
     public void simulationPeriodic() {
-        // This method will be called once per scheduler run during simulation
-        /* Pass the robot battery voltage to the simulated Talon SRXs */
-        leftMasterSim.setBusVoltage(RobotController.getBatteryVoltage());
-        rightMasterSim.setBusVoltage(RobotController.getBatteryVoltage());
+        // // This method will be called once per scheduler run during simulation
+        // /* Pass the robot battery voltage to the simulated Talon SRXs */
+        // leftMasterSim.setBusVoltage(RobotController.getBatteryVoltage());
+        // rightMasterSim.setBusVoltage(RobotController.getBatteryVoltage());
 
-        driveSim.setInputs(leftMasterSim.getMotorOutputLeadVoltage(),
-                           -rightMasterSim.getMotorOutputLeadVoltage());
+        // driveSim.setInputs(leftMasterSim.getMotorOutputLeadVoltage(),
+        //                    -rightMasterSim.getMotorOutputLeadVoltage());
 
-        /*
-        * Advance the model by 20 ms. Note that if you are running this
-        * subsystem in a separate thread or have changed the nominal
-        * timestep of TimedRobot, this value needs to match it.
-        */
-        driveSim.update(0.02);
+        // /*
+        // * Advance the model by 20 ms. Note that if you are running this
+        // * subsystem in a separate thread or have changed the nominal
+        // * timestep of TimedRobot, this value needs to match it.
+        // */
+        // driveSim.update(0.02);
 
-        // System.out.println("LeftMastSim  units: " + convertorSim.distanceMetersToNativeUnits(driveSim.getLeftPositionMeters()) + " meters: " + driveSim.getLeftPositionMeters());
-        // System.out.println("RightMastSim  units: " + convertorSim.distanceMetersToNativeUnits(driveSim.getRightPositionMeters()) + " meters: " + driveSim.getRightPositionMeters());
+        // // System.out.println("LeftMastSim  units: " + convertorSim.distanceMetersToNativeUnits(driveSim.getLeftPositionMeters()) + " meters: " + driveSim.getLeftPositionMeters());
+        // // System.out.println("RightMastSim  units: " + convertorSim.distanceMetersToNativeUnits(driveSim.getRightPositionMeters()) + " meters: " + driveSim.getRightPositionMeters());
 
-        leftMasterSim.setIntegratedSensorRawPosition(convertorSim.distanceMetersToNativeUnits(driveSim.getLeftPositionMeters()));
-        leftMasterSim.setIntegratedSensorVelocity(convertorSim.velocityToNativeUnits(driveSim.getLeftVelocityMetersPerSecond()));
-        rightMasterSim.setIntegratedSensorRawPosition(convertorSim.distanceMetersToNativeUnits(-driveSim.getRightPositionMeters()));
-        rightMasterSim.setIntegratedSensorVelocity(convertorSim.velocityToNativeUnits(-driveSim.getRightVelocityMetersPerSecond()));
+        // leftMasterSim.setIntegratedSensorRawPosition(convertorSim.distanceMetersToNativeUnits(driveSim.getLeftPositionMeters()));
+        // leftMasterSim.setIntegratedSensorVelocity(convertorSim.velocityToNativeUnits(driveSim.getLeftVelocityMetersPerSecond()));
+        // rightMasterSim.setIntegratedSensorRawPosition(convertorSim.distanceMetersToNativeUnits(-driveSim.getRightPositionMeters()));
+        // rightMasterSim.setIntegratedSensorVelocity(convertorSim.velocityToNativeUnits(-driveSim.getRightVelocityMetersPerSecond()));
     }
     
     public Double getVelocity() { return smartController.getVelocity(); }
@@ -277,8 +283,8 @@ public class DriveTrain extends SubsystemBase {
     /** Resets the position of the Talon to 0. */
     public void resetPosition() {
         smartController.resetPosition();
-        leftMasterSim.setIntegratedSensorRawPosition(0);
-        rightMasterSim.setIntegratedSensorRawPosition(0);
+        // leftMasterSim.setIntegratedSensorRawPosition(0);
+        // rightMasterSim.setIntegratedSensorRawPosition(0);
     }
            
     public void logPeriodic() {

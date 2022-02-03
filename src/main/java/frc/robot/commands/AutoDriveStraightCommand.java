@@ -39,7 +39,7 @@ public class AutoDriveStraightCommand extends CommandBase {
 		
 		/* Configured for MotionMagic on Integrated Sensors' Sum and Auxiliary PID on Integrated Sensors' Difference */
 		_target = _distance;
-		m_driveTrain.resetPosition();;
+		m_driveTrain.resetPosition();
         m_driveTrain.setTarget(_target);  		
 
 		System.out.println("AutoDriveStraightCommand - targetDistance = " + _target );
