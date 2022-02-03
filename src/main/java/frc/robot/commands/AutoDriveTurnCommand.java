@@ -87,6 +87,6 @@ public class AutoDriveTurnCommand extends CommandBase {
     // Make this return true when this Command no longer needs to run execute()
     @Override
     public boolean isFinished() {
-        return m_driveTrain.isTargetReached();
+        return m_driveTrain.isTargetReached(_lockedDistance);
     }
 }    

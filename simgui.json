@@ -1,0 +1,47 @@
+{
+  "HALProvider": {
+    "Other Devices": {
+      "Talon FX[0]": {
+        "header": {
+          "open": true
+        }
+      },
+      "Talon FX[0]/Integrated Sensor": {
+        "header": {
+          "open": true
+        }
+      },
+      "Talon FX[1]": {
+        "header": {
+          "open": true
+        }
+      }
+    }
+  },
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/LiveWindow/Climber": "Subsystem",
+      "/LiveWindow/DriveTrain": "Subsystem",
+      "/LiveWindow/DriveTrain/Differential Drive": "DifferentialDrive",
+      "/LiveWindow/Intake": "Subsystem",
+      "/LiveWindow/Lights": "Subsystem",
+      "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
+      "/LiveWindow/Ungrouped/Talon FX [10]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon FX [11]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon FX [12]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon SRX [2]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon SRX [3]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon SRX [5]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Talon SRX [6]": "Motor Controller",
+      "/LiveWindow/Ungrouped/navX-Sensor[4]": "Gyro",
+      "/SmartDashboard/Auto mode": "String Chooser",
+      "/SmartDashboard/Autonomous AutoDrive": "Command",
+      "/SmartDashboard/Autonomous AutoDriveStraight": "Command",
+      "/SmartDashboard/Autonomous Command": "Command",
+      "/SmartDashboard/CommandDriveTrain": "Command",
+      "/SmartDashboard/DrivePathWeaverCommand": "Command",
+      "/SmartDashboard/Field2d": "Field2d"
+    }
+  }
+}

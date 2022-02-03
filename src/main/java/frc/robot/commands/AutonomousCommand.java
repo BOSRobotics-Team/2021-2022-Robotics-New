@@ -15,13 +15,11 @@ public class AutonomousCommand extends CommandBase {
 
     private final DriveTrain m_driveTrain;
 
-    double _lockedDistance = 0;
-	double _targetAngle = 0;
-	int _smoothing = 0;
+    private double _lockedDistance = 0;
+	private double _targetAngle = 0;
 
     public AutonomousCommand(DriveTrain driveTrain) {
         m_driveTrain = driveTrain;
-
 		addRequirements(m_driveTrain);
     }
    
@@ -37,12 +35,12 @@ public class AutonomousCommand extends CommandBase {
         m_driveTrain.setUseDriveScaling(false);
         m_driveTrain.enableBrakes(true);
         m_driveTrain.enableDriveTrain(false);
-        m_driveTrain.configForPID2();
+        m_driveTrain.configForPID();
 		
-		SmartDashboard.putNumber("Smoothing", _smoothing);
-
-        _targetAngle = m_driveTrain.getAuxPosition();
-        _lockedDistance = m_driveTrain.getPosition();
+        _targetAngle = 0.0; //m_driveTrain.getAuxPosition();
+        _lockedDistance = 10.0; //m_driveTrain.getPosition();
+		
+        m_driveTrain.setTarget(_lockedDistance);//, _targetAngle);
    
         System.out.println("_lockedDistance = " + _lockedDistance + " _targetAngle = " + _targetAngle);
     }
@@ -50,11 +48,6 @@ public class AutonomousCommand extends CommandBase {
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
-        System.out.println("AutonomousCommand - execute");
-
-		/* Configured for MotionMagic on Integrated Sensors' Sum and Auxiliary PID on Integrated Sensors' Difference */
-		m_driveTrain.setTarget(_lockedDistance, _targetAngle);
-		
 		SmartDashboard.putNumber("PoseX", m_driveTrain.getCurrentPose().getTranslation().getX());
 		SmartDashboard.putNumber("PoseY", m_driveTrain.getCurrentPose().getTranslation().getY());
 		SmartDashboard.putNumber("Pose Rot", m_driveTrain.getCurrentPose().getRotation().getDegrees());
@@ -75,6 +68,6 @@ public class AutonomousCommand extends CommandBase {
     // Make this return true when this Command no longer needs to run execute()
     @Override
     public boolean isFinished() {
-        return m_driveTrain.isTargetReached();
+        return m_driveTrain.isTargetReached(_lockedDistance);
     }
 }    

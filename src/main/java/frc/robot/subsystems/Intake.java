@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 // import com.ctre.phoenix.motorcontrol.ControlMode;
 // import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.InvertType;
+// import com.ctre.phoenix.motorcontrol.InvertType;
 // import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
 // import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
 // import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -21,8 +21,8 @@ public class Intake extends SubsystemBase {
     private final WPI_TalonSRX _intakeController = new WPI_TalonSRX(5);
     private final WPI_TalonSRX _liftController = new WPI_TalonSRX(6);
 
-    private final SmartMotorHelper smartIntakeController = new SmartMotorHelper(_intakeController, InvertType.None);
-    private final SmartMotorHelper smartLiftController = new SmartMotorHelper(_liftController, InvertType.None);
+    private final SmartMotorHelper smartIntakeController = new SmartMotorHelper(_intakeController);
+    private final SmartMotorHelper smartLiftController = new SmartMotorHelper(_liftController);
 
     private boolean _isResetLift = false;
     private boolean _isLifting = false;
@@ -126,7 +126,6 @@ public class Intake extends SubsystemBase {
         }
         if (_isLifting) {
             System.out.println("isLifting - current pos = " + smartLiftController.getPosition());
-            smartLiftController.setTarget(_targetPos);
 
             if (Math.abs(smartLiftController.getPosition() - _targetPos) < 0.01) {
                 _isLifting = false;
@@ -140,6 +139,8 @@ public class Intake extends SubsystemBase {
             System.out.println("isIntake - current vel = " + smartIntakeController.getVelocity());
             smartIntakeController.setVelocityUPS(_targetVel);
         }
+        smartIntakeController.update();
+        smartLiftController.update();
     }
 
     @Override
@@ -148,8 +149,6 @@ public class Intake extends SubsystemBase {
     }
 
     public void logPeriodic() {
-        smartIntakeController.update();
-        smartLiftController.update();
         // _intakeController.logPeriodic();
      }
 
@@ -169,9 +168,10 @@ public class Intake extends SubsystemBase {
 
     public void runLift(double height) {
         _targetPos = height;
+        smartLiftController.setTarget(_targetPos);
         _isLifting = true;
 
-        System.out.println("isLifting - target (meters) = " + height);
+        // System.out.println("isLifting - target (meters) = " + height);
     }
     public boolean isLifting() { return _isLifting; }
     public void setLift(double speed) {

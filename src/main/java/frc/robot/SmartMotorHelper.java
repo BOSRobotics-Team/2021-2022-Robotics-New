@@ -35,7 +35,7 @@ public class SmartMotorHelper {
     public static final double kNeutralDeadband = 0.001;
 
     public static final int kSensorUnitsPerRotation[] = { 4096, 4096, 2048 };
-    public static final FeedbackDevice kDefaultFeedbackDevice[] = { FeedbackDevice.CTRE_MagEncoder_Relative, FeedbackDevice.IntegratedSensor };
+    public static final FeedbackDevice kDefaultFeedbackDevice[] = { FeedbackDevice.None, FeedbackDevice.CTRE_MagEncoder_Relative, FeedbackDevice.IntegratedSensor };
 
     public static final GearRatios kDefaultGearRatio = new GearRatios(Constants.kGearRatio, Constants.kWheelRadiusInches, 1.0);
     public static final Gains kDefaultGains_Distanc = new Gains( 0.1, 0.0, 0.0, 0.0, 100, 0.80 );
@@ -66,21 +66,24 @@ public class SmartMotorHelper {
 
     private double _setpoint = 0.0;          // The most recently set setpoint.
     private double _nativeSetpoint = 0.0;    // The setpoint in native units. Field to avoid garbage collection.
+    private double _auxpoint = 0.0;          // The most recently set setpoint.
+    private double _nativeAuxpoint = 0.0;    // The setpoint in native units. Field to avoid garbage collection.
+    private boolean _isVelocity = false;
+    private boolean _isDistance = false;
+    private boolean _isDistanceAux = false;
 
     /** Cached values for various sensor readings. */
     private double _cachedVelocity = Double.NaN;
     private double _cachedPosition = Double.NaN;
 
 
-    public SmartMotorHelper( final BaseTalon talon, final InvertType invert, final BaseTalon auxTalon, final InvertType auxInvert ) {
+    public SmartMotorHelper( final BaseTalon talon, final BaseTalon auxTalon ) {
         _controller = talon;
         _auxController = auxTalon;
 
-        System.out.println("SMARTMOTORHELPER: " + talon.getClass().getSimpleName() + " : " + _controller.getClass().getSimpleName());
-
-        if (_controller.getClass().getSimpleName() == "WPI_TalonFX")
+        if (_controller.getClass() == WPI_TalonFX.class)
             _controllerType = kTalonFX;
-        else if (_controller.getClass().getSimpleName() == "WPI_TalonSRX")
+        else if (_controller.getClass() == WPI_TalonSRX.class)
             _controllerType = kTalonSRX;
         else 
             _controllerType = kTalonNone;
@@ -89,40 +92,19 @@ public class SmartMotorHelper {
         _convertor.setRatios(kDefaultGearRatio);
         
         _controller.configFactoryDefault();
-        _controller.setInverted(invert);
-        _controller.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0); 
-        _controller.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
-
         _feedbackDevice = kDefaultFeedbackDevice[_controllerType];
 
         if (_auxController != null) {
             _auxController.configFactoryDefault();
-            _auxController.setInverted(auxInvert);
-            _auxController.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0); 
-            _auxController.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
-            }
+        }
     }
 
-    public SmartMotorHelper( final BaseTalon talon, final InvertType invert ) {
-        _controller = talon;
-        _auxController = null;
-
-        if (_controller.getClass().getSimpleName() == "WPI_TalonFX")
-            _controllerType = kTalonFX;
-        else if (_controller.getClass().getSimpleName() == "WPI_TalonSRX")
-            _controllerType = kTalonSRX;
-        else 
-            _controllerType = kTalonNone;
-        
-        _convertor = new Convertor(kSensorUnitsPerRotation[_controllerType]);
-        _convertor.setRatios(kDefaultGearRatio);
-        
-        _controller.configFactoryDefault();
-        _controller.setInverted(invert);
-        _feedbackDevice = kDefaultFeedbackDevice[_controllerType];
+    public SmartMotorHelper( final BaseTalon talon ) {
+        this(talon, null);
     }
 
     public void initController() {
+        _isDistance = _isDistanceAux = _isVelocity = false;
         initController(_controller);
         if (_auxController != null)
             initController(_auxController);
@@ -253,6 +235,9 @@ public class SmartMotorHelper {
     public Double getVelocity() {
         return _convertor.nativeUnitsToVelocity(_controller.getSelectedSensorVelocity(PID_PRIMARY));
     }
+    public Double getNativeVelocity() {
+        return _controller.getSelectedSensorVelocity(PID_PRIMARY);
+    }
     /**
      * Get the velocity of the drive.
      *
@@ -260,6 +245,9 @@ public class SmartMotorHelper {
      */
     public Double getAuxVelocity() {
         return _convertor.nativeUnitsToVelocity(_controller.getSelectedSensorVelocity(PID_TURN));
+    }
+    public Double getAuxNativeVelocity() {
+        return _controller.getSelectedSensorVelocity(PID_TURN);
     }
 
     /**
@@ -286,75 +274,72 @@ public class SmartMotorHelper {
         return _controller.getSelectedSensorPosition(PID_TURN);
     }
 
-    /**
-     * Get the cached velocity of the drive.
-     *
-     * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
-     */
-    public Double getVelocityCached() {
-        return _cachedVelocity;
-    }
-
-    /**
-     * Get the cached position of the drive.
-     *
-     * @return The signed position in feet, or null if the drive doesn't have encoders.
-     */
-    public Double getPositionCached() {
-        return _cachedPosition;
-    }
-
     public void set(double pctOutput) {
+        _isDistance = _isDistanceAux = _isVelocity = false;
         _controller.set(ControlMode.PercentOutput, pctOutput);
         if (_auxController != null)
-            _auxController.follow(_controller);
+            _auxController.follow(_controller, FollowerType.PercentOutput);
     }
     public void set(double pctOutput, double auxOutput) {
+        _isDistance = _isDistanceAux = _isVelocity = false;
         _controller.set(ControlMode.PercentOutput, pctOutput);
         if (_auxController != null)
             _auxController.set(ControlMode.PercentOutput, auxOutput);
     }
 
     public void setTarget(double meters) {
-        _controller.set(ControlMode.MotionMagic, _convertor.distanceMetersToNativeUnits(meters));
+        _isDistance = _isDistanceAux = _isVelocity = false;
+
+        _setpoint = meters;
+        _nativeSetpoint = _convertor.distanceMetersToNativeUnits(meters);
+
         if (_auxController != null)
-            _auxController.follow(_controller);
+            _auxController.follow(_controller, FollowerType.PercentOutput);
+        _controller.set(ControlMode.MotionMagic, _nativeSetpoint);
+        _isDistance = true;
     }
     public void setTarget(double meters, double aux) {
-        _controller.set(ControlMode.MotionMagic, _convertor.distanceMetersToNativeUnits(meters), DemandType.AuxPID, aux);
+        _isDistance = _isDistanceAux = _isVelocity = false;
+
+        _setpoint = meters;
+        _nativeSetpoint = _convertor.distanceMetersToNativeUnits(meters);
+        _auxpoint = aux;
+        _nativeAuxpoint = aux;
+
+        // System.out.println("target (units) = " + _convertor.distanceMetersToNativeUnits(meters) + " angle: " + aux);
         if (_auxController != null)
     		_auxController.follow(_controller, FollowerType.AuxOutput1);
+        _controller.set(ControlMode.MotionMagic, _nativeSetpoint, DemandType.AuxPID, _nativeAuxpoint);
+        _isDistanceAux = true;
     }
 
     public void setVelocityUPS(final double velocity) {
-        _nativeSetpoint = _convertor.velocityToNativeUnits(velocity);
+        _isDistance = _isDistanceAux = _isVelocity = false;
+
         _setpoint = velocity;
+        _nativeSetpoint = _convertor.velocityToNativeUnits(_setpoint);
+        _nativeAuxpoint = _feedForwardCalculator.calculate(velocity) / 12.;
+
+        if (_auxController != null)
+            _auxController.follow(_controller, FollowerType.PercentOutput);
 
         _controller.config_kF(0, 0, 0);
         _controller.set(
             ControlMode.Velocity,
             _nativeSetpoint,
             DemandType.ArbitraryFeedForward,
-            _feedForwardCalculator.calculate(velocity) / 12.);
-        if (_auxController != null)
-            _auxController.follow(_controller, FollowerType.PercentOutput);
+            _nativeAuxpoint);
+        _isVelocity = true;
     }
 
     public boolean isFwdLimitSwitchClosed() { return _controller.isFwdLimitSwitchClosed() == 1; }
     public boolean isRevLimitSwitchClosed() { return _controller.isRevLimitSwitchClosed() == 1; }
 
-    public double getSetpoint() {
-        return _setpoint;
-    }
-    public void setSetpoint(double pt) {
-        _setpoint = pt;
-    }
     /** Resets the position of the Talon to 0. */
     public void resetPosition() {
         _controller.setSelectedSensorPosition(0, PID_PRIMARY, kTimeoutMs);
         if (_auxController != null) 
             _auxController.setSelectedSensorPosition(0, PID_PRIMARY, kTimeoutMs);
-        // _controller.getSensorCollection().setIntegratedSensorPosition(0, kTimeoutMs);
     }
     /** Resets the position of the Talon to 0. */
     public void resetAuxPosition() {
@@ -368,10 +353,25 @@ public class SmartMotorHelper {
             _auxController.setNeutralMode(enabled ? NeutralMode.Brake : NeutralMode.Coast);
     }
 
+    public double getClosedLoopError() {
+        return _controller.getClosedLoopError();
+    }
+    public double getActiveTrajectoryVelocity() {
+        return _controller.getActiveTrajectoryVelocity();
+    }
+
     /** Updates all cached values with current ones. */
     public void update() {
-        _cachedVelocity = getVelocity();
-        _cachedPosition = getPosition();
+        if (_isDistance) {
+            _controller.set(ControlMode.MotionMagic, _nativeSetpoint);
+        } else if (_isDistanceAux) {
+            _controller.set(ControlMode.MotionMagic, _nativeSetpoint, DemandType.AuxPID, _nativeAuxpoint);
+        } else if (_isVelocity) {
+            _controller.set(ControlMode.Velocity, _nativeSetpoint, DemandType.ArbitraryFeedForward, _nativeAuxpoint);    
+        }
+
+        // _cachedVelocity = getVelocity();
+        // _cachedPosition = getPosition();
 
         _controller.getFaults(_faults);
         if (_faults.SensorOutOfPhase) {

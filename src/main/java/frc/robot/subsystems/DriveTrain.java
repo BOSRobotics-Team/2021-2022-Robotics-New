@@ -10,14 +10,19 @@ import frc.robot.wrappers.*;
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.*;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -35,7 +40,23 @@ public class DriveTrain extends SubsystemBase {
     private final WPI_TalonSRX rightFollower = new WPI_TalonSRX(3);
     private final WPI_TalonSRX leftFollower = new WPI_TalonSRX(2);
 
-    public final SmartMotorHelper smartController = new SmartMotorHelper(rightMaster, InvertType.None, leftMaster, InvertType.InvertMotorOutput);
+    /* Object for simulated inputs into Talon. */
+    private final TalonFXSimCollection leftMasterSim = leftMaster.getSimCollection();
+    private final TalonFXSimCollection rightMasterSim = rightMaster.getSimCollection();
+    
+    public final SmartMotorHelper smartController = new SmartMotorHelper(leftMaster, rightMaster);
+
+    /** Simulation stuff */
+    private final Convertor convertorSim = new Convertor(2048);
+    private final DifferentialDrivetrainSim driveSim = new DifferentialDrivetrainSim(
+        DCMotor.getCIM(2),        //2 CIMS on each side of the drivetrain.
+        Constants.kGearRatio,     //Standard AndyMark Gearing reduction.
+        2.1,                      //MOI of 2.1 kg m^2 (from CAD model).
+        26.5,                     //Mass of the robot is 26.5 kg.
+        Units.inchesToMeters(Constants.kWheelRadiusInches),  //Robot uses 3" radius (6" diameter) wheels.
+        0.546,                    //Distance between wheels is _ meters.
+        null //VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005) //Uncomment this line to add measurement noise.
+    );
 
     /** The NavX gyro */
     private final DriveGyro gyro = new DriveGyro(false);
@@ -49,7 +70,7 @@ public class DriveTrain extends SubsystemBase {
 
     private final Field2d m_field = new Field2d();
 
-//    private boolean voltageCompEnabled = false;
+    // private boolean voltageCompEnabled = false;
     // private Double maxSpeed;
 
     private DriveMode m_DriveMode = DriveMode.ARCADE;
@@ -62,8 +83,12 @@ public class DriveTrain extends SubsystemBase {
     private double _lastRSmoothing = 0.0;
 
     public DriveTrain() {    
-
+        leftMaster.setInverted(InvertType.None);
+        rightMaster.setInverted(InvertType.InvertMotorOutput);
+        
         smartController.initController();
+        smartController.configureRatios(SmartMotorHelper.kDefaultGearRatio);
+        smartController.enableBrakes(true);
 
         leftFollower.configFactoryDefault();
         leftFollower.follow(leftMaster);
@@ -80,18 +105,19 @@ public class DriveTrain extends SubsystemBase {
         differentialDrive.setDeadband(0.02);
 
         resetPosition();
+        convertorSim.setRatios(Constants.kGearRatio, Constants.kWheelRadiusInches, 1.0);
 
         addChild("Differential Drive", differentialDrive);
     }
 
     public void configForPID() {
-        resetPosition();
+        // resetPosition();
         smartController.setDistanceConfigs(Constants.kGains_Distanc);        
     }
 
     public void configForPID2() {
-        resetPosition();
-        setHeadingDegrees(0);
+        // resetPosition();
+        // setHeadingDegrees(0);
         smartController.setDistanceAndTurnConfigs(Constants.kGains_Distanc, Constants.kGains_Turning);        
     }
 
@@ -102,38 +128,56 @@ public class DriveTrain extends SubsystemBase {
     }
 
     public void setTarget(double distance) {
-//        leftMaster.setTarget(distance);
 		smartController.setTarget(distance);
         differentialDrive.feed(); 
-		logPeriodic();
-
-        System.out.println("target (meters) = " + distance);
+        // System.out.println("target (meters) = " + distance);
     }
 
     public void setTarget(double distance, double angle) {
 		/* Configured for MotionMagic on Integrated Sensors' Sum and Auxiliary PID on Integrated Sensors' Difference */
 		smartController.setTarget(distance, angle);
         differentialDrive.feed(); 
-		logPeriodic();
-
-		System.out.println("target (meters) = " + distance + " angle: " + angle);
+		// System.out.println("target (meters) = " + distance + " angle: " + angle);
     }
 
-    public Boolean isTargetReached() {
-        double error = rightMaster.getClosedLoopError();
-		double velocity = rightMaster.getActiveTrajectoryVelocity();
-		double position = rightMaster.getSelectedSensorPosition(0);
+    public Boolean isTargetReached(double target) {
+        // double error = smartController.getClosedLoopError();
+		// double velocity = smartController.getActiveTrajectoryVelocity();
+		double position = smartController.getNativePosition();
+        double targetPos = smartController.getPosition();
 
-        System.out.println("AutonomousCommand - error: " + error + " pos: " + position + " vel: " + velocity);
-        return false;
+        System.out.println("AutonomousCommand - targetPos: " + targetPos + " pos: " + position);// + " vel: " + velocity);
+        return (MathUtil.applyDeadband(targetPos - target, 0.1) == 0.0);
     }
     @Override
     public void periodic() {
+        smartController.update();
     }
 
     @Override
     public void simulationPeriodic() {
-      // This method will be called once per scheduler run during simulation
+        // This method will be called once per scheduler run during simulation
+        /* Pass the robot battery voltage to the simulated Talon SRXs */
+        leftMasterSim.setBusVoltage(RobotController.getBatteryVoltage());
+        rightMasterSim.setBusVoltage(RobotController.getBatteryVoltage());
+
+        driveSim.setInputs(leftMasterSim.getMotorOutputLeadVoltage(),
+                           -rightMasterSim.getMotorOutputLeadVoltage());
+
+        /*
+        * Advance the model by 20 ms. Note that if you are running this
+        * subsystem in a separate thread or have changed the nominal
+        * timestep of TimedRobot, this value needs to match it.
+        */
+        driveSim.update(0.02);
+
+        // System.out.println("LeftMastSim  units: " + convertorSim.distanceMetersToNativeUnits(driveSim.getLeftPositionMeters()) + " meters: " + driveSim.getLeftPositionMeters());
+        // System.out.println("RightMastSim  units: " + convertorSim.distanceMetersToNativeUnits(driveSim.getRightPositionMeters()) + " meters: " + driveSim.getRightPositionMeters());
+
+        leftMasterSim.setIntegratedSensorRawPosition(convertorSim.distanceMetersToNativeUnits(driveSim.getLeftPositionMeters()));
+        leftMasterSim.setIntegratedSensorVelocity(convertorSim.velocityToNativeUnits(driveSim.getLeftVelocityMetersPerSecond()));
+        rightMasterSim.setIntegratedSensorRawPosition(convertorSim.distanceMetersToNativeUnits(-driveSim.getRightPositionMeters()));
+        rightMasterSim.setIntegratedSensorVelocity(convertorSim.velocityToNativeUnits(-driveSim.getRightVelocityMetersPerSecond()));
     }
     
     public Double getVelocity() { return smartController.getVelocity(); }
@@ -226,15 +270,6 @@ public class DriveTrain extends SubsystemBase {
         rightMaster.disable();
     }
 
-    /**
-     * Hold the current position.
-     *
-     * @param pos the position to stop at
-     */
-    public void holdPosition(final double pos) {
-        smartController.setSetpoint(pos);
-    }
-
     public void setPercentVoltage(double leftPctVolts, double rightPctVolts) {
         smartController.set(leftPctVolts, rightPctVolts);
     } 
@@ -242,12 +277,13 @@ public class DriveTrain extends SubsystemBase {
     /** Resets the position of the Talon to 0. */
     public void resetPosition() {
         smartController.resetPosition();
+        leftMasterSim.setIntegratedSensorRawPosition(0);
+        rightMasterSim.setIntegratedSensorRawPosition(0);
     }
            
     public void logPeriodic() {
        // This method will be called once per scheduler run
        updateOdometry();
-       smartController.update();
 
        /* Instrumentation */
 //       Instrumentation.ProcessGyro(gyro);
@@ -260,9 +296,8 @@ public class DriveTrain extends SubsystemBase {
 
     public void enableDriveTrain(boolean enable) {
         differentialDrive.setSafetyEnabled(enable);
-        if (enable) {
-            smartController.set(0.0, 0.0);
-        } else {
+        smartController.set(0.0, 0.0);
+        if (!enable) {
             leftMaster.set(ControlMode.Disabled, 0.0);
             rightMaster.set(ControlMode.Disabled, 0.0);
         }
@@ -309,6 +344,7 @@ public class DriveTrain extends SubsystemBase {
     }
     public void driveToTarget(double meters) {
         smartController.setTarget(meters);
+        differentialDrive.feed(); 
     }
 
     public void drive(XboxController ctrl) {
@@ -348,15 +384,13 @@ public class DriveTrain extends SubsystemBase {
     public void setUseDriveScaling(boolean use) {
         m_UseDriveScaling = use;
         this.setMaxOutput(m_UseDriveScaling ? m_DriveScaling : 1.0);
-
         SmartDashboard.putBoolean("UseDriveScaling", m_UseDriveScaling);
     }
     public double getDriveScaling() { return m_DriveScaling; }
     public void setDriveScaling(double scaling) {
         m_DriveScaling = Math.max(Math.min(scaling, 1.0), 0.1);
-        SmartDashboard.putNumber("DriveScaling", m_DriveScaling);
-
         this.setMaxOutput(m_UseDriveScaling ? m_DriveScaling : 1.0);
+        SmartDashboard.putNumber("DriveScaling", m_DriveScaling);
     }
     public boolean getQuickTurn() { return m_QuickTurn; }
     public void setQuickTurn(boolean turn) {

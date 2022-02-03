@@ -17,8 +17,8 @@ public class CommandDriveTrain extends CommandBase {
 
     public final DriveTrain m_driveTrain;
     public final XboxController m_controller;
-    // public final JoystickButton a_Button;
-    // public final JoystickButton b_Button;
+    public final JoystickButton a_Button;
+    public final JoystickButton b_Button;
     // public final JoystickButton x_Button;
     // public final JoystickButton y_Button;
     public final JoystickButton left_Bumper;
@@ -33,6 +33,10 @@ public class CommandDriveTrain extends CommandBase {
     private boolean _lastTriggerL = false;
     private boolean _lastTriggerR = false;
 
+    public final AutonomousCommand m_autoCommand;
+    public final AutoDriveStraightCommand m_autoCommand1;
+    public final AutoDriveStraightCommand m_autoCommand2;
+
     public CommandDriveTrain(DriveTrain driveTrain, XboxController controller) {
         m_driveTrain = driveTrain;
         m_controller = controller;
@@ -40,8 +44,8 @@ public class CommandDriveTrain extends CommandBase {
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(m_driveTrain);
 
-        // a_Button = new JoystickButton(m_controller, 1);
-        // b_Button = new JoystickButton(m_controller, 2);
+        a_Button = new JoystickButton(m_controller, 1);
+        b_Button = new JoystickButton(m_controller, 2);
         // x_Button = new JoystickButton(m_controller, 3);
         // y_Button = new JoystickButton(m_controller, 4);
         left_Bumper = new JoystickButton(m_controller, 5);
@@ -50,12 +54,19 @@ public class CommandDriveTrain extends CommandBase {
         // start_Button = new JoystickButton(m_controller, 8);
         left_Stick = new JoystickButton(m_controller, 9);
         right_Stick = new JoystickButton(m_controller, 10);
+
+        m_autoCommand = new AutonomousCommand(m_driveTrain);
+        m_autoCommand1 = new AutoDriveStraightCommand(m_driveTrain, 10.0);
+        m_autoCommand2 = new AutoDriveStraightCommand(m_driveTrain, 0.0);
     }
 
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
         Shuffleboard.addEventMarker("CommandDriveTrain init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+
+        a_Button.whenPressed(m_autoCommand1);    
+        b_Button.whenPressed(m_autoCommand2);    
 
         left_Bumper.whenPressed(() -> m_driveTrain.toggleDriveMode());    
         right_Bumper.whenPressed(() -> m_driveTrain.setUseDriveScaling(!m_driveTrain.getUseDriveScaling()));

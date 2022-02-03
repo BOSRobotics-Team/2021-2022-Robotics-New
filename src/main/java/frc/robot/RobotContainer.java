@@ -8,11 +8,8 @@ import frc.robot.commands.*;
 import frc.robot.commands.unused.DrivePathWeaverCommand;
 import frc.robot.subsystems.*;
 
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-
 import edu.wpi.first.wpilibj2.command.Command;
-// import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
@@ -53,6 +50,7 @@ public class RobotContainer {
 
   // //Driver Controller
   public final XboxController driverController = new XboxController(0);
+  public final XboxController operatorController = new XboxController(1);
   // public final JoystickButton a_Button_Driver = new JoystickButton(driverController, 1);
   // public final JoystickButton b_Button_Driver = new JoystickButton(driverController, 2);
   // public final JoystickButton x_Button_Driver = new JoystickButton(driverController, 3);
@@ -63,25 +61,12 @@ public class RobotContainer {
   // public final JoystickButton start_Button_Driver = new JoystickButton(driverController, 8);
   // public final JoystickButton left_Stick_Driver = new JoystickButton(driverController, 9);
   // public final JoystickButton right_Stick_Driver = new JoystickButton(driverController, 10);
-  
-  // //Operator Controller
-  public final XboxController operatorController = new XboxController(1);
-  // public final JoystickButton a_Button_Operator = new JoystickButton(operatorController, 1);
-  // public final JoystickButton b_Button_Operator = new JoystickButton(operatorController, 2);
-  // public final JoystickButton x_Button_Operator = new JoystickButton(operatorController, 3);
-  // public final JoystickButton y_Button_Operator = new JoystickButton(operatorController, 4);
-  // public final JoystickButton left_Bumper_Operator = new JoystickButton(operatorController, 5);
-  // public final JoystickButton right_Bumper_Operator = new JoystickButton(operatorController, 6);
-  // public final JoystickButton back_Button_Operator = new JoystickButton(operatorController, 7);
-  // public final JoystickButton start_Button_Operator = new JoystickButton(operatorController, 8);
-  // public final JoystickButton left_Stick_Operator = new JoystickButton(operatorController, 9);
-  // public final JoystickButton right_Stick_Operator = new JoystickButton(operatorController, 10);
-  
+    
   //Camera
   // public final LimeLight limeLight = new LimeLight();
-  public final UsbCamera cam0; 
-  public final UsbCamera cam1; 
-  public final UsbCamera cam2; 
+  // public final UsbCamera cam0; 
+  // public final UsbCamera cam1; 
+  // public final UsbCamera cam2; 
 
   public final AutonomousCommand m_autoCommand = new AutonomousCommand(driveTrain);
   public final CommandDriveTrain m_cmdDriveTrainCommand = new CommandDriveTrain(driveTrain, driverController);
@@ -91,8 +76,6 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // Configure the button bindings
-    configureButtonBindings();
 
     driveTrain.setDefaultCommand(m_cmdDriveTrainCommand);
     climber.setDefaultCommand(m_cmdClimberCommand);
@@ -101,13 +84,13 @@ public class RobotContainer {
     
     // Add commands to Autonomous Sendable Chooser
     chooser.setDefaultOption("Autonomous Command", m_autoCommand);
-    chooser.addOption("AutoDriveStraight Command", new AutoDriveStraightCommand(driveTrain, driverController));
+    chooser.addOption("AutoDriveStraight Command", new AutoDriveStraightCommand(driveTrain, 10.0));
     chooser.addOption("AutoDriveTurn Command", new AutoDriveTurnCommand(driveTrain, driverController));
     chooser.addOption("PathWeaver Command", new DrivePathWeaverCommand( "paths/PathWeaver/Paths/BarrelRun", driveTrain));
 
     // SmartDashboard Buttons
     SmartDashboard.putData("Autonomous Command",m_autoCommand);
-    SmartDashboard.putData("Autonomous AutoDriveStraight",new AutoDriveStraightCommand(driveTrain, driverController));
+    SmartDashboard.putData("Autonomous AutoDriveStraight",new AutoDriveStraightCommand(driveTrain, 10.0));
     SmartDashboard.putData("Autonomous AutoDrive", new AutoDriveTurnCommand(driveTrain, driverController));
     SmartDashboard.putData("DrivePathWeaverCommand", new DrivePathWeaverCommand( "paths/PathWeaver/Paths/BarrelRun", driveTrain));
     SmartDashboard.putData("CommandDriveTrain", m_cmdDriveTrainCommand);
@@ -115,43 +98,9 @@ public class RobotContainer {
 
     HAL.report(tResourceType.kResourceType_Framework, tInstances.kFramework_RobotBuilder);
 
-    cam0 = CameraServer.startAutomaticCapture(0);
-    cam1 = CameraServer.startAutomaticCapture(1);  
-    cam2 = CameraServer.startAutomaticCapture(2);  
-  }
-
-  /**
-   * Use this method to define your button->command mappings. Buttons can be created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
-  private void configureButtonBindings() {
-    // left_Bumper_Driver.whenPressed(() -> driveTrain.toggleDriveMode());
-    // right_Bumper_Driver.whenPressed(() -> driveTrain.setUseSquares(!driveTrain.getUseSquares()));
-    // // right_Bumper_Driver.whenPressed(() -> driveTrain.setMaxOutput(0.5))
-    // //                    .whenReleased(() -> driveTrain.setMaxOutput(1.0));
-
-    // left_Stick_Driver.whenPressed(() -> driveTrain.setUseDriveScaling(!driveTrain.getUseDriveScaling()));
-    // right_Stick_Driver.whenPressed(() -> driveTrain.setQuickTurn(!driveTrain.getQuickTurn()));
-
-    // b_Button_Driver.whenPressed(new DriveDistanceProfiledCommand(3, driveTrain).withTimeout(10));
-
-    // a_Button_Driver.whileHeld(m_unJamIntakeCommand);    
-    // left_Bumper_Driver.whileHeld(m_intakeCommand);
-
-    // a_Button_Operator.whenPressed(m_extendClimberCommand);
-    // b_Button_Operator.whenPressed(m_retractClimberCommand);
-
-    // x_Button_Operator.whenPressed(m_extendPivotLinkCommand);
-    // y_Button_Operator.whenPressed(m_retractPivotLinkCommand);
-
-    // start_Button_Operator.whenPressed(m_resetClimberCommand);
-    // left_Bumper_Operator.whenPressed(m_AutoClimberCommand);
-
-    // back_Button_Operator.whenPressed(() -> climber.tripRevLimitSwitches_test(true))
-    //                     .whenReleased(() -> climber.tripRevLimitSwitches_test(false));
-
+    // cam0 = CameraServer.startAutomaticCapture(0);
+    // cam1 = CameraServer.startAutomaticCapture(1);  
+    // cam2 = CameraServer.startAutomaticCapture(2);  
   }
 
   /**

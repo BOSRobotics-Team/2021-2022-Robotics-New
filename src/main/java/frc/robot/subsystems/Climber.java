@@ -6,7 +6,6 @@ package frc.robot.subsystems;
 
 import frc.robot.*;
 
-import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.wpilibj.Preferences;
@@ -18,8 +17,8 @@ public class Climber extends SubsystemBase {
     private final WPI_TalonFX _leftPivotLinkController = new WPI_TalonFX(11);
     private final WPI_TalonFX _rightPivotLinkController = new WPI_TalonFX(12);
 
-    private final SmartMotorHelper smartClimberController = new SmartMotorHelper(_climberController, InvertType.None);
-    private final SmartMotorHelper smartPivotLinkController = new SmartMotorHelper(_rightPivotLinkController, InvertType.None, _leftPivotLinkController, InvertType.InvertMotorOutput);
+    private final SmartMotorHelper smartClimberController = new SmartMotorHelper(_climberController);
+    private final SmartMotorHelper smartPivotLinkController = new SmartMotorHelper(_rightPivotLinkController, _leftPivotLinkController);
 
     private boolean _isResetClimber = false;
     private boolean _isResetPivoting = false;
@@ -81,7 +80,6 @@ public class Climber extends SubsystemBase {
         }
         if (_isClimbing) {
             System.out.println("isClimbing - current height = " + smartClimberController.getPosition() + " pos = " + smartClimberController.getNativePosition());
-            smartClimberController.setTarget(_targetHeight); //, _climberFeedFwd);
 
             if (Math.abs(smartClimberController.getPosition() - _targetHeight) < 0.01) {
                 _isClimbing = false;
@@ -101,7 +99,6 @@ public class Climber extends SubsystemBase {
         }
         if (_isPivoting) {
             System.out.println("isPivoting - current distance = " + smartPivotLinkController.getPosition() + smartPivotLinkController.getNativePosition());
-            smartPivotLinkController.setTarget(_targetPivot); //, _climberFeedFwd);
 
             if (Math.abs(smartPivotLinkController.getPosition() - _targetPivot) < 0.01) {
                 _isPivoting = false;
@@ -111,6 +108,8 @@ public class Climber extends SubsystemBase {
                 System.out.println("isPivoting - limit exceeded");
             }
         }
+        smartClimberController.update();
+        smartPivotLinkController.update();
     }
 
     @Override
@@ -134,9 +133,11 @@ public class Climber extends SubsystemBase {
     // here. Call these from Commands.
     public void runClimber(double height) {
         _targetHeight = height;
+        smartClimberController.setTarget(_targetHeight); //, _climberFeedFwd);
+
         _isClimbing = true;
 
-        System.out.println("isClimbing - target (meters) = " + _targetHeight);
+        // System.out.println("isClimbing - target (meters) = " + _targetHeight);
     }
     public boolean isClimbing() { return _isClimbing; }
     public void setClimber(double speed) {
@@ -152,9 +153,10 @@ public class Climber extends SubsystemBase {
 
     public void runPivotLink(double distance) {
         _targetPivot = distance;
+        smartPivotLinkController.setTarget(_targetPivot); //, _climberFeedFwd);
         _isPivoting = true;
 
-        System.out.println("isPivoting - target (meters) = " + _targetPivot);
+        // System.out.println("isPivoting - target (meters) = " + _targetPivot);
     }
     public boolean isPivoting() { return _isPivoting; }
     public void setPivotLink(double speed) {
