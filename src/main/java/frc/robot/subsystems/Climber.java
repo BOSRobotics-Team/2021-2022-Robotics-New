@@ -119,6 +119,9 @@ public class Climber extends SubsystemBase {
         SmartDashboard.putBoolean("isPivoting", _isPivoting);
         SmartDashboard.putNumber("targetHeight", _targetClimberHeight);
         SmartDashboard.putNumber("targetPivot", _targetPivotDistance);
+
+        SmartDashboard.putNumber("ClimberPos", smartClimberController.getNativePosition());
+        SmartDashboard.putNumber("PivotPos", smartPivotLinkController.getNativePosition());
     }
 
     // Put methods for controlling this subsystem

@@ -237,7 +237,9 @@ public class DriveTrain extends SubsystemBase {
 //       Instrumentation.ProcessMotor(rightMaster);
        gyro.logPeriodic();
 
-        SmartDashboard.putData("Field2d", m_field);
+       SmartDashboard.putData("Field2d", m_field);
+       SmartDashboard.putNumber("LeftMasterNative", getLeftPos());
+       SmartDashboard.putNumber("RightMasterNative", getRightPos());        
     }
 
     public void enableDriveTrain(boolean enable) {
