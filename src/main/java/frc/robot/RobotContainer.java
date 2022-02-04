@@ -5,19 +5,17 @@
 package frc.robot;
 
 import frc.robot.commands.*;
-import frc.robot.commands.unused.DrivePathWeaverCommand;
 import frc.robot.subsystems.*;
 
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.Command;
-
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
-import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.hal.HAL;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.*;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.Command;
 
 //import oi.limelightvision.limelight.frc.LimeLight;
 
@@ -32,21 +30,9 @@ public class RobotContainer {
 
   // The robot's subsystems and commands are defined here...
   public final DriveTrain driveTrain = new DriveTrain();
-  public final Intake intake = new Intake();
+  // public final Intake intake = new Intake();
   public final Climber climber = new Climber();
   public final Lights lights = new Lights();
-
-  // public final UnjamIntakeCommand m_unJamIntakeCommand = new UnjamIntakeCommand(intake);
-  // public final IntakeOnCommand m_intakeOnCommand = new IntakeOnCommand(intake);
-  // public final IntakeOffCommand m_intakeOffCommand = new IntakeOffCommand(intake);
-  // public final ExtendClimberCommand m_extendClimberCommand = new ExtendClimberCommand(climber);
-  // public final RetrackClimberCommand m_retractClimberCommand = new RetrackClimberCommand(climber);
-  // public final ResetClimberCommand m_resetClimberCommand = new ResetClimberCommand(climber);
-
-  // public final ExtendPivotLinkCommand m_extendPivotLinkCommand = new ExtendPivotLinkCommand(climber);
-  // public final RetrackPivotLinkCommand m_retractPivotLinkCommand = new RetrackPivotLinkCommand(climber);
-
-  // public final AutoClimberCommand m_AutoClimberCommand = new AutoClimberCommand(climber);
 
   // //Driver Controller
   public final XboxController driverController = new XboxController(0);
@@ -64,14 +50,14 @@ public class RobotContainer {
     
   //Camera
   // public final LimeLight limeLight = new LimeLight();
-  // public final UsbCamera cam0; 
-  // public final UsbCamera cam1; 
-  // public final UsbCamera cam2; 
+  public UsbCamera cam0; 
+  public UsbCamera cam1; 
+  public UsbCamera cam2; 
 
   public final AutonomousCommand m_autoCommand = new AutonomousCommand(driveTrain);
   public final CommandDriveTrain m_cmdDriveTrainCommand = new CommandDriveTrain(driveTrain, driverController);
   public final CommandClimber m_cmdClimberCommand = new CommandClimber(climber, operatorController);
-  public final CommandIntake m_cmdIntakeCommand = new CommandIntake(intake, operatorController);
+  // public final CommandIntake m_cmdIntakeCommand = new CommandIntake(intake, operatorController);
   public final CommandLights m_cmdLightsCommand = new CommandLights(lights, operatorController);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -79,28 +65,30 @@ public class RobotContainer {
 
     driveTrain.setDefaultCommand(m_cmdDriveTrainCommand);
     climber.setDefaultCommand(m_cmdClimberCommand);
-    intake.setDefaultCommand(m_cmdIntakeCommand);
+    // intake.setDefaultCommand(m_cmdIntakeCommand);
     lights.setDefaultCommand(m_cmdLightsCommand);
     
     // Add commands to Autonomous Sendable Chooser
     chooser.setDefaultOption("Autonomous Command", m_autoCommand);
     chooser.addOption("AutoDriveStraight Command", new AutoDriveStraightCommand(driveTrain, 10.0));
     chooser.addOption("AutoDriveTurn Command", new AutoDriveTurnCommand(driveTrain, driverController));
-    chooser.addOption("PathWeaver Command", new DrivePathWeaverCommand( "paths/PathWeaver/Paths/BarrelRun", driveTrain));
+    // chooser.addOption("PathWeaver Command", new DrivePathWeaverCommand( "paths/PathWeaver/Paths/BarrelRun", driveTrain));
 
     // SmartDashboard Buttons
     SmartDashboard.putData("Autonomous Command",m_autoCommand);
     SmartDashboard.putData("Autonomous AutoDriveStraight",new AutoDriveStraightCommand(driveTrain, 10.0));
     SmartDashboard.putData("Autonomous AutoDrive", new AutoDriveTurnCommand(driveTrain, driverController));
-    SmartDashboard.putData("DrivePathWeaverCommand", new DrivePathWeaverCommand( "paths/PathWeaver/Paths/BarrelRun", driveTrain));
+    // SmartDashboard.putData("DrivePathWeaverCommand", new DrivePathWeaverCommand( "paths/PathWeaver/Paths/BarrelRun", driveTrain));
     SmartDashboard.putData("CommandDriveTrain", m_cmdDriveTrainCommand);
     SmartDashboard.putData("Auto mode", chooser);
 
     HAL.report(tResourceType.kResourceType_Framework, tInstances.kFramework_RobotBuilder);
 
-    // cam0 = CameraServer.startAutomaticCapture(0);
-    // cam1 = CameraServer.startAutomaticCapture(1);  
-    // cam2 = CameraServer.startAutomaticCapture(2);  
+    if (RobotBase.isReal()) {
+      cam0 = CameraServer.startAutomaticCapture(0);
+      cam1 = CameraServer.startAutomaticCapture(1);  
+      cam2 = CameraServer.startAutomaticCapture(2);  
+    }
   }
 
   /**

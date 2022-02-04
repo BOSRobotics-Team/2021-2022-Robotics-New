@@ -29,7 +29,6 @@ public class CommandClimber extends CommandBase {
     public final ClimberExtendCommand m_climberExtendCommand;
     public final ClimberRetrackCommand m_climberRetractCommand;
     public final ClimberResetCommand m_climberResetCommand;
-    public final ClimberTripLimitSwitchesCommand m_climberTripLimitSwitchesCommand;
     public final PivotLinkExtendCommand m_pivotLinkExtendCommand;
     public final PivotLinkRetractCommand m_pivotLinkRetractCommand;
     public final AutoClimberCommand m_autoClimberCommand;
@@ -60,7 +59,6 @@ public class CommandClimber extends CommandBase {
         m_climberExtendCommand = new ClimberExtendCommand(climber, 1.5);
         m_climberRetractCommand = new ClimberRetrackCommand(climber);
         m_climberResetCommand = new ClimberResetCommand(climber);
-        m_climberTripLimitSwitchesCommand = new ClimberTripLimitSwitchesCommand(climber);
         m_pivotLinkExtendCommand = new PivotLinkExtendCommand(climber, 0.75);
         m_pivotLinkRetractCommand = new PivotLinkRetractCommand(climber);
         m_autoClimberCommand = new AutoClimberCommand(climber);
@@ -82,7 +80,6 @@ public class CommandClimber extends CommandBase {
         // left_Bumper.whenPressed(m_autoClimberCommand);
 
         start_Button.whenPressed(m_climberResetCommand);    
-        back_Button.whenPressed(m_climberTripLimitSwitchesCommand);
     }
 
     // Called repeatedly when this Command is scheduled to run
@@ -109,11 +106,11 @@ public class CommandClimber extends CommandBase {
             } else if (pov == 90) { // right
                 m_pivotLinkRetractCommand.schedule();
             }
+            _lastPOV = pov;
         }
-        _lastPOV = pov;
 
-        m_climber.setClimber(m_controller.getLeftY() * 0.5);
-        m_climber.setPivotLink(m_controller.getRightY() * 0.5);
+        m_climber.setClimber(-m_controller.getLeftY() * 0.5);
+        m_climber.setPivotLink(-m_controller.getRightY() * 0.5);
 
         m_climber.logPeriodic();
     }

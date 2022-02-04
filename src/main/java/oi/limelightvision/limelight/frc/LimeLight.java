@@ -1,8 +1,6 @@
 package oi.limelightvision.limelight.frc;
 
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj.Notifier;
 import oi.limelightvision.limelight.frc.ControlMode.*;
 
@@ -24,7 +22,6 @@ public class LimeLight {
             try {
                 Thread.sleep(50);
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             if(getPipelineLatency()==0.0){

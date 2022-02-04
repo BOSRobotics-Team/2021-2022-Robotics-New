@@ -1,5 +1,7 @@
 package frc.robot;
 
+import frc.robot.util.*;
+
 public class Constants {
 
     public static final double kIntakeSpeed = 1.0; // meters/sec

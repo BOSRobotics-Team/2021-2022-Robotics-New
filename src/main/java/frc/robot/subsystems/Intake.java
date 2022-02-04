@@ -4,18 +4,11 @@
 
 package frc.robot.subsystems;
 
-import frc.robot.*;
+import frc.robot.util.*;
+import com.ctre.phoenix.motorcontrol.can.*;
+
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-// import com.ctre.phoenix.motorcontrol.ControlMode;
-// import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-// import com.ctre.phoenix.motorcontrol.InvertType;
-// import com.ctre.phoenix.motorcontrol.LimitSwitchNormal;
-// import com.ctre.phoenix.motorcontrol.LimitSwitchSource;
-// import com.ctre.phoenix.motorcontrol.NeutralMode;
-// import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 public class Intake extends SubsystemBase {
     private final WPI_TalonSRX _intakeController = new WPI_TalonSRX(5);

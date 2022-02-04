@@ -1,7 +1,7 @@
 /**
  *  Class that organizes gear ratios used when converting rotations to distances
  */
-package frc.robot;
+package frc.robot.util;
 
 public class GearRatios {
     public final double kGearRatio;

@@ -1,5 +1,6 @@
-package frc.robot;
+package frc.robot.util;
 
+import frc.robot.Constants;
 import frc.robot.sim.PhysicsSim;
 
 import com.ctre.phoenix.motorcontrol.*;
