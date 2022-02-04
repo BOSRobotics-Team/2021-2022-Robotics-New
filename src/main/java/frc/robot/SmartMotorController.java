@@ -1,16 +1,14 @@
 package frc.robot;
 
+import frc.robot.sim.PhysicsSim;
+
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.*;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.RobotBase;
-import frc.robot.sim.PhysicsSim;
 
-public class SmartMotorHelper {
-    public static final int kMain = 0;
-    public static final int kAux = 1;
-    
+public class SmartMotorController {    
 	/** ---- Flat constants, you should not need to change these ---- */
     public static final int kTalonNone = 0;
     public static final int kTalonSRX = 1;
@@ -21,8 +19,9 @@ public class SmartMotorHelper {
 	public static final int REMOTE_1 = 1;
 	/* We allow either a 0 or 1 when selecting a PID Index, where 0 is primary and 1 is auxiliary */
 	public static final int PID_PRIMARY = 0;
-	public static final int PID_TURN = 1;
 	public static final int PID_AUX = 1;
+	public static final int PID_DISTANCE = 0;
+	public static final int PID_TURN = 1;
 	/* Firmware currently supports slots [0, 3] and can be used for either PID Set */
 	public static final int SLOT_0 = 0;
 	public static final int SLOT_1 = 1;
@@ -69,18 +68,13 @@ public class SmartMotorHelper {
 
     private double _setpoint = 0.0;          // The most recently set setpoint.
     private double _nativeSetpoint = 0.0;    // The setpoint in native units. Field to avoid garbage collection.
-    private double _auxpoint = 0.0;          // The most recently set setpoint.
+    // private double _auxpoint = 0.0;          // The most recently set setpoint.
     private double _nativeAuxpoint = 0.0;    // The setpoint in native units. Field to avoid garbage collection.
     private boolean _isVelocity = false;
     private boolean _isDistance = false;
     private boolean _isDistanceAux = false;
 
-    // /** Cached values for various sensor readings. */
-    // private double _cachedVelocity = Double.NaN;
-    // private double _cachedPosition = Double.NaN;
-
-
-    public SmartMotorHelper( final BaseTalon talon, final BaseTalon auxTalon ) {
+    public SmartMotorController( final BaseTalon talon, final BaseTalon auxTalon ) {
         _controller = talon;
         _auxController = auxTalon;
 
@@ -113,7 +107,7 @@ public class SmartMotorHelper {
         }
     }
 
-    public SmartMotorHelper( final BaseTalon talon ) {
+    public SmartMotorController( final BaseTalon talon ) {
         this(talon, null);
     }
 
@@ -137,7 +131,6 @@ public class SmartMotorHelper {
         talon.configNeutralDeadband(kNeutralDeadband, kTimeoutMs);
 
         //_controller.setSensorPhase(false);
-        //_controller.setInverted(invert);
         talon.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0); 
         talon.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, 0);
 
@@ -151,16 +144,16 @@ public class SmartMotorHelper {
 		talon.configPeakOutputForward(1, kTimeoutMs);
         talon.configPeakOutputReverse(-1, kTimeoutMs);
         
-		/* Set Motion Magic gains in slot0 - see documentation */
-        setClosedLoopGains(talon, kSlot_Distanc, kDefaultGains_Distanc); 
         talon.configMotionAcceleration(6000, kTimeoutMs);
         talon.configMotionCruiseVelocity(15000, kTimeoutMs);
 
-     	/* Set relevant frame periods to be at least as fast as periodic rate */
+		/* Set Motion Magic gains in slot0 - see documentation */
+        setClosedLoopGains(talon, kSlot_Distanc, kDefaultGains_Distanc); 
+         talon.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
+
+         /* Set relevant frame periods to be at least as fast as periodic rate */
          talon.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, kTimeoutMs);
          talon.setStatusFramePeriod(StatusFrameEnhanced.Status_10_Targets, 10, kTimeoutMs);
-
-         talon.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
     }
 
     private void setClosedLoopGains(BaseTalon talon, int slot, Gains gain ) {
@@ -253,6 +246,41 @@ public class SmartMotorHelper {
          _controller.setStatusFramePeriod(StatusFrameEnhanced.Status_10_Targets, 10, kTimeoutMs);
      }
 
+     public void setVelocityConfigs(Gains gains) {
+        setClosedLoopGains(_controller, kSlot_Velocit, gains);
+
+        _controller.selectProfileSlot(kSlot_Velocit, PID_PRIMARY);
+
+        /* Configure Sensor Source for Primary PID */
+        _controller.configSelectedFeedbackSensor(_feedbackDevice, PID_PRIMARY, kTimeoutMs);
+
+        if (_auxController != null) {
+            setClosedLoopGains(_auxController, kSlot_Velocit, gains);
+            _auxController.configRemoteFeedbackFilter(_controller.getDeviceID(), 
+                                                   RemoteSensorSource.TalonFX_SelectedSensor, 
+                                                   REMOTE_0);
+            /* Check if we're inverted */
+            if (_auxController.getInverted()) {
+                _auxController.configSensorTerm(SensorTerm.Diff0, _feedbackDevice);
+                _auxController.configSensorTerm(SensorTerm.Diff1, FeedbackDevice.RemoteSensor0);
+                _auxController.configSelectedFeedbackSensor(FeedbackDevice.SensorDifference, PID_PRIMARY, kTimeoutMs);
+            } else {
+                _auxController.configSensorTerm(SensorTerm.Sum0, FeedbackDevice.RemoteSensor0);
+                _auxController.configSensorTerm(SensorTerm.Sum1, _feedbackDevice);
+                _auxController.configSelectedFeedbackSensor(FeedbackDevice.SensorSum, PID_PRIMARY, kTimeoutMs);
+            }
+            _auxController.configSelectedFeedbackCoefficient(0.5, PID_PRIMARY, kTimeoutMs);
+            _auxController.setStatusFramePeriod(StatusFrame.Status_12_Feedback1, 20, kTimeoutMs);
+            _auxController.setStatusFramePeriod(StatusFrame.Status_13_Base_PIDF0, 20, kTimeoutMs);
+            _auxController.setStatusFramePeriod(StatusFrameEnhanced.Status_10_Targets, 10); 
+       }
+     	/* Set relevant frame periods to be at least as fast as periodic rate */
+         _controller.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 5, kTimeoutMs);
+         _controller.setStatusFramePeriod(StatusFrameEnhanced.Status_12_Feedback1, 10, kTimeoutMs);
+         _controller.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, kTimeoutMs);
+         _controller.setStatusFramePeriod(StatusFrameEnhanced.Status_10_Targets, 10, kTimeoutMs);
+     }
+     
     /**
      * Get the velocity of the drive.
      *
@@ -318,6 +346,14 @@ public class SmartMotorHelper {
 
         _setpoint = meters;
         _nativeSetpoint = _convertor.distanceMetersToNativeUnits(meters);
+        _nativeAuxpoint = 0;
+
+        _controller.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
+        _controller.selectProfileSlot(kSlot_Turning, PID_TURN);
+        if (_auxController != null) {
+            _auxController.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
+            _auxController.selectProfileSlot(kSlot_Turning, PID_TURN);
+        }
         _isDistance = true;
     }
     public void setTarget(double meters, double aux) {
@@ -325,9 +361,14 @@ public class SmartMotorHelper {
 
         _setpoint = meters;
         _nativeSetpoint = _convertor.distanceMetersToNativeUnits(meters);
-        _auxpoint = aux;
         _nativeAuxpoint = aux;
 
+        _controller.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
+        _controller.selectProfileSlot(kSlot_Turning, PID_TURN);
+        if (_auxController != null) {
+            _auxController.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
+            _auxController.selectProfileSlot(kSlot_Turning, PID_TURN);
+        }
         _isDistanceAux = true;
     }
 
@@ -338,7 +379,9 @@ public class SmartMotorHelper {
         _nativeSetpoint = _convertor.velocityToNativeUnits(_setpoint);
         _nativeAuxpoint = _feedForwardCalculator.calculate(velocity) / 12.;
 
-        _controller.config_kF(0, 0, 0);
+        _controller.selectProfileSlot(kSlot_Velocit, PID_PRIMARY);
+        if (_auxController != null)
+            _auxController.selectProfileSlot(kSlot_Velocit, PID_PRIMARY);
         _isVelocity = true;
     }
 
@@ -396,17 +439,10 @@ public class SmartMotorHelper {
                 _controller.set(ControlMode.MotionMagic, _nativeSetpoint, DemandType.AuxPID, _nativeAuxpoint);
             }
         } else if (_isVelocity) {
-            _controller.set(
-                ControlMode.Velocity,
-                _nativeSetpoint,
-                DemandType.ArbitraryFeedForward,
-                _nativeAuxpoint);
+            _controller.set(ControlMode.Velocity, _nativeSetpoint, DemandType.ArbitraryFeedForward, _nativeAuxpoint);
             if (_auxController != null)
                 _auxController.follow(_controller, FollowerType.PercentOutput);
         }
-
-        // _cachedVelocity = getVelocity();
-        // _cachedPosition = getPosition();
 
         _controller.getFaults(_faults);
         if (_faults.SensorOutOfPhase) {

@@ -15,6 +15,11 @@
         "header": {
           "open": true
         }
+      },
+      "Talon FX[1]/Integrated Sensor": {
+        "header": {
+          "open": true
+        }
       }
     }
   },
@@ -42,6 +47,56 @@
       "/SmartDashboard/CommandDriveTrain": "Command",
       "/SmartDashboard/DrivePathWeaverCommand": "Command",
       "/SmartDashboard/Field2d": "Field2d"
+    }
+  },
+  "NetworkTables": {
+    "LiveWindow": {
+      "DriveTrain": {
+        "Differential Drive": {
+          "open": true
+        }
+      }
+    },
+    "Shuffleboard": {
+      ".recording": {
+        "events": {
+          "CommandDriveTrain init.": {
+            "open": true
+          }
+        }
+      }
+    },
+    "SmartDashboard": {
+      "open": true
+    }
+  },
+  "Plot": {
+    "Plot <0>": {
+      "plots": [
+        {
+          "height": 154,
+          "series": [
+            {
+              "color": [
+                0.3333333432674408,
+                0.658823549747467,
+                0.4078431725502014,
+                1.0
+              ],
+              "id": "CANEncoder:Talon FX[0]/Integrated Sensor-position"
+            },
+            {
+              "color": [
+                0.7686275243759155,
+                0.30588236451148987,
+                0.32156863808631897,
+                1.0
+              ],
+              "id": "CANEncoder:Talon FX[1]/Integrated Sensor-position"
+            }
+          ]
+        }
+      ]
     }
   }
 }

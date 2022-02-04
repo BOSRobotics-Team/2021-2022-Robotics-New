@@ -21,8 +21,8 @@ public class Intake extends SubsystemBase {
     private final WPI_TalonSRX _intakeController = new WPI_TalonSRX(5);
     private final WPI_TalonSRX _liftController = new WPI_TalonSRX(6);
 
-    private final SmartMotorHelper smartIntakeController = new SmartMotorHelper(_intakeController);
-    private final SmartMotorHelper smartLiftController = new SmartMotorHelper(_liftController);
+    private final SmartMotorController smartIntakeController = new SmartMotorController(_intakeController);
+    private final SmartMotorController smartLiftController = new SmartMotorController(_liftController);
 
     private boolean _isResetLift = false;
     private boolean _isLifting = false;

@@ -5,8 +5,6 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.DriveTrain.DriveMode;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -35,12 +33,11 @@ public class AutoDriveStraightCommand extends CommandBase {
 
         m_driveTrain.enableDriveTrain(false);
         m_driveTrain.enableBrakes(false);
-        m_driveTrain.configForPID();
+        m_driveTrain.configForPID2();
 		
 		/* Configured for MotionMagic on Integrated Sensors' Sum and Auxiliary PID on Integrated Sensors' Difference */
 		_target = _distance;
-		m_driveTrain.resetPosition();
-        m_driveTrain.setTarget(_target);  		
+        m_driveTrain.setTarget(_target, 0.0);  		
 
 		System.out.println("AutoDriveStraightCommand - targetDistance = " + _target );
 		SmartDashboard.putNumber("Smoothing", _smoothing);
@@ -70,7 +67,6 @@ public class AutoDriveStraightCommand extends CommandBase {
             Shuffleboard.addEventMarker("AutoDriveStraightCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
         }
         Shuffleboard.addEventMarker("AutoDriveStraightCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
-        m_driveTrain.enableDriveTrain(false);
         m_driveTrain.enableDriveTrain(false);
     }
 

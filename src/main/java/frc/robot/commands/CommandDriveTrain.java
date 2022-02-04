@@ -57,7 +57,7 @@ public class CommandDriveTrain extends CommandBase {
 
         m_autoCommand = new AutonomousCommand(m_driveTrain);
         m_autoCommand1 = new AutoDriveStraightCommand(m_driveTrain, 10.0);
-        m_autoCommand2 = new AutoDriveStraightCommand(m_driveTrain, 0.0);
+        m_autoCommand2 = new AutoDriveStraightCommand(m_driveTrain, 5.0);
     }
 
     // Called just before this Command runs the first time

@@ -6,7 +6,7 @@ package frc.robot.subsystems;
 
 import frc.robot.*;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.motorcontrol.can.*;
 
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -17,8 +17,8 @@ public class Climber extends SubsystemBase {
     private final WPI_TalonFX _leftPivotLinkController = new WPI_TalonFX(11);
     private final WPI_TalonFX _rightPivotLinkController = new WPI_TalonFX(12);
 
-    private final SmartMotorHelper smartClimberController = new SmartMotorHelper(_climberController);
-    private final SmartMotorHelper smartPivotLinkController = new SmartMotorHelper(_rightPivotLinkController, _leftPivotLinkController);
+    private final SmartMotorController smartClimberController = new SmartMotorController(_climberController);
+    private final SmartMotorController smartPivotLinkController = new SmartMotorController(_rightPivotLinkController, _leftPivotLinkController);
 
     private boolean _isResetClimber = false;
     private boolean _isResetPivoting = false;
