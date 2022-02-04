@@ -15,14 +15,19 @@ public class AutoDriveStraightCommand extends CommandBase {
 	private final DriveTrain m_driveTrain;
 	private final double _distance;
 
-	private double _target = 0.0;
-	private int _smoothing = 0;
+	private double _targetDistance = 0.0;
+	private double _targetAngle = 0;
+	private int _smoothing = -1;
 
-	public AutoDriveStraightCommand(DriveTrain driveTrain, double distance) {
+	public AutoDriveStraightCommand(DriveTrain driveTrain, double distance, int smoothing) {
 		m_driveTrain = driveTrain;
 		_distance = distance;
+        _smoothing = smoothing;
 
 		addRequirements(m_driveTrain);
+    }
+	public AutoDriveStraightCommand(DriveTrain driveTrain, double distance) {
+        this(driveTrain, distance, -1);
     }
    
     // Called just before this Command runs the first time
@@ -30,49 +35,45 @@ public class AutoDriveStraightCommand extends CommandBase {
     @Override
     public void initialize() {
         Shuffleboard.addEventMarker("AutoDriveStraightCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        System.out.println("AutoDriveStraightCommand - initialize");
+
+		/* Configured for MotionMagic on Integrated Sensors' Sum and Auxiliary PID on Integrated Sensors' Difference */
+		_targetDistance = _distance;
+        _targetAngle = 0.0;         //m_driveTrain.getAuxPosition();
 
         m_driveTrain.enableDriveTrain(false);
         m_driveTrain.enableBrakes(false);
-        m_driveTrain.configForPID2();
-		
-		/* Configured for MotionMagic on Integrated Sensors' Sum and Auxiliary PID on Integrated Sensors' Difference */
-		_target = _distance;
-        m_driveTrain.setTarget(_target, 0.0);  		
+        m_driveTrain.configForPID2();		
+        if (_smoothing >= 0)
+            m_driveTrain.configMotionSCurveStrength(_smoothing);
+        m_driveTrain.setTarget(_targetDistance, _targetAngle);  		
 
-		System.out.println("AutoDriveStraightCommand - targetDistance = " + _target );
+		System.out.println("AutoDriveStraightCommand - targetDistance = " + _targetDistance );
 		SmartDashboard.putNumber("Smoothing", _smoothing);
     }
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
-		// if (m_controller.getBButtonPressed()) {
-		// 	_gotoEnd = !_gotoEnd;
-		// 	_lockedDistance = _gotoEnd ? 5.0 : 0.0;
-		// }
-		// if (m_controller.getLeftBumperPressed()) {
-		// 	if (--_smoothing < 0) _smoothing = 0; // Cap smoothing
-		// 	m_driveTrain.configMotionSCurveStrength(_smoothing);
-		// }
-		// if (m_controller.getRightBumperPressed()) {
-		// 	if (++_smoothing > 8) _smoothing = 8; // Cap smoothing
-		// 	m_driveTrain.configMotionSCurveStrength(_smoothing);
-		// }
+		SmartDashboard.putNumber("PoseX", m_driveTrain.getCurrentPose().getTranslation().getX());
+		SmartDashboard.putNumber("PoseY", m_driveTrain.getCurrentPose().getTranslation().getY());
+		SmartDashboard.putNumber("Pose Rot", m_driveTrain.getCurrentPose().getRotation().getDegrees());
 	}
 
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        m_driveTrain.enableDriveTrain(false);
+
         if (interrupted) {
             Shuffleboard.addEventMarker("AutoDriveStraightCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
         }
         Shuffleboard.addEventMarker("AutoDriveStraightCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
-        m_driveTrain.enableDriveTrain(false);
     }
 
     // Make this return true when this Command no longer needs to run execute()
     @Override
     public boolean isFinished() {
-        return m_driveTrain.isTargetReached(_target);
+        return m_driveTrain.isTargetReached(_targetDistance);
     }
 }    

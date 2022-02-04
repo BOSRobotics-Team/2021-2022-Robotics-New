@@ -5,15 +5,15 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.Lights.LEDColor;
+import frc.robot.subsystems.LEDLights.LEDColor;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 public class LEDOnboardLightOffCommand extends InstantCommand {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-    private final Lights m_lights;
+    private final LEDLights m_lights;
 
-    public LEDOnboardLightOffCommand(Lights lights) {
+    public LEDOnboardLightOffCommand(LEDLights lights) {
         m_lights = lights;
 
         addRequirements(m_lights);

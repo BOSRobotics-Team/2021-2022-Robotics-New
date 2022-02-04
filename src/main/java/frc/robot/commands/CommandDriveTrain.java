@@ -8,6 +8,7 @@ import frc.robot.subsystems.*;
 import frc.robot.subsystems.DriveTrain.DriveMode;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -17,16 +18,7 @@ public class CommandDriveTrain extends CommandBase {
 
     public final DriveTrain m_driveTrain;
     public final XboxController m_controller;
-    public final JoystickButton a_Button;
-    public final JoystickButton b_Button;
-    // public final JoystickButton x_Button;
-    // public final JoystickButton y_Button;
-    public final JoystickButton left_Bumper;
-    public final JoystickButton right_Bumper;
-    // public final JoystickButton back_Button;
-    // public final JoystickButton start_Button;
-    public final JoystickButton left_Stick;
-    public final JoystickButton right_Stick;
+    public final JoystickButton m_buttons[] = new JoystickButton[11];
 
     private double _scaling = 0.2;
 
@@ -44,16 +36,12 @@ public class CommandDriveTrain extends CommandBase {
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(m_driveTrain);
 
-        a_Button = new JoystickButton(m_controller, 1);
-        b_Button = new JoystickButton(m_controller, 2);
-        // x_Button = new JoystickButton(m_controller, 3);
-        // y_Button = new JoystickButton(m_controller, 4);
-        left_Bumper = new JoystickButton(m_controller, 5);
-        right_Bumper = new JoystickButton(m_controller, 6);
-        // back_Button = new JoystickButton(m_controller, 7);
-        // start_Button = new JoystickButton(m_controller, 8);
-        left_Stick = new JoystickButton(m_controller, 9);
-        right_Stick = new JoystickButton(m_controller, 10);
+        m_buttons[Button.kA.value] = new JoystickButton(m_controller, Button.kA.value);
+        m_buttons[Button.kB.value] = new JoystickButton(m_controller, Button.kB.value);
+        m_buttons[Button.kLeftBumper.value] = new JoystickButton(m_controller, Button.kLeftBumper.value);
+        m_buttons[Button.kRightBumper.value] = new JoystickButton(m_controller, Button.kRightBumper.value);
+        m_buttons[Button.kLeftStick.value] = new JoystickButton(m_controller, Button.kLeftStick.value);
+        m_buttons[Button.kRightStick.value] = new JoystickButton(m_controller, Button.kRightStick.value);
 
         m_autoCommand = new AutonomousCommand(m_driveTrain);
         m_autoCommand1 = new AutoDriveStraightCommand(m_driveTrain, 10.0);
@@ -65,14 +53,13 @@ public class CommandDriveTrain extends CommandBase {
     public void initialize() {
         Shuffleboard.addEventMarker("CommandDriveTrain init.", this.getClass().getSimpleName(), EventImportance.kNormal);
 
-        a_Button.whenPressed(m_autoCommand1);    
-        b_Button.whenPressed(m_autoCommand2);    
+        m_buttons[Button.kA.value].whenPressed(m_autoCommand1);    
+        m_buttons[Button.kB.value].whenPressed(m_autoCommand2);    
 
-        left_Bumper.whenPressed(() -> m_driveTrain.toggleDriveMode());    
-        right_Bumper.whenPressed(() -> m_driveTrain.setUseDriveScaling(!m_driveTrain.getUseDriveScaling()));
-
-        left_Stick.whenPressed(() -> m_driveTrain.setUseSquares(!m_driveTrain.getUseSquares()));
-        right_Stick.whenPressed(() -> m_driveTrain.setQuickTurn(!m_driveTrain.getQuickTurn()));
+        m_buttons[Button.kLeftBumper.value].whenPressed(() -> m_driveTrain.toggleDriveMode());    
+        m_buttons[Button.kRightBumper.value].whenPressed(() -> m_driveTrain.setUseDriveScaling(!m_driveTrain.getUseDriveScaling()));
+        m_buttons[Button.kLeftStick.value].whenPressed(() -> m_driveTrain.setUseSquares(!m_driveTrain.getUseSquares()));
+        m_buttons[Button.kRightStick.value].whenPressed(() -> m_driveTrain.setQuickTurn(!m_driveTrain.getQuickTurn()));
 
         m_driveTrain.setDriveMode(DriveMode.ARCADE);
         m_driveTrain.setUseSquares(true);

@@ -7,6 +7,7 @@ package frc.robot.commands;
 import frc.robot.subsystems.*;
 // import frc.robot.subsystems.Lights.LEDColor;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -14,11 +15,9 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 public class CommandLights extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
 
-    public final Lights m_lights;
+    public final LEDLights m_lights;
     public final XboxController m_controller;
-    // public final JoystickButton right_Bumper;
-    public final JoystickButton left_Stick;
-    public final JoystickButton right_Stick;
+    public final JoystickButton m_buttons[] = new JoystickButton[11];
 
     // private final LEDAnimationCommand _animationCommand;
     private final LEDAnimationRotateCommand _animationRotateCommand;
@@ -33,15 +32,15 @@ public class CommandLights extends CommandBase {
     // private boolean _lastTriggerL = false;
     // private boolean _lastTriggerR = false;
 
-    public CommandLights(Lights lights, XboxController controller) {
+    public CommandLights(LEDLights lights, XboxController controller) {
         m_lights = lights;
         m_controller = controller;
 
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(lights);
 
-        left_Stick = new JoystickButton(m_controller, 9);
-        right_Stick = new JoystickButton(m_controller, 10);
+        m_buttons[Button.kLeftStick.value] = new JoystickButton(m_controller, Button.kLeftStick.value);
+        m_buttons[Button.kRightStick.value] = new JoystickButton(m_controller, Button.kRightStick.value);
 
         // _animationCommand = new LEDAnimationCommand(lights);
         _animationRotateCommand = new LEDAnimationRotateCommand(lights, true);
@@ -58,8 +57,8 @@ public class CommandLights extends CommandBase {
         Shuffleboard.addEventMarker("CommandLights init.", this.getClass().getSimpleName(), EventImportance.kNormal);
         // _lastTriggerL = _lastTriggerR = false;
 
-        left_Stick.whenPressed(_animationRotateCommand);
-        right_Stick.whenPressed(_animationOffCommand);
+        m_buttons[Button.kLeftStick.value].whenPressed(_animationRotateCommand);
+        m_buttons[Button.kRightStick.value].whenPressed(_animationOffCommand);
     }
 
     // Called repeatedly when this Command is scheduled to run

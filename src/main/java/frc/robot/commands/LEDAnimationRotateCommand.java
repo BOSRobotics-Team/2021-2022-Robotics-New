@@ -10,10 +10,10 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 public class LEDAnimationRotateCommand extends InstantCommand {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-    private final Lights m_lights;
+    private final LEDLights m_lights;
     private final boolean m_increment;
 
-    public LEDAnimationRotateCommand(Lights lights, boolean increment) {
+    public LEDAnimationRotateCommand(LEDLights lights, boolean increment) {
         m_lights = lights;
         m_increment = increment;
 

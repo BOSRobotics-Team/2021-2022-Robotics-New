@@ -13,7 +13,7 @@ import com.ctre.phoenix.led.TwinkleAnimation.TwinklePercent;
 import com.ctre.phoenix.led.TwinkleOffAnimation.TwinkleOffPercent;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Lights extends SubsystemBase {
+public class LEDLights extends SubsystemBase {
 
     public static class LEDColor {
         public int red = 255;
@@ -64,7 +64,7 @@ public class Lights extends SubsystemBase {
     private Animation m_toAnimate = null;
     private final int LedCount = 128;
 
-    public Lights() {
+    public LEDLights() {
         changeAnimation(AnimationTypes.SetAll);
  
         CANdleConfiguration configAll = new CANdleConfiguration();

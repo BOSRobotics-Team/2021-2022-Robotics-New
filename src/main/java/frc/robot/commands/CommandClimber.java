@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -15,16 +16,7 @@ public class CommandClimber extends CommandBase {
 
     public final Climber m_climber;
     public final XboxController m_controller;
-    public final JoystickButton a_Button;
-    // public final JoystickButton b_Button;
-    // public final JoystickButton x_Button;
-    // public final JoystickButton y_Button;
-    // public final JoystickButton left_Bumper;
-    // public final JoystickButton right_Bumper;
-    public final JoystickButton back_Button;
-    public final JoystickButton start_Button;
-    // public final JoystickButton left_Stick;
-    // public final JoystickButton right_Stick;
+    public final JoystickButton m_buttons[] = new JoystickButton[11];
 
     public final ClimberExtendCommand m_climberExtendCommand;
     public final ClimberRetrackCommand m_climberRetractCommand;
@@ -44,17 +36,12 @@ public class CommandClimber extends CommandBase {
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(climber);
 
-        a_Button = new JoystickButton(m_controller, 1);
-        // b_Button = new JoystickButton(m_controller, 2);
-        // x_Button = new JoystickButton(m_controller, 3);
-        // y_Button = new JoystickButton(m_controller, 4);
-        // left_Bumper = new JoystickButton(m_controller, 5);
-        // right_Bumper = new JoystickButton(m_controller, 6);
-
-        back_Button = new JoystickButton(m_controller, 7);
-        start_Button = new JoystickButton(m_controller, 8);
-        // left_Stick = new JoystickButton(m_controller, 9);
-        // right_Stick = new JoystickButton(m_controller, 10);
+        m_buttons[Button.kA.value] = new JoystickButton(m_controller, Button.kA.value);
+        m_buttons[Button.kB.value] = new JoystickButton(m_controller, Button.kB.value);
+        m_buttons[Button.kX.value] = new JoystickButton(m_controller, Button.kX.value);
+        m_buttons[Button.kY.value] = new JoystickButton(m_controller, Button.kY.value);
+        m_buttons[Button.kBack.value] = new JoystickButton(m_controller, Button.kBack.value);
+        m_buttons[Button.kStart.value] = new JoystickButton(m_controller, Button.kStart.value);
 
         m_climberExtendCommand = new ClimberExtendCommand(climber, 1.5);
         m_climberRetractCommand = new ClimberRetrackCommand(climber);
@@ -71,15 +58,11 @@ public class CommandClimber extends CommandBase {
         _lastTriggerL = _lastTriggerR = false;
         _lastPOV = -1;
 
-        a_Button.whenPressed(m_autoClimberCommand);
-        // b_Button.whenPressed(m_climberRetractCommand);
-    
-        // x_Button.whenPressed(m_pivotLinkExtendCommand);
-        // y_Button.whenPressed(m_pivotLinkRetractCommand);
-    
-        // left_Bumper.whenPressed(m_autoClimberCommand);
-
-        start_Button.whenPressed(m_climberResetCommand);    
+        m_buttons[Button.kA.value].whenPressed(m_autoClimberCommand);
+        m_buttons[Button.kB.value].whenPressed(m_climberRetractCommand);
+        m_buttons[Button.kX.value].whenPressed(m_pivotLinkExtendCommand);
+        m_buttons[Button.kY.value].whenPressed(m_pivotLinkRetractCommand);
+        m_buttons[Button.kStart.value].whenPressed(m_climberResetCommand);    
     }
 
     // Called repeatedly when this Command is scheduled to run

@@ -10,9 +10,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 public class LEDAnimationOffCommand extends InstantCommand {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-    private final Lights m_lights;
+    private final LEDLights m_lights;
 
-    public LEDAnimationOffCommand(Lights lights) {
+    public LEDAnimationOffCommand(LEDLights lights) {
         m_lights = lights;
 
         addRequirements(m_lights);

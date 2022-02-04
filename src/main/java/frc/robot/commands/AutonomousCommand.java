@@ -4,70 +4,32 @@
 
 package frc.robot.commands;
 
+import frc.robot.*;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.DriveTrain.DriveMode;
-import edu.wpi.first.wpilibj.shuffleboard.*;
-import edu.wpi.first.wpilibj.smartdashboard.*;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.LEDLights.LEDColor;
+import edu.wpi.first.wpilibj.Preferences;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
-public class AutonomousCommand extends CommandBase {
+public class AutonomousCommand extends SequentialCommandGroup {
 @SuppressWarnings({ "PMD.UnusedPrivateField", "PMD.SingularField" })
 
     private final DriveTrain m_driveTrain;
-
-    private double _lockedDistance = 0;
-	private double _targetAngle = 0;
+    private final LEDLights m_lights;
 
     public AutonomousCommand(DriveTrain driveTrain) {
+        Preferences.initDouble("AutonomousDistance1", -2.0);
+        
         m_driveTrain = driveTrain;
-		addRequirements(m_driveTrain);
-    }
-   
-    // Called just before this Command runs the first time
-    
-    @Override
-    public void initialize() {
-        Shuffleboard.addEventMarker("AutonomousCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-        System.out.println("AutonomousCommand - initialize");
+        m_lights = RobotContainer.getInstance().getLEDLights();
 
-        m_driveTrain.setDriveMode(DriveMode.ARCADE);
-        m_driveTrain.setUseSquares(true);
-        m_driveTrain.setUseDriveScaling(false);
-        m_driveTrain.enableBrakes(true);
-        m_driveTrain.enableDriveTrain(false);
-        m_driveTrain.configForPID();
-		
-        _targetAngle = 0.0; //m_driveTrain.getAuxPosition();
-        _lockedDistance = 10.0; //m_driveTrain.getPosition();
-		
-        m_driveTrain.setTarget(_lockedDistance);//, _targetAngle);
-   
-        System.out.println("_lockedDistance = " + _lockedDistance + " _targetAngle = " + _targetAngle);
-    }
+        addRequirements(m_driveTrain, m_lights);
 
-    // Called repeatedly when this Command is scheduled to run
-    @Override
-    public void execute() {
-		SmartDashboard.putNumber("PoseX", m_driveTrain.getCurrentPose().getTranslation().getX());
-		SmartDashboard.putNumber("PoseY", m_driveTrain.getCurrentPose().getTranslation().getY());
-		SmartDashboard.putNumber("Pose Rot", m_driveTrain.getCurrentPose().getRotation().getDegrees());
-    }
+        double distance1 = Preferences.getDouble("AutonomousDistance1", -2.0);
 
-    // Called once after isFinished returns true
-    @Override
-    public void end(boolean interrupted) {
-        System.out.println("AutonomousCommand - end");
-        m_driveTrain.enableDriveTrain(false);
-
-        if (interrupted) {
-            Shuffleboard.addEventMarker("AutonomousCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
-        }
-        Shuffleboard.addEventMarker("AutonomousCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
-    }
-
-    // Make this return true when this Command no longer needs to run execute()
-    @Override
-    public boolean isFinished() {
-        return m_driveTrain.isTargetReached(_lockedDistance);
-    }
+        addCommands(
+            new LEDOnboardLightCommand(m_lights, LEDColor.kYellow),
+            new AutoDriveStraightCommand(m_driveTrain, distance1),
+            new LEDOnboardLightOffCommand(m_lights)
+        );
+   }
 }    

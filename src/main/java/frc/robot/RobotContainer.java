@@ -26,27 +26,19 @@ import edu.wpi.first.wpilibj2.command.Command;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+  private static RobotContainer _robotContainer = null;
+
   SendableChooser<Command> chooser = new SendableChooser<>();
 
   // The robot's subsystems and commands are defined here...
   public final DriveTrain driveTrain = new DriveTrain();
   // public final Intake intake = new Intake();
   public final Climber climber = new Climber();
-  public final Lights lights = new Lights();
+  public final LEDLights lights = new LEDLights();
 
   // //Driver Controller
   public final XboxController driverController = new XboxController(0);
   public final XboxController operatorController = new XboxController(1);
-  // public final JoystickButton a_Button_Driver = new JoystickButton(driverController, 1);
-  // public final JoystickButton b_Button_Driver = new JoystickButton(driverController, 2);
-  // public final JoystickButton x_Button_Driver = new JoystickButton(driverController, 3);
-  // public final JoystickButton y_Button_Driver = new JoystickButton(driverController, 4);
-  // public final JoystickButton left_Bumper_Driver = new JoystickButton(driverController, 5);
-  // public final JoystickButton right_Bumper_Driver = new JoystickButton(driverController, 6);
-  // public final JoystickButton back_Button_Driver = new JoystickButton(driverController, 7);
-  // public final JoystickButton start_Button_Driver = new JoystickButton(driverController, 8);
-  // public final JoystickButton left_Stick_Driver = new JoystickButton(driverController, 9);
-  // public final JoystickButton right_Stick_Driver = new JoystickButton(driverController, 10);
     
   //Camera
   // public final LimeLight limeLight = new LimeLight();
@@ -62,6 +54,7 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    _robotContainer = this;
 
     driveTrain.setDefaultCommand(m_cmdDriveTrainCommand);
     climber.setDefaultCommand(m_cmdClimberCommand);
@@ -91,6 +84,9 @@ public class RobotContainer {
     }
   }
 
+  public static RobotContainer getInstance() {
+    return _robotContainer;
+  }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -103,5 +99,11 @@ public class RobotContainer {
 
   public XboxController getDriverController() {
     return driverController;
+  }
+  public XboxController getOperatorController() {
+    return operatorController;
+  }
+  public LEDLights getLEDLights() {
+    return lights;
   }
 }

@@ -5,26 +5,23 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.Lights.AnimationTypes;
+import frc.robot.subsystems.LEDLights.AnimationTypes;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 public class LEDAnimationCommand extends InstantCommand {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-    private final Lights m_lights;
+    private final LEDLights m_lights;
     private final AnimationTypes m_type;
 
-    public LEDAnimationCommand(Lights lights) {
-        m_lights = lights;
-        m_type = AnimationTypes.SetAll;
-
-        addRequirements(m_lights);
-    }
-    public LEDAnimationCommand(Lights lights, AnimationTypes type) {
+    public LEDAnimationCommand(LEDLights lights, AnimationTypes type) {
         m_lights = lights;
         m_type = type;
 
         addRequirements(m_lights);
+    }
+    public LEDAnimationCommand(LEDLights lights) {
+        this(lights, AnimationTypes.SetAll);
     }
 
     // Called just before this Command runs the first time
