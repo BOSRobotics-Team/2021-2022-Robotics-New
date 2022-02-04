@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
@@ -29,12 +30,12 @@ public class CommandClimber extends CommandBase {
     private boolean _lastTriggerR = false;
     private int     _lastPOV = -1;
   
-    public CommandClimber(Climber climber, XboxController controller) {
-        m_climber = climber;
-        m_controller = controller;
+    public CommandClimber(RobotContainer container) {
+        m_climber = container.climber;
+        m_controller = container.getOperatorController();
 
         // Use addRequirements() here to declare subsystem dependencies.
-        addRequirements(climber);
+        addRequirements(m_climber);
 
         m_buttons[Button.kA.value] = new JoystickButton(m_controller, Button.kA.value);
         m_buttons[Button.kB.value] = new JoystickButton(m_controller, Button.kB.value);
@@ -43,12 +44,12 @@ public class CommandClimber extends CommandBase {
         m_buttons[Button.kBack.value] = new JoystickButton(m_controller, Button.kBack.value);
         m_buttons[Button.kStart.value] = new JoystickButton(m_controller, Button.kStart.value);
 
-        m_climberExtendCommand = new ClimberExtendCommand(climber, 1.5);
-        m_climberRetractCommand = new ClimberRetrackCommand(climber);
-        m_climberResetCommand = new ClimberResetCommand(climber);
-        m_pivotLinkExtendCommand = new PivotLinkExtendCommand(climber, 0.75);
-        m_pivotLinkRetractCommand = new PivotLinkRetractCommand(climber);
-        m_autoClimberCommand = new AutoClimberCommand(climber);
+        m_climberExtendCommand = new ClimberExtendCommand(container, 1.5);
+        m_climberRetractCommand = new ClimberRetrackCommand(container);
+        m_climberResetCommand = new ClimberResetCommand(container);
+        m_pivotLinkExtendCommand = new PivotLinkExtendCommand(container, 0.75);
+        m_pivotLinkRetractCommand = new PivotLinkRetractCommand(container);
+        m_autoClimberCommand = new AutoClimberCommand(container);
     }
 
     // Called just before this Command runs the first time

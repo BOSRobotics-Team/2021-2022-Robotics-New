@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -13,8 +14,8 @@ public class LEDAnimationRotateCommand extends InstantCommand {
     private final LEDLights m_lights;
     private final boolean m_increment;
 
-    public LEDAnimationRotateCommand(LEDLights lights, boolean increment) {
-        m_lights = lights;
+    public LEDAnimationRotateCommand(RobotContainer container, boolean increment) {
+        m_lights = container.lights;
         m_increment = increment;
 
         addRequirements(m_lights);

@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import frc.robot.*;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj.smartdashboard.*;
@@ -19,15 +20,15 @@ public class AutoDriveStraightCommand extends CommandBase {
 	private double _targetAngle = 0;
 	private int _smoothing = -1;
 
-	public AutoDriveStraightCommand(DriveTrain driveTrain, double distance, int smoothing) {
-		m_driveTrain = driveTrain;
+	public AutoDriveStraightCommand(RobotContainer container, double distance, int smoothing) {
+		m_driveTrain = container.driveTrain;
 		_distance = distance;
         _smoothing = smoothing;
 
 		addRequirements(m_driveTrain);
     }
-	public AutoDriveStraightCommand(DriveTrain driveTrain, double distance) {
-        this(driveTrain, distance, -1);
+	public AutoDriveStraightCommand(RobotContainer container, double distance) {
+        this(container, distance, -1);
     }
    
     // Called just before this Command runs the first time

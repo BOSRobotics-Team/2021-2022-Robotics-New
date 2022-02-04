@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.*;
@@ -16,15 +17,19 @@ public class AutoDriveTurnCommand extends CommandBase {
     private final DriveTrain m_driveTrain;
 	private final XboxController m_controller;
 
-	private double _lockedDistance = 0;
+	private double _targetDistance = 0;
 	private double _targetAngle = 0;
 	private boolean _gotoEnd = true;
 
 	private int _smoothing = 0;
 
-	public AutoDriveTurnCommand(DriveTrain driveTrain, XboxController driverController) {
-		m_driveTrain = driveTrain;
-		m_controller = driverController;
+	public AutoDriveTurnCommand(RobotContainer container, double distance, double angle) {
+		m_driveTrain = container.driveTrain;
+		m_controller = container.getDriverController();
+
+		_targetDistance = distance;
+		_targetAngle = angle; //-900.0;  // -360000 * (90.0 / 360.0) * 0.5; //175 degrees
+		_gotoEnd = true;
 
 		addRequirements(m_driveTrain);
     }
@@ -38,11 +43,8 @@ public class AutoDriveTurnCommand extends CommandBase {
         m_driveTrain.enableDriveTrain(false);
         m_driveTrain.enableBrakes(false);
 		m_driveTrain.configForPID2();
+		m_driveTrain.setTarget(_targetDistance, _targetAngle);
 		
-		_lockedDistance = 5.0;
-		_targetAngle = 175; //-900.0;  // -360000 * (90.0 / 360.0) * 0.5; //175 degrees
-		_gotoEnd = true;
-
 		SmartDashboard.putNumber("Smoothing", _smoothing);
     }
 
@@ -53,7 +55,7 @@ public class AutoDriveTurnCommand extends CommandBase {
 
 		if (m_controller.getStartButtonPressed()) {
 			_gotoEnd = !_gotoEnd;
-			_lockedDistance = _gotoEnd ? 5.0 : 0.0;
+			_targetDistance = _gotoEnd ? 5.0 : 0.0;
 			_targetAngle = _gotoEnd ? -175 : 175;       //-900.0 : 900.0; //-360000 * (90.0 / 360.0) : 0.0;
 		}
 		if (m_controller.getLeftBumperPressed()) {
@@ -65,8 +67,6 @@ public class AutoDriveTurnCommand extends CommandBase {
 			m_driveTrain.configMotionSCurveStrength(_smoothing);
 		}
 
-		m_driveTrain.setTarget(_lockedDistance, _targetAngle);
-		
 		SmartDashboard.putNumber("PoseX", m_driveTrain.getCurrentPose().getTranslation().getX());
 		SmartDashboard.putNumber("PoseY", m_driveTrain.getCurrentPose().getTranslation().getY());
 		SmartDashboard.putNumber("Pose Rot", m_driveTrain.getCurrentPose().getRotation().getDegrees());
@@ -87,6 +87,6 @@ public class AutoDriveTurnCommand extends CommandBase {
     // Make this return true when this Command no longer needs to run execute()
     @Override
     public boolean isFinished() {
-        return m_driveTrain.isTargetReached(_lockedDistance);
+        return m_driveTrain.isTargetReached(_targetDistance);
     }
 }    

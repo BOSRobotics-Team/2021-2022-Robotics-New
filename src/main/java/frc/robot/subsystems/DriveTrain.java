@@ -101,13 +101,13 @@ public class DriveTrain extends SubsystemBase {
     public void setTarget(double distance) {
 		smartController.setTarget(distance);
         differentialDrive.feed(); 
-        // System.out.println("target (meters) = " + distance);
+        System.out.println("target (meters) = " + distance);
     }
 
     public void setTarget(double distance, double angle) {
 		smartController.setTarget(distance, angle);
         differentialDrive.feed(); 
-		// System.out.println("target (meters) = " + distance + " angle: " + angle);
+		System.out.println("target (meters) = " + distance + " angle: " + angle);
     }
 
     public Boolean isTargetReached(double target) {
@@ -116,7 +116,7 @@ public class DriveTrain extends SubsystemBase {
 		double position = smartController.getNativePosition();
         double targetPos = smartController.getPosition();
 
-        System.out.println("AutonomousCommand - targetPos: " + targetPos + " pos: " + position);// + " vel: " + velocity);
+        System.out.println("DriveTrain - targetPos: " + targetPos + " pos: " + position);// + " vel: " + velocity);
         return (MathUtil.applyDeadband(targetPos - target, 0.1) == 0.0);
     }
     @Override

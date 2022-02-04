@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -13,8 +14,8 @@ public class DriveMotorsEnableCommand extends InstantCommand {
      *
      * @param subsystem The subsystem to execute this command on.
      */
-    public DriveMotorsEnableCommand(DriveTrain subsystem) {
-        m_driveTrain = subsystem;
+    public DriveMotorsEnableCommand(RobotContainer container) {
+        m_driveTrain = container.driveTrain;
     }
     
     /** Log when this command is initialized */

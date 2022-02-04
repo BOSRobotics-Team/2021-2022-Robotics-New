@@ -69,7 +69,7 @@ public class SmartMotorController {
 
     private double _setpoint = 0.0;          // The most recently set setpoint.
     private double _nativeSetpoint = 0.0;    // The setpoint in native units. Field to avoid garbage collection.
-    // private double _auxpoint = 0.0;          // The most recently set setpoint.
+    private double _auxpoint = 0.0;          // The most recently set setpoint.
     private double _nativeAuxpoint = 0.0;    // The setpoint in native units. Field to avoid garbage collection.
     private boolean _isVelocity = false;
     private boolean _isDistance = false;
@@ -347,7 +347,7 @@ public class SmartMotorController {
 
         _setpoint = meters;
         _nativeSetpoint = _convertor.distanceMetersToNativeUnits(meters);
-        _nativeAuxpoint = 0;
+        _auxpoint = _nativeAuxpoint = 0;
 
         _controller.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
         _controller.selectProfileSlot(kSlot_Turning, PID_TURN);
@@ -362,7 +362,9 @@ public class SmartMotorController {
 
         _setpoint = meters;
         _nativeSetpoint = _convertor.distanceMetersToNativeUnits(meters);
-        _nativeAuxpoint = aux;
+
+        _auxpoint = aux;
+        _nativeAuxpoint = aux * 10.0;
 
         _controller.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
         _controller.selectProfileSlot(kSlot_Turning, PID_TURN);
@@ -378,7 +380,8 @@ public class SmartMotorController {
 
         _setpoint = velocity;
         _nativeSetpoint = _convertor.velocityToNativeUnits(_setpoint);
-        _nativeAuxpoint = _feedForwardCalculator.calculate(velocity) / 12.;
+        _auxpoint = _feedForwardCalculator.calculate(velocity);
+        _nativeAuxpoint = _auxpoint / 12.;
 
         _controller.selectProfileSlot(kSlot_Velocit, PID_PRIMARY);
         if (_auxController != null)

@@ -16,20 +16,19 @@ public class AutonomousCommand extends SequentialCommandGroup {
     private final DriveTrain m_driveTrain;
     private final LEDLights m_lights;
 
-    public AutonomousCommand(DriveTrain driveTrain) {
+    public AutonomousCommand(RobotContainer container) {
         Preferences.initDouble("AutonomousDistance1", -2.0);
         
-        m_driveTrain = driveTrain;
-        m_lights = RobotContainer.getInstance().getLEDLights();
+        m_driveTrain = container.driveTrain;
+        m_lights = container.lights;
 
         addRequirements(m_driveTrain, m_lights);
 
         double distance1 = Preferences.getDouble("AutonomousDistance1", -2.0);
-
         addCommands(
-            new LEDOnboardLightCommand(m_lights, LEDColor.kYellow),
-            new AutoDriveStraightCommand(m_driveTrain, distance1),
-            new LEDOnboardLightOffCommand(m_lights)
+            new LEDOnboardLightCommand(container, LEDColor.kYellow),
+            new AutoDriveStraightCommand(container, distance1),
+            new LEDOnboardLightOffCommand(container)
         );
    }
 }    

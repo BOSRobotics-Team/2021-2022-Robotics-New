@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import frc.robot.*;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -13,8 +14,8 @@ public class PivotLinkExtendCommand extends CommandBase {
     private final Climber m_climber;
     private final double m_distance;
 
-    public PivotLinkExtendCommand(Climber climber, double distance) {
-        m_climber = climber;
+    public PivotLinkExtendCommand(RobotContainer container, double distance) {
+        m_climber = container.climber;
         m_distance = distance;
 
         addRequirements(m_climber);

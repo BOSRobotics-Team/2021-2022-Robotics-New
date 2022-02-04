@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.*;
 // import frc.robot.subsystems.Lights.LEDColor;
 import edu.wpi.first.wpilibj.XboxController;
@@ -32,23 +33,23 @@ public class CommandLights extends CommandBase {
     // private boolean _lastTriggerL = false;
     // private boolean _lastTriggerR = false;
 
-    public CommandLights(LEDLights lights, XboxController controller) {
-        m_lights = lights;
-        m_controller = controller;
+    public CommandLights(RobotContainer container) {
+        m_lights = container.lights;
+        m_controller = container.getOperatorController();
 
         // Use addRequirements() here to declare subsystem dependencies.
-        addRequirements(lights);
+        addRequirements(m_lights);
 
         m_buttons[Button.kLeftStick.value] = new JoystickButton(m_controller, Button.kLeftStick.value);
         m_buttons[Button.kRightStick.value] = new JoystickButton(m_controller, Button.kRightStick.value);
 
-        // _animationCommand = new LEDAnimationCommand(lights);
-        _animationRotateCommand = new LEDAnimationRotateCommand(lights, true);
-        _animationOffCommand = new LEDAnimationOffCommand(lights);
-        // _onboardLightCommand = new LEDOnboardLightCommand(lights, LEDColor.kWhite);
-        // _onboardLightOffCommand = new LEDOnboardLightOffCommand(lights);
-        // _stripLightCommand = new LEDStripLightCommand(lights, LEDColor.kWhite);
-        // _stripLightOffCommand = new LEDStripLightOffCommand(lights);
+        // _animationCommand = new LEDAnimationCommand(container);
+        _animationRotateCommand = new LEDAnimationRotateCommand(container, true);
+        _animationOffCommand = new LEDAnimationOffCommand(container);
+        // _onboardLightCommand = new LEDOnboardLightCommand(container, LEDColor.kWhite);
+        // _onboardLightOffCommand = new LEDOnboardLightOffCommand(container);
+        // _stripLightCommand = new LEDStripLightCommand(container, LEDColor.kWhite);
+        // _stripLightOffCommand = new LEDStripLightOffCommand(container);
     }
 
     // Called just before this Command runs the first time

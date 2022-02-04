@@ -4,7 +4,7 @@
 
 package frc.robot.commands;
 
-import frc.robot.Constants;
+import frc.robot.*;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -15,8 +15,8 @@ public class IntakeUnjamCommand extends CommandBase {
     private boolean _isFinished = false;
     private int _counter = 100;
 
-    public IntakeUnjamCommand(Intake intake) {
-        m_intake = intake;
+    public IntakeUnjamCommand(RobotContainer container) {
+        m_intake = null; // conatiner.intake;
 
         addRequirements(m_intake);
     }

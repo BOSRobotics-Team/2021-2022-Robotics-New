@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -12,8 +13,8 @@ public class LEDAnimationOffCommand extends InstantCommand {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final LEDLights m_lights;
 
-    public LEDAnimationOffCommand(LEDLights lights) {
-        m_lights = lights;
+    public LEDAnimationOffCommand(RobotContainer container) {
+        m_lights = container.lights;
 
         addRequirements(m_lights);
     }

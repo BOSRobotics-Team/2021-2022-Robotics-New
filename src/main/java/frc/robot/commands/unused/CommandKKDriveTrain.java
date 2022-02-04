@@ -4,9 +4,8 @@
 
 package frc.robot.commands.unused;
 
-import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.*;
 import frc.robot.commands.CommandDriveTrain;
-import frc.robot.subsystems.*;
 import frc.robot.subsystems.DriveTrain.DriveMode;
 
 public class CommandKKDriveTrain extends CommandDriveTrain {
@@ -21,8 +20,8 @@ public class CommandKKDriveTrain extends CommandDriveTrain {
     private double _lastX1, _lastX2 = 0.0;
     private double _lastY1, _lastY2 = 0.0;
 
-    public CommandKKDriveTrain(DriveTrain driveTrain, XboxController controller) {
-        super(driveTrain, controller);
+    public CommandKKDriveTrain(RobotContainer container) {
+        super(container);
 
     }
 

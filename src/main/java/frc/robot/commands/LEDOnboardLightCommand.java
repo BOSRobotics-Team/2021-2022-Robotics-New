@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import frc.robot.*;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.LEDLights.LEDColor;
 import edu.wpi.first.wpilibj.shuffleboard.*;
@@ -14,8 +15,8 @@ public class LEDOnboardLightCommand extends InstantCommand {
     private final LEDLights m_lights;
     private final LEDColor m_color;
 
-    public LEDOnboardLightCommand(LEDLights lights, LEDColor color) {
-        m_lights = lights;
+    public LEDOnboardLightCommand(RobotContainer container, LEDColor color) {
+        m_lights = container.lights;
         m_color = color;
 
         addRequirements(m_lights);

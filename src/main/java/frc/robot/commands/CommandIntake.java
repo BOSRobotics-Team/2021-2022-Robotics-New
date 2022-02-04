@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.*;
@@ -31,24 +32,24 @@ public class CommandIntake extends CommandBase {
     private boolean _lastTriggerL = false;
     private boolean _lastTriggerR = false;
 
-    public CommandIntake(Intake intake, XboxController controller) {
-        m_intake = intake;
-        m_controller = controller;
+    public CommandIntake(RobotContainer container) {
+        m_intake = null; //container.intake;
+        m_controller = container.getOperatorController();
 
         // Use addRequirements() here to declare subsystem dependencies.
-        addRequirements(intake);
+        addRequirements(m_intake);
 
         // right_Bumper = new JoystickButton(m_controller, 6);
         // left_Stick = new JoystickButton(m_controller, 9);
         // right_Stick = new JoystickButton(m_controller, 10);
 
-        _onCommand = new IntakeOnCommand(m_intake);
-        _offCommand = new IntakeOffCommand(m_intake);
-        // _unjamCommand = new IntakeUnjamCommand(m_intake);
+        _onCommand = new IntakeOnCommand(container);
+        _offCommand = new IntakeOffCommand(container);
+        // _unjamCommand = new IntakeUnjamCommand(container);
 
-        _upCommand = new IntakeLiftUpCommand(m_intake, 1.2);
-        _dnCommand = new IntakeLiftDownCommand(m_intake);
-        // _resetLiftCommand = new IntakeLiftResetCommand(m_intake);
+        _upCommand = new IntakeLiftUpCommand(container, 1.2);
+        _dnCommand = new IntakeLiftDownCommand(container);
+        // _resetLiftCommand = new IntakeLiftResetCommand(container);
     }
 
     // Called just before this Command runs the first time
@@ -87,9 +88,9 @@ public class CommandIntake extends CommandBase {
     @Override
     public void end(boolean interrupted) {
         if (interrupted) {
-            Shuffleboard.addEventMarker("CommandLights Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
+            Shuffleboard.addEventMarker("CommandIntake Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
         }
-        Shuffleboard.addEventMarker("CommandLights end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        Shuffleboard.addEventMarker("CommandIntake end.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
 
     // Make this return true when this Command no longer needs to run execute()

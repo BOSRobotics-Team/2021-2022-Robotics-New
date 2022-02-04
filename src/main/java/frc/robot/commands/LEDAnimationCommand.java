@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import frc.robot.*;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.LEDLights.AnimationTypes;
 import edu.wpi.first.wpilibj.shuffleboard.*;
@@ -14,14 +15,14 @@ public class LEDAnimationCommand extends InstantCommand {
     private final LEDLights m_lights;
     private final AnimationTypes m_type;
 
-    public LEDAnimationCommand(LEDLights lights, AnimationTypes type) {
-        m_lights = lights;
+    public LEDAnimationCommand(RobotContainer container, AnimationTypes type) {
+        m_lights = container.lights;
         m_type = type;
 
         addRequirements(m_lights);
     }
-    public LEDAnimationCommand(LEDLights lights) {
-        this(lights, AnimationTypes.SetAll);
+    public LEDAnimationCommand(RobotContainer container) {
+        this(container, AnimationTypes.SetAll);
     }
 
     // Called just before this Command runs the first time

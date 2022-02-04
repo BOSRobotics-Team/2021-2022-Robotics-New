@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.DriveTrain.DriveMode;
 
@@ -25,27 +26,31 @@ public class CommandDriveTrain extends CommandBase {
     private boolean _lastTriggerL = false;
     private boolean _lastTriggerR = false;
 
-    public final AutonomousCommand m_autoCommand;
     public final AutoDriveStraightCommand m_autoCommand1;
     public final AutoDriveStraightCommand m_autoCommand2;
+    public final AutoDriveTurnCommand m_autoCommand3;
+    public final AutoDriveStraightCommand m_autoCommand4;
 
-    public CommandDriveTrain(DriveTrain driveTrain, XboxController controller) {
-        m_driveTrain = driveTrain;
-        m_controller = controller;
+    public CommandDriveTrain(RobotContainer container) {
+        m_driveTrain = container.driveTrain;
+        m_controller = container.getDriverController();
 
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(m_driveTrain);
 
         m_buttons[Button.kA.value] = new JoystickButton(m_controller, Button.kA.value);
         m_buttons[Button.kB.value] = new JoystickButton(m_controller, Button.kB.value);
+        m_buttons[Button.kX.value] = new JoystickButton(m_controller, Button.kX.value);
+        m_buttons[Button.kY.value] = new JoystickButton(m_controller, Button.kY.value);
         m_buttons[Button.kLeftBumper.value] = new JoystickButton(m_controller, Button.kLeftBumper.value);
         m_buttons[Button.kRightBumper.value] = new JoystickButton(m_controller, Button.kRightBumper.value);
         m_buttons[Button.kLeftStick.value] = new JoystickButton(m_controller, Button.kLeftStick.value);
         m_buttons[Button.kRightStick.value] = new JoystickButton(m_controller, Button.kRightStick.value);
 
-        m_autoCommand = new AutonomousCommand(m_driveTrain);
-        m_autoCommand1 = new AutoDriveStraightCommand(m_driveTrain, 10.0);
-        m_autoCommand2 = new AutoDriveStraightCommand(m_driveTrain, 5.0);
+        m_autoCommand1 = new AutoDriveStraightCommand(container, 10.0);
+        m_autoCommand2 = new AutoDriveStraightCommand(container, 5.0);
+        m_autoCommand3 = new AutoDriveTurnCommand(container, 5.0, 360.0);
+        m_autoCommand4 = new AutoDriveStraightCommand(container, 0.0);
     }
 
     // Called just before this Command runs the first time
@@ -55,6 +60,8 @@ public class CommandDriveTrain extends CommandBase {
 
         m_buttons[Button.kA.value].whenPressed(m_autoCommand1);    
         m_buttons[Button.kB.value].whenPressed(m_autoCommand2);    
+        m_buttons[Button.kX.value].whenPressed(m_autoCommand3);    
+        m_buttons[Button.kY.value].whenPressed(m_autoCommand4);    
 
         m_buttons[Button.kLeftBumper.value].whenPressed(() -> m_driveTrain.toggleDriveMode());    
         m_buttons[Button.kRightBumper.value].whenPressed(() -> m_driveTrain.setUseDriveScaling(!m_driveTrain.getUseDriveScaling()));

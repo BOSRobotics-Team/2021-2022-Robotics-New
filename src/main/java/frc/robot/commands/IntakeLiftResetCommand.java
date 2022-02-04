@@ -4,7 +4,9 @@
 
 package frc.robot.commands;
 
+import frc.robot.*;
 import frc.robot.subsystems.*;
+
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
@@ -12,8 +14,8 @@ public class IntakeLiftResetCommand extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Intake m_intake;
 
-    public IntakeLiftResetCommand(Intake intake) {
-        m_intake = intake;
+    public IntakeLiftResetCommand(RobotContainer container) {
+        m_intake = null; // conatiner.intake;
 
         addRequirements(m_intake);
     }

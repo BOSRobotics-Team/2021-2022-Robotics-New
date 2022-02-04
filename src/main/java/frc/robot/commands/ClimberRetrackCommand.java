@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import frc.robot.*;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -12,8 +13,8 @@ public class ClimberRetrackCommand extends CommandBase {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Climber m_climber;
 
-    public ClimberRetrackCommand(Climber climber) {
-        m_climber = climber;
+    public ClimberRetrackCommand(RobotContainer container) {
+        m_climber = container.climber;
 
         addRequirements(m_climber);
     }

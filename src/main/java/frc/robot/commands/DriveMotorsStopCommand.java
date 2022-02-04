@@ -1,9 +1,10 @@
 package frc.robot.commands;
 
+import frc.robot.*;
+import frc.robot.subsystems.*;
+
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-
-import frc.robot.subsystems.*;
 
 /** Stops the motors of the given drive subsystem. */
 public class DriveMotorsStopCommand extends InstantCommand {
@@ -16,8 +17,8 @@ public class DriveMotorsStopCommand extends InstantCommand {
      *
      * @param subsystem The subsystem to execute this command on.
      */
-    public DriveMotorsStopCommand(DriveTrain subsystem) {
-        m_driveTrain = subsystem;
+    public DriveMotorsStopCommand(RobotContainer container) {
+        m_driveTrain = container.driveTrain;
     }
 
     /** Log when this command is initialized */

@@ -13,8 +13,8 @@ public class IntakeOnCommand extends InstantCommand {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Intake m_intake;
 
-    public IntakeOnCommand(Intake intake) {
-        m_intake = intake;
+    public IntakeOnCommand(RobotContainer container) {
+        m_intake = null; // conatiner.intake;
 
         addRequirements(m_intake);
     }

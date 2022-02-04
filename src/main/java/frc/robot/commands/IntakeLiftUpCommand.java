@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -13,8 +14,8 @@ public class IntakeLiftUpCommand extends CommandBase {
     private final Intake m_intake;
     private double m_height;
 
-    public IntakeLiftUpCommand(Intake intake, double height) {
-        m_intake = intake;
+    public IntakeLiftUpCommand(RobotContainer container, double height) {
+        m_intake = null; // conatiner.intake;
         m_height = height;
 
         addRequirements(m_intake);

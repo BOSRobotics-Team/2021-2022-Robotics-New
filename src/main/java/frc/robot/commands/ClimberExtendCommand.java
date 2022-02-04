@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import frc.robot.*;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -13,8 +14,8 @@ public class ClimberExtendCommand extends CommandBase {
     private final Climber m_climber;
     private final double m_height;
 
-    public ClimberExtendCommand(Climber climber, double height) {
-        m_climber = climber;
+    public ClimberExtendCommand(RobotContainer container, double height) {
+        m_climber = container.climber;
         m_height = height;
 
         addRequirements(m_climber);

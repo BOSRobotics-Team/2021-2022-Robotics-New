@@ -26,8 +26,6 @@ import edu.wpi.first.wpilibj2.command.Command;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private static RobotContainer _robotContainer = null;
-
   SendableChooser<Command> chooser = new SendableChooser<>();
 
   // The robot's subsystems and commands are defined here...
@@ -46,16 +44,18 @@ public class RobotContainer {
   public UsbCamera cam1; 
   public UsbCamera cam2; 
 
-  public final AutonomousCommand m_autoCommand = new AutonomousCommand(driveTrain);
-  public final CommandDriveTrain m_cmdDriveTrainCommand = new CommandDriveTrain(driveTrain, driverController);
-  public final CommandClimber m_cmdClimberCommand = new CommandClimber(climber, operatorController);
-  // public final CommandIntake m_cmdIntakeCommand = new CommandIntake(intake, operatorController);
-  public final CommandLights m_cmdLightsCommand = new CommandLights(lights, operatorController);
+  public final AutonomousCommand m_autoCommand = new AutonomousCommand(this);
+  public final AutoDriveStraightCommand m_autoDriveStraightCommand = new AutoDriveStraightCommand(this, 10.0);
+  public final AutoDriveTurnCommand m_autoDriveTurnCommand = new AutoDriveTurnCommand(this, 10.0, 45.0);
+  // public final DrivePathWeaverCommand m_autoWeaverCommand = new DrivePathWeaverCommand(this, "paths/PathWeaver/Paths/BarrelRun");
+
+  public final CommandDriveTrain m_cmdDriveTrainCommand = new CommandDriveTrain(this);
+  public final CommandClimber m_cmdClimberCommand = new CommandClimber(this);
+  // public final CommandIntake m_cmdIntakeCommand = new CommandIntake(this);
+  public final CommandLights m_cmdLightsCommand = new CommandLights(this);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    _robotContainer = this;
-
     driveTrain.setDefaultCommand(m_cmdDriveTrainCommand);
     climber.setDefaultCommand(m_cmdClimberCommand);
     // intake.setDefaultCommand(m_cmdIntakeCommand);
@@ -63,15 +63,15 @@ public class RobotContainer {
     
     // Add commands to Autonomous Sendable Chooser
     chooser.setDefaultOption("Autonomous Command", m_autoCommand);
-    chooser.addOption("AutoDriveStraight Command", new AutoDriveStraightCommand(driveTrain, 10.0));
-    chooser.addOption("AutoDriveTurn Command", new AutoDriveTurnCommand(driveTrain, driverController));
-    // chooser.addOption("PathWeaver Command", new DrivePathWeaverCommand( "paths/PathWeaver/Paths/BarrelRun", driveTrain));
+    chooser.addOption("AutoDriveStraight Command", m_autoDriveStraightCommand);
+    chooser.addOption("AutoDriveTurn Command", m_autoDriveTurnCommand);
+    // chooser.addOption("PathWeaver Command", m_autoWeaverCommand);
 
     // SmartDashboard Buttons
     SmartDashboard.putData("Autonomous Command",m_autoCommand);
-    SmartDashboard.putData("Autonomous AutoDriveStraight",new AutoDriveStraightCommand(driveTrain, 10.0));
-    SmartDashboard.putData("Autonomous AutoDrive", new AutoDriveTurnCommand(driveTrain, driverController));
-    // SmartDashboard.putData("DrivePathWeaverCommand", new DrivePathWeaverCommand( "paths/PathWeaver/Paths/BarrelRun", driveTrain));
+    SmartDashboard.putData("Autonomous AutoDriveStraight", m_autoDriveStraightCommand);
+    SmartDashboard.putData("Autonomous AutoDriveTurn", m_autoDriveTurnCommand);
+    // SmartDashboard.putData("PathWeaver Command", m_autoWeaverCommand);
     SmartDashboard.putData("CommandDriveTrain", m_cmdDriveTrainCommand);
     SmartDashboard.putData("Auto mode", chooser);
 
@@ -84,9 +84,6 @@ public class RobotContainer {
     }
   }
 
-  public static RobotContainer getInstance() {
-    return _robotContainer;
-  }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
