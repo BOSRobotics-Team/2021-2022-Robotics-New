@@ -26,12 +26,12 @@ public class LEDOnboardLightCommand extends InstantCommand {
     @Override
     public void initialize() {
         Shuffleboard.addEventMarker("LEDOnboardLightCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        m_lights.setOnboardLights(m_color);
     }
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
-        m_lights.setOnboardLights(m_color);
     }
 
     // Called once after isFinished returns true

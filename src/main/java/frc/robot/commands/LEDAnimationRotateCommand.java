@@ -24,16 +24,16 @@ public class LEDAnimationRotateCommand extends InstantCommand {
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
-        Shuffleboard.addEventMarker("LEDAnimationRotateCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        // Shuffleboard.addEventMarker("LEDAnimationRotateCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        // if (m_increment)
+        //     m_lights.incrementAnimation();
+        // else
+        //     m_lights.decrementAnimation();
     }
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
-        if (m_increment)
-            m_lights.incrementAnimation();
-        else
-            m_lights.decrementAnimation();
     }
 
     // Called once after isFinished returns true

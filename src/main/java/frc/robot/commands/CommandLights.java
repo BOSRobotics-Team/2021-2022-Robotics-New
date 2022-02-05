@@ -58,8 +58,8 @@ public class CommandLights extends CommandBase {
         Shuffleboard.addEventMarker("CommandLights init.", this.getClass().getSimpleName(), EventImportance.kNormal);
         // _lastTriggerL = _lastTriggerR = false;
 
-        m_buttons[Button.kLeftStick.value].whenPressed(_animationRotateCommand);
-        m_buttons[Button.kRightStick.value].whenPressed(_animationOffCommand);
+       m_buttons[Button.kLeftStick.value].whenPressed(() -> m_lights.setColors());
+        m_buttons[Button.kRightStick.value].whenPressed(() -> m_lights.incrementAnimation());
     }
 
     // Called repeatedly when this Command is scheduled to run

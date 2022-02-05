@@ -25,12 +25,12 @@ public class DriveMotorsStopCommand extends InstantCommand {
     @Override
     public void initialize() {
         Shuffleboard.addEventMarker("StopMotors init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        m_driveTrain.fullStop();
     }
 
     /** Do the state change. */
     @Override
     public void execute() {
-        m_driveTrain.fullStop();
     }
 
     /** Log when this command ends */
