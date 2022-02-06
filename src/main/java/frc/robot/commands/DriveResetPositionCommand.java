@@ -24,12 +24,12 @@ public class DriveResetPositionCommand extends InstantCommand {
     @Override
     public void initialize() {
         Shuffleboard.addEventMarker("ResetPosition init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        m_driveTrain.resetPosition();
     }
     
     /** Do the state change. */
     @Override
     public void execute() {
-        m_driveTrain.resetPosition();
     }
     
     /** Log when this command ends */

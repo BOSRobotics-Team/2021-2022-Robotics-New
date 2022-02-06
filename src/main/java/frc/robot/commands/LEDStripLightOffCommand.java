@@ -24,12 +24,12 @@ public class LEDStripLightOffCommand extends InstantCommand {
     @Override
     public void initialize() {
         Shuffleboard.addEventMarker("LEDStripLightOffCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        m_lights.setStripLights(LEDColor.kOff);
     }
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
-        m_lights.setStripLights(LEDColor.kOff);
     }
 
     // Called once after isFinished returns true

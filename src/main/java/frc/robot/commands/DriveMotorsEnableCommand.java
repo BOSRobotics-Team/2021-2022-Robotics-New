@@ -22,12 +22,12 @@ public class DriveMotorsEnableCommand extends InstantCommand {
     @Override
     public void initialize() {
         Shuffleboard.addEventMarker("EnableMotors init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        m_driveTrain.enableDriveTrain(true);
     }
     
     /** Do the state change. */
     @Override
     public void execute() {
-        m_driveTrain.enableDriveTrain(true);
     }
     
     /** Log when this command ends */

@@ -23,12 +23,12 @@ public class IntakeOnCommand extends InstantCommand {
     @Override
     public void initialize() {
         Shuffleboard.addEventMarker("IntakeOnCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        m_intake.runIntake(Constants.kIntakeSpeed);
     }
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
-        m_intake.runIntake(Constants.kIntakeSpeed);
     }
 
     // Called once after isFinished returns true
