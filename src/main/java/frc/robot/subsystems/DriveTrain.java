@@ -82,6 +82,8 @@ public class DriveTrain extends SubsystemBase {
 
         resetPosition();
         addChild("Differential Drive", differentialDrive);
+
+        SmartDashboard.putData("Field2d", m_field);
     }
 
     public void configForPID() {
@@ -136,25 +138,25 @@ public class DriveTrain extends SubsystemBase {
      * Get the velocity of the left side of the drive.
      * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
      */
-    public Double getLeftVel() { return leftMaster.getSelectedSensorVelocity(0); }
+    public Double getLeftVel() { return smartController.getLeftVelocity(); }
 
     /**
      * Get the velocity of the right side of the drive.
      * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
      */
-    public Double getRightVel() { return rightMaster.getSelectedSensorVelocity(0); }
+    public Double getRightVel() { return smartController.getRightVelocity(); }
 
     /**
      * Get the position of the left side of the drive.
      * @return The signed position in feet, or null if the drive doesn't have encoders.
      */
-    public Double getLeftPos() { return leftMaster.getSelectedSensorPosition(0); }
+    public Double getLeftPos() { return smartController.getLeftPosition(); }
 
     /**
      * Get the position of the right side of the drive.
      * @return The signed position in feet, or null if the drive doesn't have encoders.
      */
-    public Double getRightPos() { return rightMaster.getSelectedSensorPosition(0); }
+    public Double getRightPos() { return smartController.getRightPosition(); }
 
     /**
      * Get the position of the left side of the drive.
@@ -166,7 +168,7 @@ public class DriveTrain extends SubsystemBase {
      * Get the position of the right side of the drive.
      * @return The signed position in feet, or null if the drive doesn't have encoders.
      */
-    public Double getRightAuxPos() { return rightMaster.getSelectedSensorVelocity(1); }
+    public Double getRightAuxPos() { return smartController.getAuxPosition(); }
     
     /** Completely stop the robot by setting the voltage to each side to be 0. */
     public void fullStop() {
@@ -187,7 +189,7 @@ public class DriveTrain extends SubsystemBase {
         // need to convert to meters
 //        double angle = ((getRightPos() - getLeftPos()) * (180.0 / Math.PI)) / Constants.kWidthChassisMeters;
 
-        driveOdometry.update(/*Rotation2d.fromDegrees(angle), */getHeading(), 
+        driveOdometry.update(getHeading(), ///*Rotation2d.fromDegrees(angle),
                              getLeftPos(), 
                              getRightPos());
     

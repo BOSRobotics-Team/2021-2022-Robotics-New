@@ -317,6 +317,25 @@ public class SmartMotorController {
         return _convertor.nativeUnitsToDistanceMeters(getNativePosition());
     }
 
+    public Double getLeftPosition() {
+        return _controller.getSelectedSensorPosition(PID_PRIMARY);
+    }
+    public Double getLeftDistance() {
+        return _convertor.nativeUnitsToDistanceMeters(getLeftPosition());
+    }
+    public Double getLeftVelocity() {
+        return _convertor.nativeUnitsToDistanceMeters(_controller.getSelectedSensorVelocity(PID_PRIMARY));
+    }
+    public Double getRightPosition() {
+        return getNativePosition();
+    }
+    public Double getRightDistance() {
+        return getPosition();
+    }
+    public Double getRightVelocity() {
+        return getVelocity();
+    }
+
     /**
      * Get the position2 of the drive.
      *
