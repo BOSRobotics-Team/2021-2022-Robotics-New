@@ -14,7 +14,6 @@ public class AutoDriveStraightCommand extends CommandBase {
 	@SuppressWarnings({ "PMD.UnusedPrivateField", "PMD.SingularField" })
 
 	private final DriveTrain m_driveTrain;
-	private final double _distance;
 
 	private double _targetDistance = 0.0;
 	private double _targetAngle = 0;
@@ -22,7 +21,7 @@ public class AutoDriveStraightCommand extends CommandBase {
 
 	public AutoDriveStraightCommand(RobotContainer container, double distance, int smoothing) {
 		m_driveTrain = container.driveTrain;
-		_distance = distance;
+		_targetDistance = distance;
         _smoothing = smoothing;
 
 		addRequirements(m_driveTrain);
@@ -36,12 +35,8 @@ public class AutoDriveStraightCommand extends CommandBase {
     @Override
     public void initialize() {
         Shuffleboard.addEventMarker("AutoDriveStraightCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-        System.out.println("AutoDriveStraightCommand - initialize");
 
 		/* Configured for MotionMagic on Integrated Sensors' Sum and Auxiliary PID on Integrated Sensors' Difference */
-		_targetDistance = _distance;
-        _targetAngle = 0.0;         //m_driveTrain.getAuxPosition();
-
         m_driveTrain.enableDriveTrain(false);
         m_driveTrain.enableBrakes(false);
         m_driveTrain.configForPID2();		
@@ -49,7 +44,7 @@ public class AutoDriveStraightCommand extends CommandBase {
             m_driveTrain.configMotionSCurveStrength(_smoothing);
         m_driveTrain.setTarget(_targetDistance, _targetAngle);  		
 
-		System.out.println("AutoDriveStraightCommand - targetDistance = " + _targetDistance );
+		System.out.println("AutoDriveStraightCommand init : targetDistance = " + _targetDistance + " targetAngle = " + _targetAngle );
 		SmartDashboard.putNumber("Smoothing", _smoothing);
     }
 
@@ -64,6 +59,7 @@ public class AutoDriveStraightCommand extends CommandBase {
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        System.out.println("AutoDriveStraightCommand - end : interrupted = " + interrupted);
         m_driveTrain.enableDriveTrain(false);
 
         if (interrupted) {

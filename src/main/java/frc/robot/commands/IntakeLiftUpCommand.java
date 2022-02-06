@@ -26,12 +26,13 @@ public class IntakeLiftUpCommand extends CommandBase {
     public void initialize() {
         Shuffleboard.addEventMarker("IntakeLiftUpCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
         m_intake.runLift(m_height);
-        System.out.println("Intakelift - height = " + m_height);
+        System.out.println("IntakeLiftUpCommand - init : height = " + m_height);
     }
 
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        System.out.println("IntakeLiftUpCommand - end : interrupted = " + interrupted);
         if (interrupted) {
             Shuffleboard.addEventMarker("IntakeLiftUpCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
         }

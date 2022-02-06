@@ -21,21 +21,23 @@ public class DriveMotorsEnableCommand extends InstantCommand {
     /** Log when this command is initialized */
     @Override
     public void initialize() {
-        Shuffleboard.addEventMarker("EnableMotors init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-        m_driveTrain.enableDriveTrain(true);
+        Shuffleboard.addEventMarker("DriveMotorsEnableCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        System.out.println("DriveMotorsEnableCommand - init");
     }
     
     /** Do the state change. */
     @Override
     public void execute() {
+        m_driveTrain.enableDriveTrain(true);
     }
     
     /** Log when this command ends */
     @Override
     public void end(boolean interrupted) {
+        System.out.println("DriveMotorsEnableCommand - end : interrupted = " + interrupted);
         if (interrupted) {
-            Shuffleboard.addEventMarker("EnableMotors Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
+            Shuffleboard.addEventMarker("DriveMotorsEnableCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
         }
-        Shuffleboard.addEventMarker("EnableMotors end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        Shuffleboard.addEventMarker("DriveMotorsEnableCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
 }

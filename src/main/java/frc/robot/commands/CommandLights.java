@@ -20,22 +20,29 @@ public class CommandLights extends CommandBase {
     public final XboxController m_controller;
     public final JoystickButton m_buttons[] = new JoystickButton[11];
 
-    // private final LEDAnimationCommand _animationCommand;
+    private final LEDAnimationCommand _animationOffCommand;
     private final LEDAnimationRotateCommand _animationRotateCommand;
-    private final LEDAnimationOffCommand _animationOffCommand;
 
     // private final LEDOnboardLightCommand _onboardLightCommand;
-    // private final LEDOnboardLightOffCommand _onboardLightOffCommand;
+    // private final LEDOnboardLightCommand _onboardLightOffCommand;
 
     // private final LEDStripLightCommand _stripLightCommand;
-    // private final LEDStripLightOffCommand _stripLightOffCommand;
+    // private final LEDStripLightCommand _stripLightOffCommand;
 
     // private boolean _lastTriggerL = false;
     // private boolean _lastTriggerR = false;
 
     public CommandLights(RobotContainer container) {
+        System.out.println("CommandLights constructor ");
         m_lights = container.lights;
         m_controller = container.getOperatorController();
+
+        _animationOffCommand = new LEDAnimationCommand(container);
+        _animationRotateCommand = new LEDAnimationRotateCommand(container, true);
+        // _onboardLightCommand = new LEDOnboardLightCommand(container, LEDColor.kWhite);
+        // _onboardLightOffCommand = new LEDOnboardLightCommand(container, LEDColor.kOff);
+        // _stripLightCommand = new LEDStripLightCommand(container, LEDColor.kWhite);
+        // _stripLightOffCommand = new LEDStripLightCommand(container, LEDColoer.kOff);
 
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(m_lights);
@@ -43,23 +50,15 @@ public class CommandLights extends CommandBase {
         m_buttons[Button.kLeftStick.value] = new JoystickButton(m_controller, Button.kLeftStick.value);
         m_buttons[Button.kRightStick.value] = new JoystickButton(m_controller, Button.kRightStick.value);
 
-        // _animationCommand = new LEDAnimationCommand(container);
-        _animationRotateCommand = new LEDAnimationRotateCommand(container, true);
-        _animationOffCommand = new LEDAnimationOffCommand(container);
-        // _onboardLightCommand = new LEDOnboardLightCommand(container, LEDColor.kWhite);
-        // _onboardLightOffCommand = new LEDOnboardLightOffCommand(container);
-        // _stripLightCommand = new LEDStripLightCommand(container, LEDColor.kWhite);
-        // _stripLightOffCommand = new LEDStripLightOffCommand(container);
+        m_buttons[Button.kLeftStick.value].whenPressed(_animationOffCommand);
+        m_buttons[Button.kRightStick.value].whenPressed(_animationRotateCommand);
     }
 
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
+        System.out.println("CommandLights - initialize");
         Shuffleboard.addEventMarker("CommandLights init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-        // _lastTriggerL = _lastTriggerR = false;
-
-       m_buttons[Button.kLeftStick.value].whenPressed(() -> m_lights.setColors());
-        m_buttons[Button.kRightStick.value].whenPressed(() -> m_lights.incrementAnimation());
     }
 
     // Called repeatedly when this Command is scheduled to run
@@ -77,31 +76,12 @@ public class CommandLights extends CommandBase {
             
             m_lights.runLights(red, green, blue);
         }
-
-        // double triggerL = m_controller.getLeftTriggerAxis();
-        // if ((triggerL > 0.5) && !_lastTriggerL) { 
-        //     _onCommand.schedule();
-        // } else if ((triggerL <= 0.5) && _lastTriggerL) {
-        //     _offCommand.schedule();
-        // }
-        // _lastTriggerL = (triggerL > 0.5);
-
-        // double triggerR = m_controller.getRightTriggerAxis();
-        // if ((triggerR > 0.5) && !_lastTriggerR) {
-        //     _upCommand.schedule();
-        // } else if ((triggerL <= 0.5) && _lastTriggerL) {
-        //     _dnCommand.schedule();
-        // }
-        // _lastTriggerR = (triggerR > 0.5);
-
-    //    m_intake.logPeriodic();
     }
 
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
-        m_lights.setColors();
-        m_lights.runLights(0, 0, 0);
+        System.out.println("CommandLights end - interrupted = " + interrupted);
         if (interrupted) {
             Shuffleboard.addEventMarker("CommandLights Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
         }

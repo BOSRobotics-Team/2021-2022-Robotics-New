@@ -26,7 +26,8 @@ public class PivotLinkExtendCommand extends CommandBase {
     public void initialize() {
         Shuffleboard.addEventMarker("PivotLinkExtendCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
         m_climber.runPivotLink(m_distance);
-        System.out.println("extendPivotLink - distance = " + m_distance);
+
+        System.out.println("PivotLinkExtendCommand - init : distance = " + m_distance);
     }
 
     // Called repeatedly when this Command is scheduled to run
@@ -37,6 +38,7 @@ public class PivotLinkExtendCommand extends CommandBase {
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        System.out.println("PivotLinkExtendCommand end - interrupted = " + interrupted);
         if (interrupted) {
             Shuffleboard.addEventMarker("PivotLinkExtendCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
         }

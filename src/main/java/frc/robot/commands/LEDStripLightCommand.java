@@ -21,22 +21,27 @@ public class LEDStripLightCommand extends InstantCommand {
 
         addRequirements(m_lights);
     }
+    public LEDStripLightCommand(RobotContainer container) {
+        this(container, LEDColor.kOff);
+    }
 
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
         Shuffleboard.addEventMarker("LEDStripLightCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-        m_lights.setStripLights(m_color);
+        System.out.println("LEDStripLightCommand init : color = " + m_color);
     }
 
-    // Called repeatedly when this Command is scheduled to run
+    // Called when this Command is scheduled to run
     @Override
     public void execute() {
+        m_lights.setStripLights(m_color);
     }
 
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        System.out.println("LEDStripLightCommand end - interrupted = " + interrupted);
         if (interrupted) {
             Shuffleboard.addEventMarker("LEDStripLightCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
         }

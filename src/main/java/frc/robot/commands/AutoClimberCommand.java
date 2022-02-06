@@ -32,7 +32,7 @@ public class AutoClimberCommand extends SequentialCommandGroup {
             new PivotLinkExtendCommand(container, distance2),
             new LEDOnboardLightCommand(container, LEDColor.kGreen),
             new ClimberRetrackCommand(container),
-            new LEDOnboardLightOffCommand(container)
+            new LEDOnboardLightCommand(container, LEDColor.kOff)
         );
     }
 

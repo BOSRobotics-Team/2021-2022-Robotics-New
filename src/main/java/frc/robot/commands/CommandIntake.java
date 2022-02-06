@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj.XboxController;
@@ -36,6 +37,14 @@ public class CommandIntake extends CommandBase {
         m_intake = null; //container.intake;
         m_controller = container.getOperatorController();
 
+        _onCommand = new IntakeOnCommand(container, Constants.kIntakeSpeed);
+        _offCommand = new IntakeOffCommand(container);
+        // _unjamCommand = new IntakeUnjamCommand(container);
+
+        _upCommand = new IntakeLiftUpCommand(container, 1.2);
+        _dnCommand = new IntakeLiftDownCommand(container);
+        // _resetLiftCommand = new IntakeLiftResetCommand(container);
+
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(m_intake);
 
@@ -43,13 +52,8 @@ public class CommandIntake extends CommandBase {
         // left_Stick = new JoystickButton(m_controller, 9);
         // right_Stick = new JoystickButton(m_controller, 10);
 
-        _onCommand = new IntakeOnCommand(container);
-        _offCommand = new IntakeOffCommand(container);
-        // _unjamCommand = new IntakeUnjamCommand(container);
-
-        _upCommand = new IntakeLiftUpCommand(container, 1.2);
-        _dnCommand = new IntakeLiftDownCommand(container);
-        // _resetLiftCommand = new IntakeLiftResetCommand(container);
+        // left_Stick.whenPressed(_resetLiftCommand);
+        // right_Stick.whenPressed(_unjamCommand);
     }
 
     // Called just before this Command runs the first time
@@ -57,9 +61,6 @@ public class CommandIntake extends CommandBase {
     public void initialize() {
         Shuffleboard.addEventMarker("CommandIntake init.", this.getClass().getSimpleName(), EventImportance.kNormal);
         _lastTriggerL = _lastTriggerR = false;
-
-        // left_Stick.whenPressed(_resetLiftCommand);
-        // right_Stick.whenPressed(_unjamCommand);
     }
 
     // Called repeatedly when this Command is scheduled to run

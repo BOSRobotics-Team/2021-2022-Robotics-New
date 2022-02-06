@@ -23,21 +23,23 @@ public class DriveResetPositionCommand extends InstantCommand {
     /** Log when this command is initialized */
     @Override
     public void initialize() {
-        Shuffleboard.addEventMarker("ResetPosition init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-        m_driveTrain.resetPosition();
+        Shuffleboard.addEventMarker("DriveResetPositionCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        System.out.println("DriveResetPositionCommand - init");
     }
     
     /** Do the state change. */
     @Override
     public void execute() {
+        m_driveTrain.resetPosition();
     }
     
     /** Log when this command ends */
     @Override
     public void end(boolean interrupted) {
+        System.out.println("DriveResetPositionCommand - end : interrupted = " + interrupted);
         if (interrupted) {
-            Shuffleboard.addEventMarker("ResetPosition Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
+            Shuffleboard.addEventMarker("DriveResetPositionCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
         }
-        Shuffleboard.addEventMarker("ResetPosition end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        Shuffleboard.addEventMarker("DriveResetPositionCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
 }

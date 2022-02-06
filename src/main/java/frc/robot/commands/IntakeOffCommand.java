@@ -23,17 +23,19 @@ public class IntakeOffCommand extends InstantCommand {
     @Override
     public void initialize() {
         Shuffleboard.addEventMarker("IntakeOffCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-        m_intake.stopIntake();
+        System.out.println("IntakeOffCommand - init");
     }
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
+        m_intake.stopIntake();
     }
 
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        System.out.println("IntakeOffCommand - end : interrupted = " + interrupted);
         if (interrupted) {
             Shuffleboard.addEventMarker("IntakeOffCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
         }

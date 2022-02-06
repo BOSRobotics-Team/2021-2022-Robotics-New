@@ -25,7 +25,10 @@ public class IntakeUnjamCommand extends CommandBase {
     @Override
     public void initialize() {
         Shuffleboard.addEventMarker("IntakeUnjamCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        _counter = 100;
         m_intake.runIntake(Constants.kUnjamIntakeSpeed);
+
+        System.out.println("IntakeOnCommand - init");
     }
 
     // Called repeatedly when this Command is scheduled to run
@@ -37,6 +40,7 @@ public class IntakeUnjamCommand extends CommandBase {
      // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        System.out.println("IntakeUnjamCommand - end : interrupted = " + interrupted);
         m_intake.stopIntake();
         if (interrupted) {
             Shuffleboard.addEventMarker("IntakeUnjamCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);

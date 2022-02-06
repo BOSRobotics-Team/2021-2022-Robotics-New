@@ -24,12 +24,15 @@ public class ClimberRetrackCommand extends CommandBase {
     public void initialize() {
         Shuffleboard.addEventMarker("ClimberRetrackCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
         m_climber.runClimber(0.0);
-        System.out.println("retractClimber - height = 0.0");
+
+        System.out.println("ClimberRetrackCommand - init : height = 0.0");
     }
 
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        System.out.println("ClimberRetrackCommand - end : interrupted = " + interrupted);
+
         if (interrupted) {
             Shuffleboard.addEventMarker("ClimberRetrackCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
         }

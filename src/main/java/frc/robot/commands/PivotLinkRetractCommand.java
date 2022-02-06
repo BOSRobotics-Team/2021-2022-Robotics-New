@@ -24,12 +24,13 @@ public class PivotLinkRetractCommand extends CommandBase {
     public void initialize() {
         Shuffleboard.addEventMarker("PivotLinkRetractCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
         m_climber.runPivotLink(0.0);
-        System.out.println("extendPivotLink - distance = 0.0");
+        System.out.println("PivotLinkRetractCommand - init : distance = 0.0");
     }
 
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        System.out.println("PivotLinkRetractCommand end - interrupted = " + interrupted);
         if (interrupted) {
             Shuffleboard.addEventMarker("PivotLinkRetractCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
         }

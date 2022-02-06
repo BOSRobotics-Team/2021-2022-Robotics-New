@@ -24,21 +24,23 @@ public class DriveMotorsStopCommand extends InstantCommand {
     /** Log when this command is initialized */
     @Override
     public void initialize() {
-        Shuffleboard.addEventMarker("StopMotors init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-        m_driveTrain.fullStop();
+        Shuffleboard.addEventMarker("DriveMotorsStopCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        System.out.println("DriveMotorsStopCommand - init");
     }
 
     /** Do the state change. */
     @Override
     public void execute() {
+        m_driveTrain.fullStop();
     }
 
     /** Log when this command ends */
     @Override
     public void end(boolean interrupted) {
+        System.out.println("DriveMotorsStopCommand - end : interrupted = " + interrupted);
         if (interrupted) {
-            Shuffleboard.addEventMarker("StopMotors Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
+            Shuffleboard.addEventMarker("DriveMotorsStopCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
         }
-        Shuffleboard.addEventMarker("StopMotors end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        Shuffleboard.addEventMarker("DriveMotorsStopCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
 }

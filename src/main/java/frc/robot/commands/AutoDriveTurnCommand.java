@@ -19,21 +19,24 @@ public class AutoDriveTurnCommand extends CommandBase {
 
 	private double _targetDistance = 0;
 	private double _targetAngle = 0;
+	private int _smoothing = -1;
+
 	private boolean _gotoEnd = true;
 
-	private int _smoothing = 0;
-
-	public AutoDriveTurnCommand(RobotContainer container, double distance, double angle) {
+	public AutoDriveTurnCommand(RobotContainer container, double distance, double angle, int smoothing) {
 		m_driveTrain = container.driveTrain;
 		m_controller = container.getDriverController();
 
 		_targetDistance = distance;
 		_targetAngle = angle; //-900.0;  // -360000 * (90.0 / 360.0) * 0.5; //175 degrees
+		_smoothing = smoothing;
 		_gotoEnd = true;
 
 		addRequirements(m_driveTrain);
     }
-   
+	public AutoDriveTurnCommand(RobotContainer container, double distance, double angle) {
+		this(container, distance, angle, -1);
+	}
     // Called just before this Command runs the first time
     
     @Override
@@ -43,16 +46,17 @@ public class AutoDriveTurnCommand extends CommandBase {
         m_driveTrain.enableDriveTrain(false);
         m_driveTrain.enableBrakes(false);
 		m_driveTrain.configForPID2();
+        if (_smoothing >= 0)
+            m_driveTrain.configMotionSCurveStrength(_smoothing);
 		m_driveTrain.setTarget(_targetDistance, _targetAngle);
 		
+		System.out.println("AutoDriveTurnCommand init : targetDistance = " + _targetDistance + " targetAngle = " + _targetAngle);
 		SmartDashboard.putNumber("Smoothing", _smoothing);
     }
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
-		System.out.println("AutoDriveTurnCommand - execute");
-
 		if (m_controller.getStartButtonPressed()) {
 			_gotoEnd = !_gotoEnd;
 			_targetDistance = _gotoEnd ? 5.0 : 0.0;
@@ -75,7 +79,7 @@ public class AutoDriveTurnCommand extends CommandBase {
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
-        System.out.println("AutoDriveTurnCommand - end");
+        System.out.println("AutoDriveTurnCommand - end : interrupted = " + interrupted);
         m_driveTrain.enableDriveTrain(false);
 
         if (interrupted) {

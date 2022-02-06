@@ -35,6 +35,11 @@ public class CommandDriveTrain extends CommandBase {
         m_driveTrain = container.driveTrain;
         m_controller = container.getDriverController();
 
+        m_autoCommand1 = new AutoDriveStraightCommand(container, 10.0);
+        m_autoCommand2 = new AutoDriveStraightCommand(container, 5.0);
+        m_autoCommand3 = new AutoDriveTurnCommand(container, 5.0, 360.0);
+        m_autoCommand4 = new AutoDriveStraightCommand(container, 0.0);
+
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(m_driveTrain);
 
@@ -47,26 +52,20 @@ public class CommandDriveTrain extends CommandBase {
         m_buttons[Button.kLeftStick.value] = new JoystickButton(m_controller, Button.kLeftStick.value);
         m_buttons[Button.kRightStick.value] = new JoystickButton(m_controller, Button.kRightStick.value);
 
-        m_autoCommand1 = new AutoDriveStraightCommand(container, 10.0);
-        m_autoCommand2 = new AutoDriveStraightCommand(container, 5.0);
-        m_autoCommand3 = new AutoDriveTurnCommand(container, 5.0, 360.0);
-        m_autoCommand4 = new AutoDriveStraightCommand(container, 0.0);
+        m_buttons[Button.kA.value].whenPressed(m_autoCommand1);    
+        m_buttons[Button.kB.value].whenPressed(m_autoCommand2);    
+        m_buttons[Button.kX.value].whenPressed(m_autoCommand3);    
+        m_buttons[Button.kY.value].whenPressed(m_autoCommand4);
+        m_buttons[Button.kLeftBumper.value].whenPressed(() -> m_driveTrain.toggleDriveMode());    
+        m_buttons[Button.kRightBumper.value].whenPressed(() -> m_driveTrain.setUseDriveScaling(!m_driveTrain.getUseDriveScaling()));
+        m_buttons[Button.kLeftStick.value].whenPressed(() -> m_driveTrain.setUseSquares(!m_driveTrain.getUseSquares()));
+        m_buttons[Button.kRightStick.value].whenPressed(() -> m_driveTrain.setQuickTurn(!m_driveTrain.getQuickTurn()));
     }
 
     // Called just before this Command runs the first time
     @Override
     public void initialize() {
         Shuffleboard.addEventMarker("CommandDriveTrain init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-
-        m_buttons[Button.kA.value].whenPressed(m_autoCommand1);    
-        m_buttons[Button.kB.value].whenPressed(m_autoCommand2);    
-        m_buttons[Button.kX.value].whenPressed(m_autoCommand3);    
-        m_buttons[Button.kY.value].whenPressed(m_autoCommand4);    
-
-        m_buttons[Button.kLeftBumper.value].whenPressed(() -> m_driveTrain.toggleDriveMode());    
-        m_buttons[Button.kRightBumper.value].whenPressed(() -> m_driveTrain.setUseDriveScaling(!m_driveTrain.getUseDriveScaling()));
-        m_buttons[Button.kLeftStick.value].whenPressed(() -> m_driveTrain.setUseSquares(!m_driveTrain.getUseSquares()));
-        m_buttons[Button.kRightStick.value].whenPressed(() -> m_driveTrain.setQuickTurn(!m_driveTrain.getQuickTurn()));
 
         m_driveTrain.setDriveMode(DriveMode.ARCADE);
         m_driveTrain.setUseSquares(true);
@@ -76,6 +75,8 @@ public class CommandDriveTrain extends CommandBase {
         m_driveTrain.enableDriveTrain(true);
 
         _lastTriggerL = _lastTriggerR = false;
+
+        System.out.println("CommandDriveTrain - initialize");
     }
 
     // Called repeatedly when this Command is scheduled to run
@@ -103,11 +104,9 @@ public class CommandDriveTrain extends CommandBase {
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
-        m_driveTrain.driveTank(0, 0);
-        m_driveTrain.setUseSquares(true);
+        System.out.println("CommandDriveTrain - end : interrupted = " + interrupted);
+        m_driveTrain.fullStop();
         m_driveTrain.enableBrakes(true);
-        m_driveTrain.setDriveScaling(1.0);
-        m_driveTrain.setDriveMode(DriveMode.ARCADE);
         m_driveTrain.enableDriveTrain(false);
 
         if (interrupted) {

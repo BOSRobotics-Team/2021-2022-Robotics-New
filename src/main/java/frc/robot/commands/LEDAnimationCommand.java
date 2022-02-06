@@ -29,17 +29,19 @@ public class LEDAnimationCommand extends InstantCommand {
     @Override
     public void initialize() {
         Shuffleboard.addEventMarker("LEDAnimationCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-        m_lights.changeAnimation(m_type);
+        System.out.println("LEDAnimationCommand - init : animationType = " + m_type);
     }
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
+        m_lights.changeAnimation(m_type);
     }
 
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        System.out.println("LEDAnimationCommand - end : interrupted = " + interrupted);
         if (interrupted) {
             Shuffleboard.addEventMarker("LEDAnimationCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
         }

@@ -34,6 +34,13 @@ public class CommandClimber extends CommandBase {
         m_climber = container.climber;
         m_controller = container.getOperatorController();
 
+        m_climberExtendCommand = new ClimberExtendCommand(container, 1.5);
+        m_climberRetractCommand = new ClimberRetrackCommand(container);
+        m_climberResetCommand = new ClimberResetCommand(container);
+        m_pivotLinkExtendCommand = new PivotLinkExtendCommand(container, 0.75);
+        m_pivotLinkRetractCommand = new PivotLinkRetractCommand(container);
+        m_autoClimberCommand = new AutoClimberCommand(container);
+
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(m_climber);
 
@@ -44,26 +51,20 @@ public class CommandClimber extends CommandBase {
         m_buttons[Button.kBack.value] = new JoystickButton(m_controller, Button.kBack.value);
         m_buttons[Button.kStart.value] = new JoystickButton(m_controller, Button.kStart.value);
 
-        m_climberExtendCommand = new ClimberExtendCommand(container, 1.5);
-        m_climberRetractCommand = new ClimberRetrackCommand(container);
-        m_climberResetCommand = new ClimberResetCommand(container);
-        m_pivotLinkExtendCommand = new PivotLinkExtendCommand(container, 0.75);
-        m_pivotLinkRetractCommand = new PivotLinkRetractCommand(container);
-        m_autoClimberCommand = new AutoClimberCommand(container);
-    }
-
-    // Called just before this Command runs the first time
-    @Override
-    public void initialize() {
-        Shuffleboard.addEventMarker("CommandClimber init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-        _lastTriggerL = _lastTriggerR = false;
-        _lastPOV = -1;
-
         m_buttons[Button.kA.value].whenPressed(m_autoClimberCommand);
         m_buttons[Button.kB.value].whenPressed(m_climberRetractCommand);
         m_buttons[Button.kX.value].whenPressed(m_pivotLinkExtendCommand);
         m_buttons[Button.kY.value].whenPressed(m_pivotLinkRetractCommand);
         m_buttons[Button.kStart.value].whenPressed(m_climberResetCommand);    
+    }
+
+    // Called just before this Command runs the first time
+    @Override
+    public void initialize() {
+        System.out.println("CommandClimber - initialize");
+        Shuffleboard.addEventMarker("CommandClimber init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        _lastTriggerL = _lastTriggerR = false;
+        _lastPOV = -1;
     }
 
     // Called repeatedly when this Command is scheduled to run
@@ -102,6 +103,7 @@ public class CommandClimber extends CommandBase {
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        System.out.println("CommandClimber - end : interrupted = " + interrupted);
         if (interrupted) {
             Shuffleboard.addEventMarker("CommandClimber Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
         }

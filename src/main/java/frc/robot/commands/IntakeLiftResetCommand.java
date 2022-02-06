@@ -25,12 +25,13 @@ public class IntakeLiftResetCommand extends CommandBase {
     public void initialize() {
         Shuffleboard.addEventMarker("IntakeLiftResetCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
         m_intake.resetLift();
-        System.out.println("reset Intakelift");
+        System.out.println("IntakeLiftResetCommand - init");
     }
 
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        System.out.println("IntakeLiftResetCommand - end : interrupted = " + interrupted);
         if (interrupted) {
             Shuffleboard.addEventMarker("IntakeLiftResetCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
         }

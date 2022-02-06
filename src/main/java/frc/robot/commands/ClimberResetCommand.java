@@ -25,12 +25,15 @@ public class ClimberResetCommand extends CommandBase {
         Shuffleboard.addEventMarker("ClimberRetrackCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
         m_climber.resetClimber();
         m_climber.resetPivotLink();
-        System.out.println("resetClimber - initialize");
+
+        System.out.println("ClimberRetrackCommand - init");
     }
 
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        System.out.println("ClimberRetrackCommand - end : interrupted = " + interrupted);
+
         if (interrupted) {
             Shuffleboard.addEventMarker("ClimberRetrackCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
         }

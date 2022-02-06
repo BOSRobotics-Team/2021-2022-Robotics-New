@@ -28,7 +28,7 @@ public class AutonomousCommand extends SequentialCommandGroup {
         addCommands(
             new LEDOnboardLightCommand(container, LEDColor.kYellow),
             new AutoDriveStraightCommand(container, distance1),
-            new LEDOnboardLightOffCommand(container)
+            new LEDOnboardLightCommand(container, LEDColor.kOff)
         );
    }
 }    

@@ -12,9 +12,11 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 public class IntakeOnCommand extends InstantCommand {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final Intake m_intake;
+    private final double m_speed;
 
-    public IntakeOnCommand(RobotContainer container) {
+    public IntakeOnCommand(RobotContainer container, double speed) {
         m_intake = null; // conatiner.intake;
+        m_speed = speed;
 
         addRequirements(m_intake);
     }
@@ -23,17 +25,19 @@ public class IntakeOnCommand extends InstantCommand {
     @Override
     public void initialize() {
         Shuffleboard.addEventMarker("IntakeOnCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-        m_intake.runIntake(Constants.kIntakeSpeed);
+        System.out.println("IntakeOnCommand - init : speed = " + m_speed);
     }
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
+        m_intake.runIntake(m_speed);
     }
 
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        System.out.println("IntakeOnCommand - end : interrupted = " + interrupted);
         if (interrupted) {
             Shuffleboard.addEventMarker("IntakeOnCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
         }

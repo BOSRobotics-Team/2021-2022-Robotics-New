@@ -26,12 +26,15 @@ public class ClimberExtendCommand extends CommandBase {
     public void initialize() {
         Shuffleboard.addEventMarker("ClimberExtendCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
         m_climber.runClimber(m_height);
-        System.out.println("extendClimber - height = " + m_height);
+
+        System.out.println("ClimberExtendCommand - init : height = " + m_height);
     }
 
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        System.out.println("ClimberExtendCommand - end : interrupted = " + interrupted);
+
         if (interrupted) {
             Shuffleboard.addEventMarker("ClimberExtendCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
         }

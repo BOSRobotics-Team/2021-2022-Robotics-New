@@ -24,7 +24,7 @@ public class IntakeLiftDownCommand extends CommandBase {
     public void initialize() {
         Shuffleboard.addEventMarker("IntakeLiftDownCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
         m_intake.runLift(0.0);
-        System.out.println("Intakelift - height = 0.0");
+        System.out.println("IntakeLiftDownCommand - init");
     }
 
     // Called repeatedly when this Command is scheduled to run
@@ -35,6 +35,7 @@ public class IntakeLiftDownCommand extends CommandBase {
     // Called once after isFinished returns true
     @Override
     public void end(boolean interrupted) {
+        System.out.println("IntakeLiftDownCommand - end : interrupted = " + interrupted);
         if (interrupted) {
             Shuffleboard.addEventMarker("IntakeLiftDownCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
         }
