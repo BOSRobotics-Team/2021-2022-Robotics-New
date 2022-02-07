@@ -14,7 +14,10 @@ import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.*;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -35,16 +38,27 @@ public class DriveTrain extends SubsystemBase {
     public final SmartMotorController smartController = new SmartMotorController(leftMaster, rightMaster);
 
     /** The NavX gyro */
-    private final DriveGyro gyro = new DriveGyro(false);
+    private final DriveGyro gyro = new DriveGyro(true);
 
-    /** Drivetrain kinematics processor for measuring individual wheel speeds */
-    private final DifferentialDriveKinematics driveKinematics = new DifferentialDriveKinematics(Constants.kWidthChassisMeters);
+    public final DifferentialDrive differentialDrive;
+
+    /* Simulation model of the drivetrain */
+    private final DifferentialDrivetrainSim m_driveSim = new DifferentialDrivetrainSim(
+        DCMotor.getCIM(2),        //2 CIMS on each side of the drivetrain.
+        SmartMotorController.kDefaultGearRatio.kGearRatio,               //Standard AndyMark Gearing reduction.
+        2.1,                      //MOI of 2.1 kg m^2 (from CAD model).
+        26.5,                     //Mass of the robot is 26.5 kg.
+        Units.inchesToMeters(SmartMotorController.kDefaultGearRatio.kWheelRadiusInches),  //Robot uses 3" radius (6" diameter) wheels.
+        Constants.kWidthChassisMeters, //Distance between wheels is _ meters.
+        null //VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005) //Uncomment this line to add measurement noise.
+    );
+    private final Field2d m_field = new Field2d();
 
     /** Drivetrain odometry tracker for tracking position */
     private final DifferentialDriveOdometry driveOdometry = new DifferentialDriveOdometry(gyro.getHeading());
-    public final DifferentialDrive differentialDrive;
 
-    private final Field2d m_field = new Field2d();
+    /** Drivetrain kinematics processor for measuring individual wheel speeds */
+    private final DifferentialDriveKinematics driveKinematics = new DifferentialDriveKinematics(Constants.kWidthChassisMeters);
 
     // private boolean voltageCompEnabled = false;
     // private Double maxSpeed;
@@ -74,16 +88,16 @@ public class DriveTrain extends SubsystemBase {
         rightFollower.follow(rightMaster);
         rightFollower.setInverted(InvertType.FollowMaster);
   
+        SmartDashboard.putData("Field2d", m_field);
+
         differentialDrive = new DifferentialDrive(leftMaster, rightMaster);
         differentialDrive.setSafetyEnabled(false);
         differentialDrive.setExpiration(0.1);
         differentialDrive.setMaxOutput(0.75);
         differentialDrive.setDeadband(0.02);
-
         resetPosition();
-        addChild("Differential Drive", differentialDrive);
 
-        SmartDashboard.putData("Field2d", m_field);
+        addChild("Differential Drive", differentialDrive);
     }
 
     public void configForPID() {
@@ -124,10 +138,22 @@ public class DriveTrain extends SubsystemBase {
     @Override
     public void periodic() {
         smartController.update();
+
+        updateOdometry();
     }
 
     @Override
     public void simulationPeriodic() {
+        m_driveSim.setInputs(leftMaster.getSimCollection().getMotorOutputLeadVoltage(),
+                            -rightMaster.getSimCollection().getMotorOutputLeadVoltage());
+
+        /*
+        * Advance the model by 20 ms. Note that if you are running this
+        * subsystem in a separate thread or have changed the nominal
+        * timestep of TimedRobot, this value needs to match it.
+        */
+        m_driveSim.update(0.02);    
+        gyro.setRawHeadingDegrees(m_driveSim.getHeading().getDegrees());
     }
     
     public Double getVelocity() { return smartController.getVelocity(); }
@@ -150,13 +176,13 @@ public class DriveTrain extends SubsystemBase {
      * Get the position of the left side of the drive.
      * @return The signed position in feet, or null if the drive doesn't have encoders.
      */
-    public Double getLeftPos() { return smartController.getLeftPosition(); }
+    public Double getLeftDistance() { return smartController.getLeftDistance(); }
 
     /**
      * Get the position of the right side of the drive.
      * @return The signed position in feet, or null if the drive doesn't have encoders.
      */
-    public Double getRightPos() { return smartController.getRightPosition(); }
+    public Double getRightDistance() { return smartController.getRightDistance(); }
 
     /**
      * Get the position of the left side of the drive.
@@ -187,12 +213,11 @@ public class DriveTrain extends SubsystemBase {
     /** Update odometry tracker with current heading, and encoder readings */
     public void updateOdometry() {
         // need to convert to meters
-//        double angle = ((getRightPos() - getLeftPos()) * (180.0 / Math.PI)) / Constants.kWidthChassisMeters;
+//        double angle = ((getRightDistance() - getLeftDistance()) * (180.0 / Math.PI)) / Constants.kWidthChassisMeters;
 
         driveOdometry.update(getHeading(), ///*Rotation2d.fromDegrees(angle),
-                             getLeftPos(), 
-                             getRightPos());
-    
+                             getLeftDistance(), 
+                             getRightDistance());
         m_field.setRobotPose(driveOdometry.getPoseMeters());
         SmartDashboard.putString("Heading", driveOdometry.getPoseMeters().getRotation().toString());
     }
@@ -230,8 +255,6 @@ public class DriveTrain extends SubsystemBase {
     }
            
     public void logPeriodic() {
-       // This method will be called once per scheduler run
-       updateOdometry();
 
        /* Instrumentation */
 //       Instrumentation.ProcessGyro(gyro);
@@ -240,8 +263,8 @@ public class DriveTrain extends SubsystemBase {
        gyro.logPeriodic();
 
        SmartDashboard.putData("Field2d", m_field);
-       SmartDashboard.putNumber("LeftMasterNative", getLeftPos());
-       SmartDashboard.putNumber("RightMasterNative", getRightPos());        
+       SmartDashboard.putNumber("LeftMasterNative", getLeftDistance());
+       SmartDashboard.putNumber("RightMasterNative", getRightDistance());        
     }
 
     public void enableDriveTrain(boolean enable) {

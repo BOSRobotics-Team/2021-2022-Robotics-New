@@ -1,5 +1,7 @@
 package frc.robot.wrappers;
 
+import edu.wpi.first.hal.SimDouble;
+import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -30,6 +32,28 @@ public class DriveGyro {
             ahrs.setAngleAdjustment(heading + ahrs.getRotation2d().getDegrees());
         } else {
             simHeading += heading;
+        }
+    }
+
+    /*  SimValue names  -> function
+        Connected	    -> isConnected()
+        Rate	        -> getRate()
+        Yaw	            -> getYaw() or getAngle()
+        Pitch	        -> getPitch()
+        Roll	        -> getRoll()
+        CompassHeading	-> getCompassHeading()
+        FusedHeading	-> getFusedHeading()
+        LinearWorldAccelX	-> getLinearWorldAccelX()
+        LinearWorldAccelY	-> getLinearWorldAccelY()
+        LinearWorldAccelZ	-> getLinearWorldAccelZ()    
+    */
+    public void setRawHeadingDegrees(final double heading) {
+        if (ahrs != null) {
+            int dev = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[0]");
+            SimDouble angle = new SimDouble(SimDeviceDataJNI.getSimValueHandle(dev, "Yaw"));
+            angle.set(heading);
+        } else {
+            simHeading = heading;
         }
     }
 

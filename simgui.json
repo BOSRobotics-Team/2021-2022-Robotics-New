@@ -30,6 +30,7 @@
       "/LiveWindow/DriveTrain": "Subsystem",
       "/LiveWindow/DriveTrain/Differential Drive": "DifferentialDrive",
       "/LiveWindow/Intake": "Subsystem",
+      "/LiveWindow/LEDLights": "Subsystem",
       "/LiveWindow/Lights": "Subsystem",
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
       "/LiveWindow/Ungrouped/Talon FX [10]": "Motor Controller",
@@ -43,10 +44,23 @@
       "/SmartDashboard/Auto mode": "String Chooser",
       "/SmartDashboard/Autonomous AutoDrive": "Command",
       "/SmartDashboard/Autonomous AutoDriveStraight": "Command",
+      "/SmartDashboard/Autonomous AutoDriveTurn": "Command",
       "/SmartDashboard/Autonomous Command": "Command",
       "/SmartDashboard/CommandDriveTrain": "Command",
       "/SmartDashboard/DrivePathWeaverCommand": "Command",
       "/SmartDashboard/Field2d": "Field2d"
+    },
+    "windows": {
+      "/LiveWindow/Climber": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/LiveWindow/LEDLights": {
+        "window": {
+          "visible": true
+        }
+      }
     }
   },
   "NetworkTables": {
@@ -67,6 +81,9 @@
       }
     },
     "SmartDashboard": {
+      "Field2d": {
+        "open": true
+      },
       "open": true
     }
   },
