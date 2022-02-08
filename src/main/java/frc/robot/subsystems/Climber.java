@@ -5,6 +5,8 @@
 package frc.robot.subsystems;
 
 import frc.robot.util.*;
+
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.*;
 
 import edu.wpi.first.wpilibj.Preferences;
@@ -12,18 +14,20 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Climber extends SubsystemBase {
-    private final WPI_TalonFX _climberController = new WPI_TalonFX(10);
+    private final WPI_TalonFX _leftclimberController = new WPI_TalonFX(9);
+    private final WPI_TalonFX _rightclimberController = new WPI_TalonFX(10);
     private final WPI_TalonFX _leftPivotLinkController = new WPI_TalonFX(11);
     private final WPI_TalonFX _rightPivotLinkController = new WPI_TalonFX(12);
 
-    private final SmartMotorController smartClimberController = new SmartMotorController(_climberController);
+    private final SmartMotorController smartClimberController = new SmartMotorController(_rightclimberController, _leftclimberController);
     private final SmartMotorController smartPivotLinkController = new SmartMotorController(_rightPivotLinkController, _leftPivotLinkController);
 
     private final GearRatios kGearRatio_Climber;
     public final Gains kGains_Climber = new Gains( 0.1, 0.0, 0.0, 0.0, 100, 0.80 );
     private boolean _isClimbing = false;
     private boolean _isResetClimber = false;
-    private double  _lastClimberHeight = 0.0;
+    private double  _lastLClimberHeight = 0.0;
+    private double  _lastRClimberHeight = 0.0;
     private double _targetClimberHeight = 0;
     private double kResetClimberSpeed = -0.1;
     //private double _climberFeedFwd = 0.1;
@@ -32,7 +36,8 @@ public class Climber extends SubsystemBase {
 	public final Gains kGains_PivotLink = new Gains( 0.1, 0.0, 0.0, 0.0, 100, 0.80 );    
     private boolean _isPivoting = false;
     private boolean _isResetPivoting = false;
-    private double  _lastPivotDistance = 0.0;
+    private double  _lastLPivotDistance = 0.0;
+    private double  _lastRPivotDistance = 0.0;
     private double _targetPivotDistance = 0;
     private double kResetPivotSpeed = -0.08;
 
@@ -53,11 +58,17 @@ public class Climber extends SubsystemBase {
                                               Preferences.getDouble("PivotLinkPulleyRatio", 1.0));
         //_climberFeedFwd = Preferences.getDouble("ClimberFeedFwd", 0.1);
 
+        _leftclimberController.setInverted(InvertType.None);
+        _rightclimberController.setInverted(InvertType.InvertMotorOutput);
+
         smartClimberController.initController();
         smartClimberController.configureRatios(kGearRatio_Climber);
         smartClimberController.enableBrakes(true);
         smartClimberController.setDistanceConfigs(kGains_Climber);
         smartClimberController.resetPosition();
+
+        _leftPivotLinkController.setInverted(InvertType.None);
+        _rightPivotLinkController.setInverted(InvertType.InvertMotorOutput);
 
         smartPivotLinkController.initController();
         smartPivotLinkController.configureRatios(kGearRatio_PivotLink);
@@ -70,14 +81,22 @@ public class Climber extends SubsystemBase {
     public void periodic() {
         // Put code here to be run every loop
         if (_isResetClimber) {
-            double height = smartClimberController.getNativePosition();
-            if (Math.abs(height - _lastClimberHeight) < 5.0) {
+            double LPos = _leftclimberController.getSelectedSensorPosition();
+            double RPos = _rightclimberController.getSelectedSensorPosition();
+            boolean isLDone = (Math.abs(LPos - _lastLClimberHeight) < 5.0);
+            boolean isRDone = (Math.abs(RPos - _lastRClimberHeight) < 5.0);
+
+            if (isLDone)
+                _leftclimberController.set(0.0);
+            if (isRDone)
+                _rightclimberController.set(0.0);
+            if (isLDone && isRDone) {
                 _isResetClimber = false;
                 _isClimbing = false;
-                smartClimberController.set(0.0);
                 smartClimberController.resetPosition();
             }
-            _lastClimberHeight = height;
+            _lastLClimberHeight = LPos;
+            _lastRClimberHeight = RPos;
         }
         if (_isClimbing) {
             System.out.println("isClimbing - current height = " + smartClimberController.getPosition() + " pos = " + smartClimberController.getNativePosition());
@@ -87,14 +106,22 @@ public class Climber extends SubsystemBase {
             }
         }
         if (_isResetPivoting) {
-            double height = smartPivotLinkController.getNativePosition();
-            if (Math.abs(height - _lastPivotDistance) < 5.0) {
+            double LPos = _leftPivotLinkController.getSelectedSensorPosition();
+            double RPos = _rightPivotLinkController.getSelectedSensorPosition();
+            boolean isLDone = (Math.abs(LPos - _lastLPivotDistance) < 5.0);
+            boolean isRDone = (Math.abs(RPos - _lastRPivotDistance) < 5.0);
+
+            if (isLDone)
+            _leftPivotLinkController.set(0.0);
+            if (isRDone)
+            _rightPivotLinkController.set(0.0);
+            if (isLDone && isRDone) {
                 _isResetPivoting = false;
                 _isPivoting = false;
-                smartPivotLinkController.set(0.0);
                 smartPivotLinkController.resetPosition();
             }
-            _lastPivotDistance = height;
+            _lastLPivotDistance = LPos;
+            _lastRPivotDistance = RPos;
         }
         if (_isPivoting) {
             System.out.println("isPivoting - current distance = " + smartPivotLinkController.getPosition() + smartPivotLinkController.getNativePosition());
@@ -142,9 +169,10 @@ public class Climber extends SubsystemBase {
     }
 
     public void resetClimber() {
-        _lastClimberHeight = smartClimberController.getNativePosition();
+        _lastRClimberHeight = smartClimberController.getNativePosition();
         _isResetClimber = true;
-        smartClimberController.set(kResetClimberSpeed);
+        _leftclimberController.set(kResetClimberSpeed);
+        _rightclimberController.set(kResetClimberSpeed);
     }
 
     public void runPivotLink(double distance) {
@@ -164,7 +192,7 @@ public class Climber extends SubsystemBase {
 
     public void resetPivotLink() {
         _isResetPivoting = true;
-        _lastPivotDistance = smartPivotLinkController.getNativePosition();
+        _lastRPivotDistance = smartPivotLinkController.getNativePosition();
         smartPivotLinkController.set(kResetPivotSpeed);
     }
     public boolean isResetting() { return _isResetClimber || _isResetPivoting; }

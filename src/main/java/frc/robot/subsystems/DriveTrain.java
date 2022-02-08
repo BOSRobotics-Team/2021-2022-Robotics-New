@@ -31,8 +31,8 @@ public class DriveTrain extends SubsystemBase {
 
     private final WPI_TalonFX rightMaster = new WPI_TalonFX(0);
     private final WPI_TalonFX leftMaster = new WPI_TalonFX(1);
-    private final WPI_TalonSRX rightFollower = new WPI_TalonSRX(3);
-    private final WPI_TalonSRX leftFollower = new WPI_TalonSRX(2);
+    private final WPI_VictorSPX rightFollower = new WPI_VictorSPX(3);
+    private final WPI_VictorSPX leftFollower = new WPI_VictorSPX(2);
 
     public final SmartMotorController smartController = new SmartMotorController(leftMaster, rightMaster);
 
