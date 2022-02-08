@@ -434,9 +434,6 @@ public class SmartMotorController {
             if (_auxController != null) 
                 _auxController.setSelectedSensorPosition(0, PID_PRIMARY, kTimeoutMs);
         }
-        if (RobotBase.isSimulation()) {
-            PhysicsSim.getInstance().run();
-        }
     }
     public void enableBrakes(boolean enabled) {
         _controller.setNeutralMode(enabled ? NeutralMode.Brake : NeutralMode.Coast);
