@@ -171,7 +171,6 @@ public class LEDLights extends SubsystemBase {
     }
 
     public void logPeriodic() {
-        // _intakeController.logPeriodic();
      }
 
     // Put methods for controlling this subsystem

@@ -71,6 +71,6 @@ public class AutoDriveStraightCommand extends CommandBase {
     // Make this return true when this Command no longer needs to run execute()
     @Override
     public boolean isFinished() {
-        return m_driveTrain.isTargetReached(_targetDistance);
+        return m_driveTrain.isTargetReached();
     }
 }    

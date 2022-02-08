@@ -11,7 +11,6 @@ import frc.robot.wrappers.*;
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.*;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -126,28 +125,30 @@ public class DriveTrain extends SubsystemBase {
 		System.out.println("target (meters) = " + distance + " angle: " + angle);
     }
 
-    public Boolean isTargetReached(double target) {
-        // double error = smartController.getClosedLoopError();
-		// double velocity = smartController.getActiveTrajectoryVelocity();
-        double targetPos = getPosition();
+    public Boolean isTargetReached() {
+        differentialDrive.feed(); 
+        return smartController.isTargetFinished();
+        // // double error = smartController.getClosedLoopError();
+		// // double position = smartController.getActiveTrajectoryPosition();
+		// // double velocity = smartController.getActiveTrajectoryVelocity();
+        // System.out.println("DriveTrain - targetPos: " + smartController.getActiveTrajectoryPosition() + " pos: " + getNativePosition());// + " vel: " + velocity);
 
-        System.out.println("DriveTrain - targetPos: " + targetPos + " pos: " + getNativePosition());// + " vel: " + velocity);
-        return (MathUtil.applyDeadband(targetPos - target, 0.1) == 0.0);
+        // double targetPos = getPosition();
+        // return (MathUtil.applyDeadband(targetPos - target, 0.1) == 0.0);
     }
-    public Boolean isTargetReached(double target, double angle) {
-        if (isTargetReached(target)) {
-            double targetAngle = getAuxNativePosition() * 0.1;    
+    // public Boolean isTargetReached(double target, double angle) {
+    //     if (isTargetReached(target)) {
+    //         double targetAngle = getAuxNativePosition() * 0.1;    
 
-            System.out.println("DriveTrain - targetAngle: " + targetAngle);
-            return (MathUtil.applyDeadband(targetAngle - angle, 1.1) == 0.0);
-        }
-        return false;
-    }
+    //         System.out.println("DriveTrain - targetAngle: " + targetAngle);
+    //         return (MathUtil.applyDeadband(targetAngle - angle, 1.1) == 0.0);
+    //     }
+    //     return false;
+    // }
 
     @Override
     public void periodic() {
         smartController.update();
-
         updateOdometry();
     }
 

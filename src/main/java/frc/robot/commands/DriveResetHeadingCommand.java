@@ -23,8 +23,8 @@ public class DriveResetHeadingCommand extends InstantCommand {
     /** Log when this command is initialized */
     @Override
     public void initialize() {
-        Shuffleboard.addEventMarker("DriveResetPositionCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-        System.out.println("DriveResetPositionCommand - init");
+        Shuffleboard.addEventMarker("DriveResetHeadingCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        System.out.println("DriveResetHeadingCommand - init");
     }
     
     /** Do the state change. */
@@ -36,10 +36,10 @@ public class DriveResetHeadingCommand extends InstantCommand {
     /** Log when this command ends */
     @Override
     public void end(boolean interrupted) {
-        System.out.println("DriveResetPositionCommand - end : interrupted = " + interrupted);
+        System.out.println("DriveResetHeadingCommand - end : interrupted = " + interrupted);
         if (interrupted) {
-            Shuffleboard.addEventMarker("DriveResetPositionCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
+            Shuffleboard.addEventMarker("DriveResetHeadingCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
         }
-        Shuffleboard.addEventMarker("DriveResetPositionCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        Shuffleboard.addEventMarker("DriveResetHeadingCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
 }

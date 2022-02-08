@@ -26,8 +26,6 @@ public class CommandClimber extends CommandBase {
     public final PivotLinkRetractCommand m_pivotLinkRetractCommand;
     public final AutoClimberCommand m_autoClimberCommand;
 
-    private boolean _lastTriggerL = false;
-    private boolean _lastTriggerR = false;
     private int     _lastPOV = -1;
   
     public CommandClimber(RobotContainer container) {
@@ -63,22 +61,22 @@ public class CommandClimber extends CommandBase {
     public void initialize() {
         System.out.println("CommandClimber - initialize");
         Shuffleboard.addEventMarker("CommandClimber init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-        _lastTriggerL = _lastTriggerR = false;
+        // _lastTriggerL = _lastTriggerR = false;
         _lastPOV = -1;
     }
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
-        double triggerL = m_controller.getLeftTriggerAxis();
-        if ((triggerL > 0.5) && !_lastTriggerL) { 
-        }
-        _lastTriggerL = (triggerL > 0.5);
+        // double triggerL = m_controller.getLeftTriggerAxis();
+        // if ((triggerL > 0.5) && !_lastTriggerL) { 
+        // }
+        // _lastTriggerL = (triggerL > 0.5);
 
-        double triggerR = m_controller.getRightTriggerAxis();
-        if ((triggerR > 0.5) && !_lastTriggerR) {
-        }
-        _lastTriggerR = (triggerR > 0.5);
+        // double triggerR = m_controller.getRightTriggerAxis();
+        // if ((triggerR > 0.5) && !_lastTriggerR) {
+        // }
+        // _lastTriggerR = (triggerR > 0.5);
 
         int pov = m_controller.getPOV();
         if (pov != _lastPOV) {
@@ -97,7 +95,7 @@ public class CommandClimber extends CommandBase {
         m_climber.setClimber(-m_controller.getLeftY() * 0.5);
         m_climber.setPivotLink(-m_controller.getRightY() * 0.5);
 
-        m_climber.logPeriodic();
+        // m_climber.logPeriodic();
     }
 
     // Called once after isFinished returns true

@@ -5,23 +5,26 @@
 package frc.robot.commands;
 
 import frc.robot.*;
-import frc.robot.subsystems.*;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class AutoDriveTurnRelativeCommand extends SequentialCommandGroup {
 @SuppressWarnings({ "PMD.UnusedPrivateField", "PMD.SingularField" })
 
-    private final DriveTrain m_driveTrain;
+    private final DriveResetPositionCommand m_command1;
+    private final DriveResetHeadingCommand m_command2;
+    private final AutoDriveTurnCommand m_command3;
 
     public AutoDriveTurnRelativeCommand(RobotContainer container, double distance, double angle) {
-        m_driveTrain = container.driveTrain;
-
-        addRequirements(m_driveTrain);
+        m_command1 = new DriveResetPositionCommand(container);
+        m_command2 = new DriveResetHeadingCommand(container);
+        m_command3 = new AutoDriveTurnCommand(container, distance, angle);
+    
+        addRequirements(container.driveTrain);
 
         addCommands(
-            new DriveResetPositionCommand(container),
-            new DriveResetHeadingCommand(container),
-            new AutoDriveTurnCommand(container, distance, angle)
+            m_command1,
+            m_command2,
+            m_command3
         );
    }
 }    
