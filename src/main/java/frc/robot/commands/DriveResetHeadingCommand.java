@@ -4,12 +4,13 @@ import frc.robot.*;
 import frc.robot.subsystems.*;
 
 import edu.wpi.first.wpilibj.shuffleboard.*;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class DriveResetHeadingCommand extends InstantCommand {
+public class DriveResetHeadingCommand extends CommandBase {
 
     /** The subsystem to execute this command on. */
     private final DriveTrain m_driveTrain;
+    private int _counter = 10;
     
     /**
      * Default constructor
@@ -25,12 +26,14 @@ public class DriveResetHeadingCommand extends InstantCommand {
     public void initialize() {
         Shuffleboard.addEventMarker("DriveResetHeadingCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
         System.out.println("DriveResetHeadingCommand - init");
+        _counter = 10;
+        m_driveTrain.zeroHeading();
     }
     
     /** Do the state change. */
     @Override
     public void execute() {
-        m_driveTrain.zeroHeading();
+        _counter--;
     }
     
     /** Log when this command ends */
@@ -42,4 +45,9 @@ public class DriveResetHeadingCommand extends InstantCommand {
         }
         Shuffleboard.addEventMarker("DriveResetHeadingCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
+    // Make this return true when this Command no longer needs to run execute()
+    @Override
+    public boolean isFinished() {
+        return _counter <= 0;
+     }
 }

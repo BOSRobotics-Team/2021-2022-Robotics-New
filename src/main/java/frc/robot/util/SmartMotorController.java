@@ -67,14 +67,12 @@ public class SmartMotorController {
 
     private FeedbackDevice _feedbackDevice = FeedbackDevice.None;
 
+    private enum SetPointMode { None, Distance, DistanceAux, Velocity, Finished };
     private double _setpoint = 0.0;          // The most recently set setpoint.
     private double _nativeSetpoint = 0.0;    // The setpoint in native units. Field to avoid garbage collection.
     private double _auxpoint = 0.0;          // The most recently set setpoint.
-    private double _nativeAuxpoint = 0.0;    // The setpoint in native units. Field to avoid garbage collection.
-    private boolean _isVelocity = false;
-    private boolean _isDistance = false;
-    private boolean _isDistanceAux = false;
-    private boolean _isTargetFinished = false;
+    private double _nativeAuxpoint = 0.0;    // The setpoint in native units. Field to avoid garbage collection.    
+    private SetPointMode _mode = SetPointMode.None;
 
     public SmartMotorController( final BaseTalon talon, final BaseTalon auxTalon ) {
         _controller = talon;
@@ -114,7 +112,7 @@ public class SmartMotorController {
     }
 
     public void initController() {
-        _isDistance = _isDistanceAux = _isVelocity = _isTargetFinished = false;
+        _mode = SetPointMode.None;
         initController(_controller);
         if (_auxController != null)
             initController(_auxController);
@@ -350,21 +348,20 @@ public class SmartMotorController {
     }
 
     public void set(double pctOutput) {
-        _isDistance = _isDistanceAux = _isVelocity = _isTargetFinished = false;
+        _mode = SetPointMode.None;
         _controller.set(ControlMode.PercentOutput, pctOutput);
         if (_auxController != null)
             _auxController.follow(_controller, FollowerType.PercentOutput);
     }
     public void set(double pctOutput, double auxOutput) {
-        _isDistance = _isDistanceAux = _isVelocity = _isTargetFinished = false;
+        _mode = SetPointMode.None;
         _controller.set(ControlMode.PercentOutput, pctOutput);
         if (_auxController != null)
             _auxController.set(ControlMode.PercentOutput, auxOutput);
     }
 
     public void setTarget(double meters) {
-        _isDistance = _isDistanceAux = _isVelocity = _isTargetFinished = false;
-
+        _mode = SetPointMode.None;
         _setpoint = meters;
         _nativeSetpoint = _convertor.distanceMetersToNativeUnits(meters);
         _auxpoint = _nativeAuxpoint = 0;
@@ -380,12 +377,10 @@ public class SmartMotorController {
         } else {
             _controller.set(ControlMode.MotionMagic, _nativeSetpoint);
         }
-
-        _isDistance = true;
+        _mode = SetPointMode.Distance;
     }
     public void setTarget(double meters, double aux) {
-        _isDistance = _isDistanceAux = _isVelocity = _isTargetFinished = false;
-
+        _mode = SetPointMode.None;
         _setpoint = meters;
         _nativeSetpoint = _convertor.distanceMetersToNativeUnits(meters);
 
@@ -402,12 +397,11 @@ public class SmartMotorController {
         } else {
             _controller.set(ControlMode.MotionMagic, _nativeSetpoint, DemandType.AuxPID, _nativeAuxpoint);
         }
-        _isDistanceAux = true;
+        _mode = SetPointMode.DistanceAux;
     }
 
     public void setVelocityUPS(final double velocity) {
-        _isDistance = _isDistanceAux = _isVelocity = _isTargetFinished = false;
-
+        _mode = SetPointMode.None;
         _setpoint = velocity;
         _nativeSetpoint = _convertor.velocityToNativeUnits(_setpoint);
         _auxpoint = _feedForwardCalculator.calculate(velocity);
@@ -419,7 +413,7 @@ public class SmartMotorController {
             _auxController.selectProfileSlot(kSlot_Velocit, PID_PRIMARY);
             _auxController.follow(_controller, FollowerType.PercentOutput);
         }
-        _isVelocity = true;
+        _mode = SetPointMode.Velocity;
     }
 
     public boolean isFwdLimitSwitchClosed() { return _controller.isFwdLimitSwitchClosed() == 1; }
@@ -440,6 +434,9 @@ public class SmartMotorController {
             if (_auxController != null) 
                 _auxController.setSelectedSensorPosition(0, PID_PRIMARY, kTimeoutMs);
         }
+        if (RobotBase.isSimulation()) {
+            PhysicsSim.getInstance().run();
+        }
     }
     public void enableBrakes(boolean enabled) {
         _controller.setNeutralMode(enabled ? NeutralMode.Brake : NeutralMode.Coast);
@@ -447,17 +444,28 @@ public class SmartMotorController {
             _auxController.setNeutralMode(enabled ? NeutralMode.Brake : NeutralMode.Coast);
     }
 
+    public double getClosedLoopTarget() {
+        return (_auxController != null) ? 
+                    _auxController.getClosedLoopTarget() :
+                    _controller.getClosedLoopTarget();
+    }
     public double getClosedLoopError() {
-        return _controller.getClosedLoopError();
+        return (_auxController != null) ? 
+                    _auxController.getClosedLoopError() :
+                    _controller.getClosedLoopError();
     }
     public double getActiveTrajectoryPosition() {
-        return _controller.getActiveTrajectoryPosition();
+        return (_auxController != null) ? 
+                    _auxController.getActiveTrajectoryPosition() :
+                    _controller.getActiveTrajectoryPosition();
     }
     public double getActiveTrajectoryVelocity() {
-        return _controller.getActiveTrajectoryVelocity();
+        return (_auxController != null) ? 
+                    _auxController.getActiveTrajectoryVelocity() :
+                    _controller.getActiveTrajectoryVelocity();
     }
     public boolean isTargetFinished() {
-        return _isTargetFinished;
+        return _mode == SetPointMode.Finished;
     }
 
     /** Updates all cached values with current ones. */
@@ -466,36 +474,37 @@ public class SmartMotorController {
             PhysicsSim.getInstance().run();
         }
 
-        if (_isDistance) {
-            if ((_auxController != null) && (_auxController.getControlMode() == ControlMode.MotionMagic)) {
-                double trajPos = _auxController.getActiveTrajectoryPosition();
+        switch (_mode) {
+            case Distance: {
+                double trajPos = getActiveTrajectoryPosition();
                 System.out.println("SmartMotorController - targetPos: " + _nativeSetpoint + " pos: " + trajPos);
-                _isTargetFinished = Math.abs(trajPos - _nativeSetpoint) < 10;
-            } else if (_controller.getControlMode() == ControlMode.MotionMagic) {
-                double trajPos = _controller.getActiveTrajectoryPosition();
-                System.out.println("SmartMotorController - targetPos: " + _nativeSetpoint + " pos: " + trajPos);
-                _isTargetFinished = Math.abs(trajPos - _nativeSetpoint) < 10;
+                if (Math.abs(trajPos - _nativeSetpoint) < 10)
+                    _mode = SetPointMode.Finished;
+                break;
             }
-        } else if (_isDistanceAux) {
-            if ((_auxController != null) && (_auxController.getControlMode() == ControlMode.MotionMagic)) {
-                double trajPos = _auxController.getActiveTrajectoryPosition();
-                System.out.println("SmartMotorController - targetPos: " + _nativeSetpoint + " pos: " + trajPos);
-                _isTargetFinished = Math.abs(trajPos - _nativeSetpoint) < 10;
-            } else if (_controller.getControlMode() == ControlMode.MotionMagic) {
-                double trajPos = _controller.getActiveTrajectoryPosition();
-                System.out.println("SmartMotorController - targetPos: " + _nativeSetpoint + " pos: " + trajPos);
-                _isTargetFinished = Math.abs(trajPos - _nativeSetpoint) < 10;
+            case DistanceAux: {
+                double trajPos = getActiveTrajectoryPosition();
+                double looptarget = getClosedLoopTarget();
+                double looperror = getClosedLoopError();
+                System.out.println("SmartMotorController - targetPos: " + _nativeSetpoint + " pos: " + trajPos + " tgt: " + looptarget + " err: " + looperror);
+                if (Math.abs(trajPos - _nativeSetpoint) < 10)
+                    _mode = SetPointMode.Finished;
+                break;
             }
-        } else if (_isVelocity) {
-            double trajPos = _controller.getActiveTrajectoryPosition();
-            System.out.println("SmartMotorController - targetPos: " + _nativeSetpoint + " pos: " + trajPos);
-            _isTargetFinished = (Math.abs(trajPos - _nativeSetpoint) < 10);
+            case Velocity: {
+                double trajVel = getActiveTrajectoryVelocity();
+                System.out.println("SmartMotorController - targetPos: " + _nativeSetpoint + " pos: " + trajVel);
+                if (Math.abs(trajVel - _nativeSetpoint) < 10)
+                    _mode = SetPointMode.Finished;
 
-            _controller.getFaults(_faults);
-            if (_faults.SensorOutOfPhase) {
-                double leftVelUnitsPer100ms = _controller.getSelectedSensorVelocity(0);
-                System.out.println("sensor is out of phase: " + leftVelUnitsPer100ms);
+                _controller.getFaults(_faults);
+                if (_faults.SensorOutOfPhase) {
+                    double leftVelUnitsPer100ms = _controller.getSelectedSensorVelocity(0);
+                    System.out.println("sensor is out of phase: " + leftVelUnitsPer100ms);
+                }
+                break;
             }
+            default: break;
         }
     }
 }
