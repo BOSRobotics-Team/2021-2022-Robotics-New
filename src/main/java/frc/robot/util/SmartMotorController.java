@@ -383,7 +383,7 @@ public class SmartMotorController {
         _nativeSetpoint = _convertor.distanceMetersToNativeUnits(meters);
 
         _auxpoint = aux;
-        _nativeAuxpoint = aux * 10.0;
+        _nativeAuxpoint = aux * 10.0; // 3600 for 360 degrees
 
         _controller.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
         _controller.selectProfileSlot(kSlot_Turning, PID_TURN);

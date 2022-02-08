@@ -129,12 +129,21 @@ public class DriveTrain extends SubsystemBase {
     public Boolean isTargetReached(double target) {
         // double error = smartController.getClosedLoopError();
 		// double velocity = smartController.getActiveTrajectoryVelocity();
-		double position = smartController.getNativePosition();
-        double targetPos = smartController.getPosition();
+        double targetPos = getPosition();
 
-        System.out.println("DriveTrain - targetPos: " + targetPos + " pos: " + position);// + " vel: " + velocity);
+        System.out.println("DriveTrain - targetPos: " + targetPos + " pos: " + getNativePosition());// + " vel: " + velocity);
         return (MathUtil.applyDeadband(targetPos - target, 0.1) == 0.0);
     }
+    public Boolean isTargetReached(double target, double angle) {
+        if (isTargetReached(target)) {
+            double targetAngle = getAuxNativePosition() * 0.1;    
+
+            System.out.println("DriveTrain - targetAngle: " + targetAngle);
+            return (MathUtil.applyDeadband(targetAngle - angle, 1.1) == 0.0);
+        }
+        return false;
+    }
+
     @Override
     public void periodic() {
         smartController.update();
@@ -158,7 +167,9 @@ public class DriveTrain extends SubsystemBase {
     
     public Double getVelocity() { return smartController.getVelocity(); }
     public Double getPosition() { return smartController.getPosition(); }
+    public Double getNativePosition() { return smartController.getNativePosition(); }
     public Double getAuxPosition() { return smartController.getAuxPosition(); }
+    public Double getAuxNativePosition() { return smartController.getAuxNativePosition(); }
 
     /**
      * Get the velocity of the left side of the drive.
@@ -183,18 +194,6 @@ public class DriveTrain extends SubsystemBase {
      * @return The signed position in feet, or null if the drive doesn't have encoders.
      */
     public Double getRightDistance() { return smartController.getRightDistance(); }
-
-    /**
-     * Get the position of the left side of the drive.
-     * @return The signed position in feet, or null if the drive doesn't have encoders.
-     */
-    public Double getLeftAuxPos() { return leftMaster.getSelectedSensorVelocity(1); }
-
-    /**
-     * Get the position of the right side of the drive.
-     * @return The signed position in feet, or null if the drive doesn't have encoders.
-     */
-    public Double getRightAuxPos() { return smartController.getAuxPosition(); }
     
     /** Completely stop the robot by setting the voltage to each side to be 0. */
     public void fullStop() {
@@ -252,6 +251,7 @@ public class DriveTrain extends SubsystemBase {
     /** Resets the position of the Talon to 0. */
     public void resetPosition() {
         smartController.resetPosition();
+        driveOdometry.resetPosition(m_field.getRobotPose(), getHeading());
     }
            
     public void logPeriodic() {

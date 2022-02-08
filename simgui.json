@@ -56,7 +56,19 @@
           "visible": true
         }
       },
+      "/LiveWindow/DriveTrain/Differential Drive": {
+        "window": {
+          "visible": true
+        }
+      },
       "/LiveWindow/LEDLights": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/Field2d": {
+        "height": 10.0,
+        "width": 20.0,
         "window": {
           "visible": true
         }
@@ -81,9 +93,6 @@
       }
     },
     "SmartDashboard": {
-      "Field2d": {
-        "open": true
-      },
       "open": true
     }
   },

@@ -48,6 +48,7 @@ public class AutoDriveTurnCommand extends CommandBase {
 		m_driveTrain.configForPID2();
         if (_smoothing >= 0)
             m_driveTrain.configMotionSCurveStrength(_smoothing);
+
 		m_driveTrain.setTarget(_targetDistance, _targetAngle);
 		
 		System.out.println("AutoDriveTurnCommand init : targetDistance = " + _targetDistance + " targetAngle = " + _targetAngle);
@@ -91,6 +92,6 @@ public class AutoDriveTurnCommand extends CommandBase {
     // Make this return true when this Command no longer needs to run execute()
     @Override
     public boolean isFinished() {
-        return m_driveTrain.isTargetReached(_targetDistance);
+        return m_driveTrain.isTargetReached(_targetDistance, _targetAngle);
     }
 }    

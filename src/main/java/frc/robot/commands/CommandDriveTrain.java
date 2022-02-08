@@ -27,18 +27,18 @@ public class CommandDriveTrain extends CommandBase {
     private boolean _lastTriggerR = false;
 
     public final AutoDriveStraightCommand m_autoCommand1;
-    public final AutoDriveStraightCommand m_autoCommand2;
+    public final AutoDriveStraightRelativeCommand m_autoCommand2;
     public final AutoDriveTurnCommand m_autoCommand3;
-    public final AutoDriveStraightCommand m_autoCommand4;
+    public final AutoDriveTurnRelativeCommand m_autoCommand4;
 
     public CommandDriveTrain(RobotContainer container) {
         m_driveTrain = container.driveTrain;
         m_controller = container.getDriverController();
 
         m_autoCommand1 = new AutoDriveStraightCommand(container, 10.0);
-        m_autoCommand2 = new AutoDriveStraightCommand(container, 5.0);
-        m_autoCommand3 = new AutoDriveTurnCommand(container, 5.0, 360.0);
-        m_autoCommand4 = new AutoDriveStraightCommand(container, 0.0);
+        m_autoCommand2 = new AutoDriveStraightRelativeCommand(container, 5.0);
+        m_autoCommand3 = new AutoDriveTurnCommand(container, 5.0, 90.0);
+        m_autoCommand4 = new AutoDriveTurnRelativeCommand(container, 10.0, -90.0);
 
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(m_driveTrain);
@@ -60,6 +60,11 @@ public class CommandDriveTrain extends CommandBase {
         m_buttons[Button.kRightBumper.value].whenPressed(() -> m_driveTrain.setUseDriveScaling(!m_driveTrain.getUseDriveScaling()));
         m_buttons[Button.kLeftStick.value].whenPressed(() -> m_driveTrain.setUseSquares(!m_driveTrain.getUseSquares()));
         m_buttons[Button.kRightStick.value].whenPressed(() -> m_driveTrain.setQuickTurn(!m_driveTrain.getQuickTurn()));
+
+        m_driveTrain.setDriveMode(DriveMode.ARCADE);
+        m_driveTrain.setUseSquares(true);
+        m_driveTrain.setUseDriveScaling(true);
+        m_driveTrain.setDriveScaling(_scaling);
     }
 
     // Called just before this Command runs the first time
@@ -67,10 +72,6 @@ public class CommandDriveTrain extends CommandBase {
     public void initialize() {
         Shuffleboard.addEventMarker("CommandDriveTrain init.", this.getClass().getSimpleName(), EventImportance.kNormal);
 
-        m_driveTrain.setDriveMode(DriveMode.ARCADE);
-        m_driveTrain.setUseSquares(true);
-        m_driveTrain.setUseDriveScaling(true);
-        m_driveTrain.setDriveScaling(_scaling);
         m_driveTrain.enableBrakes(true);
         m_driveTrain.enableDriveTrain(true);
 

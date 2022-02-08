@@ -31,7 +31,6 @@ public class AutoDriveStraightCommand extends CommandBase {
     }
    
     // Called just before this Command runs the first time
-    
     @Override
     public void initialize() {
         Shuffleboard.addEventMarker("AutoDriveStraightCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
@@ -42,9 +41,10 @@ public class AutoDriveStraightCommand extends CommandBase {
         m_driveTrain.configForPID2();		
         if (_smoothing >= 0)
             m_driveTrain.configMotionSCurveStrength(_smoothing);
+
         m_driveTrain.setTarget(_targetDistance, _targetAngle);  		
 
-		System.out.println("AutoDriveStraightCommand init : targetDistance = " + _targetDistance + " targetAngle = " + _targetAngle );
+		System.out.println("AutoDriveStraightCommand init : targetDistance = " + _targetDistance + " targetAngle = " + _targetAngle);
 		SmartDashboard.putNumber("Smoothing", _smoothing);
     }
 
