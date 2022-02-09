@@ -14,9 +14,9 @@ public class PivotLinkExtendCommand extends CommandBase {
     private final Climber m_climber;
     private final double m_distance;
 
-    public PivotLinkExtendCommand(RobotContainer container, double distance) {
+    public PivotLinkExtendCommand(RobotContainer container, double pctDistance) {
         m_climber = container.climber;
-        m_distance = distance;
+        m_distance = pctDistance;
 
         addRequirements(m_climber);
     }
@@ -25,7 +25,7 @@ public class PivotLinkExtendCommand extends CommandBase {
     @Override
     public void initialize() {
         Shuffleboard.addEventMarker("PivotLinkExtendCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-        m_climber.runPivotLink(m_distance);
+        m_climber.setPivotLinkDistance(m_distance);
 
         System.out.println("PivotLinkExtendCommand - init : distance = " + m_distance);
     }

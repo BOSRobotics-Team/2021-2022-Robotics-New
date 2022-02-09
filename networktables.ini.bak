@@ -1,5 +1,6 @@
 [NetworkTables Storage 3.0]
 string "/Preferences/.type"="RobotPreferences"
+double "/Preferences/AutonomousDistance1"=-2
 double "/Preferences/ClimberFeedFwd"=0.5
 double "/Preferences/ClimberGearRatio"=12
 double "/Preferences/ClimberHeight1"=1.5

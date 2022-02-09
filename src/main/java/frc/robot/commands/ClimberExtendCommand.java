@@ -14,9 +14,9 @@ public class ClimberExtendCommand extends CommandBase {
     private final Climber m_climber;
     private final double m_height;
 
-    public ClimberExtendCommand(RobotContainer container, double height) {
+    public ClimberExtendCommand(RobotContainer container, double pctHeight) {
         m_climber = container.climber;
-        m_height = height;
+        m_height = pctHeight;
 
         addRequirements(m_climber);
     }
@@ -25,7 +25,7 @@ public class ClimberExtendCommand extends CommandBase {
     @Override
     public void initialize() {
         Shuffleboard.addEventMarker("ClimberExtendCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-        m_climber.runClimber(m_height);
+        m_climber.setClimberHeight(m_height);
 
         System.out.println("ClimberExtendCommand - init : height = " + m_height);
     }

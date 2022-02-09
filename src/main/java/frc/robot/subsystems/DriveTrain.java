@@ -366,6 +366,9 @@ public class DriveTrain extends SubsystemBase {
         this.setMaxOutput(m_UseDriveScaling ? m_DriveScaling : 1.0);
         SmartDashboard.putNumber("DriveScaling", m_DriveScaling);
     }
+    public void addDriveScaling(double incr) { 
+        setDriveScaling(m_DriveScaling + incr); 
+    }
     public boolean getQuickTurn() { return m_QuickTurn; }
     public void setQuickTurn(boolean turn) {
         m_QuickTurn = turn;

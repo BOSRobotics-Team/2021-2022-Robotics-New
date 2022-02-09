@@ -68,11 +68,11 @@ public class SmartMotorController {
     private FeedbackDevice _feedbackDevice = FeedbackDevice.None;
 
     private enum SetPointMode { None, Distance, DistanceAux, Velocity, Finished };
+    private SetPointMode _mode = SetPointMode.None;
     private double _setpoint = 0.0;          // The most recently set setpoint.
     private double _nativeSetpoint = 0.0;    // The setpoint in native units. Field to avoid garbage collection.
     private double _auxpoint = 0.0;          // The most recently set setpoint.
     private double _nativeAuxpoint = 0.0;    // The setpoint in native units. Field to avoid garbage collection.    
-    private SetPointMode _mode = SetPointMode.None;
 
     public SmartMotorController( final BaseTalon talon, final BaseTalon auxTalon ) {
         _controller = talon;

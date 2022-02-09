@@ -23,9 +23,6 @@ public class CommandDriveTrain extends CommandBase {
 
     private double _scaling = 0.2;
 
-    private boolean _lastTriggerL = false;
-    private boolean _lastTriggerR = false;
-
     public final AutoDriveStraightCommand m_autoCommand1;
     public final AutoDriveStraightRelativeCommand m_autoCommand2;
     public final AutoDriveTurnCommand m_autoCommand3;
@@ -43,28 +40,33 @@ public class CommandDriveTrain extends CommandBase {
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(m_driveTrain);
 
-        m_buttons[Button.kA.value] = new JoystickButton(m_controller, Button.kA.value);
-        m_buttons[Button.kB.value] = new JoystickButton(m_controller, Button.kB.value);
-        m_buttons[Button.kX.value] = new JoystickButton(m_controller, Button.kX.value);
-        m_buttons[Button.kY.value] = new JoystickButton(m_controller, Button.kY.value);
-        m_buttons[Button.kLeftBumper.value] = new JoystickButton(m_controller, Button.kLeftBumper.value);
-        m_buttons[Button.kRightBumper.value] = new JoystickButton(m_controller, Button.kRightBumper.value);
-        m_buttons[Button.kLeftStick.value] = new JoystickButton(m_controller, Button.kLeftStick.value);
-        m_buttons[Button.kRightStick.value] = new JoystickButton(m_controller, Button.kRightStick.value);
+        // m_buttons[Button.kA.value] = new JoystickButton(m_controller, Button.kA.value);
+        // m_buttons[Button.kB.value] = new JoystickButton(m_controller, Button.kB.value);
+        // m_buttons[Button.kX.value] = new JoystickButton(m_controller, Button.kX.value);
+        // m_buttons[Button.kY.value] = new JoystickButton(m_controller, Button.kY.value);
+        // m_buttons[Button.kA.value].whenPressed(m_autoCommand1);    
+        // m_buttons[Button.kB.value].whenPressed(m_autoCommand2);    
+        // m_buttons[Button.kX.value].whenPressed(m_autoCommand3);    
+        // m_buttons[Button.kY.value].whenPressed(m_autoCommand4);
 
-        m_buttons[Button.kA.value].whenPressed(m_autoCommand1);    
-        m_buttons[Button.kB.value].whenPressed(m_autoCommand2);    
-        m_buttons[Button.kX.value].whenPressed(m_autoCommand3);    
-        m_buttons[Button.kY.value].whenPressed(m_autoCommand4);
-        m_buttons[Button.kLeftBumper.value].whenPressed(() -> m_driveTrain.toggleDriveMode());    
-        m_buttons[Button.kRightBumper.value].whenPressed(() -> m_driveTrain.setUseDriveScaling(!m_driveTrain.getUseDriveScaling()));
-        m_buttons[Button.kLeftStick.value].whenPressed(() -> m_driveTrain.setUseSquares(!m_driveTrain.getUseSquares()));
-        m_buttons[Button.kRightStick.value].whenPressed(() -> m_driveTrain.setQuickTurn(!m_driveTrain.getQuickTurn()));
+        m_buttons[Button.kLeftBumper.value] = new JoystickButton(m_controller, Button.kLeftBumper.value);
+        m_buttons[Button.kLeftBumper.value].whenPressed(() -> m_driveTrain.addDriveScaling(-0.1));
+
+        m_buttons[Button.kRightBumper.value] = new JoystickButton(m_controller, Button.kRightBumper.value);
+        m_buttons[Button.kRightBumper.value].whenPressed(() -> m_driveTrain.addDriveScaling(0.1));
+
+        m_buttons[Button.kLeftStick.value] = new JoystickButton(m_controller, Button.kLeftStick.value);
+        m_buttons[Button.kLeftStick.value].whenPressed(() -> m_driveTrain.toggleDriveMode());    
+        // m_buttons[Button.kLeftStick.value].whenPressed(() -> m_driveTrain.setUseSquares(!m_driveTrain.getUseSquares()));
+
+        m_buttons[Button.kRightStick.value] = new JoystickButton(m_controller, Button.kRightStick.value);
+        m_buttons[Button.kRightStick.value].whenPressed(() -> m_driveTrain.setUseDriveScaling(!m_driveTrain.getUseDriveScaling()));
+        // m_buttons[Button.kRightStick.value].whenPressed(() -> m_driveTrain.setQuickTurn(!m_driveTrain.getQuickTurn()));
 
         m_driveTrain.setDriveMode(DriveMode.ARCADE);
-        m_driveTrain.setUseSquares(true);
-        m_driveTrain.setUseDriveScaling(true);
         m_driveTrain.setDriveScaling(_scaling);
+        m_driveTrain.setUseDriveScaling(true);
+        m_driveTrain.setUseSquares(true);
     }
 
     // Called just before this Command runs the first time
@@ -75,29 +77,12 @@ public class CommandDriveTrain extends CommandBase {
         m_driveTrain.enableBrakes(true);
         m_driveTrain.enableDriveTrain(true);
 
-        _lastTriggerL = _lastTriggerR = false;
-
         System.out.println("CommandDriveTrain - initialize");
     }
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
-        double triggerL = m_controller.getLeftTriggerAxis();
-        if ((triggerL > 0.5) && !_lastTriggerL) { 
-            _scaling = Math.min(_scaling + 0.1, 1.0);
-            m_driveTrain.setDriveScaling(_scaling);
-        }
-        _lastTriggerL = (triggerL > 0.5);
-
-        double triggerR = m_controller.getRightTriggerAxis();
-        if ((triggerR > 0.5) && !_lastTriggerR)
-        {
-            _scaling = Math.max(_scaling - 0.1, 0.1);
-            m_driveTrain.setDriveScaling(_scaling);
-        }
-        _lastTriggerR = (triggerR > 0.5);
-
         m_driveTrain.drive(m_controller);
         m_driveTrain.logPeriodic();
     }

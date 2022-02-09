@@ -83,8 +83,8 @@
           "incKey": 80
         }
       ],
-      "axisCount": 6,
-      "buttonCount": 10,
+      "axisCount": 0,
+      "buttonCount": 0,
       "buttonKeys": [
         61,
         93,
@@ -102,7 +102,7 @@
           "key0": 259
         }
       ],
-      "povCount": 1
+      "povCount": 0
     },
     {
       "axisCount": 2,
@@ -126,10 +126,6 @@
   "robotJoysticks": [
     {
       "guid": "Keyboard0"
-    },
-    {
-      "guid": "Keyboard1"
     }
-  ],
-  "zeroDisconnectedJoysticks": false
+  ]
 }

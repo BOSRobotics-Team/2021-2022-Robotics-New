@@ -27,33 +27,27 @@ public class CommandClimber extends CommandBase {
     public final AutoClimberCommand m_autoClimberCommand;
 
     private int     _lastPOV = -1;
+    private boolean _manualClimber = false;
   
     public CommandClimber(RobotContainer container) {
         m_climber = container.climber;
-        m_controller = container.getOperatorController();
+        m_controller = container.getDriverController();
 
-        m_climberExtendCommand = new ClimberExtendCommand(container, 1.5);
+        m_climberExtendCommand = new ClimberExtendCommand(container, 0.8);
         m_climberRetractCommand = new ClimberRetrackCommand(container);
         m_climberResetCommand = new ClimberResetCommand(container);
-        m_pivotLinkExtendCommand = new PivotLinkExtendCommand(container, 0.75);
+        m_pivotLinkExtendCommand = new PivotLinkExtendCommand(container, 0.25);
         m_pivotLinkRetractCommand = new PivotLinkRetractCommand(container);
         m_autoClimberCommand = new AutoClimberCommand(container);
 
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(m_climber);
 
-        m_buttons[Button.kA.value] = new JoystickButton(m_controller, Button.kA.value);
-        m_buttons[Button.kB.value] = new JoystickButton(m_controller, Button.kB.value);
-        m_buttons[Button.kX.value] = new JoystickButton(m_controller, Button.kX.value);
-        m_buttons[Button.kY.value] = new JoystickButton(m_controller, Button.kY.value);
-        m_buttons[Button.kBack.value] = new JoystickButton(m_controller, Button.kBack.value);
         m_buttons[Button.kStart.value] = new JoystickButton(m_controller, Button.kStart.value);
+        m_buttons[Button.kStart.value].whenPressed(m_autoClimberCommand);    
 
-        m_buttons[Button.kA.value].whenPressed(m_autoClimberCommand);
-        m_buttons[Button.kB.value].whenPressed(m_climberRetractCommand);
-        m_buttons[Button.kX.value].whenPressed(m_pivotLinkExtendCommand);
-        m_buttons[Button.kY.value].whenPressed(m_pivotLinkRetractCommand);
-        m_buttons[Button.kStart.value].whenPressed(m_climberResetCommand);    
+        m_buttons[Button.kBack.value] = new JoystickButton(m_controller, Button.kBack.value);
+        m_buttons[Button.kBack.value].whenPressed(m_climberResetCommand);    
     }
 
     // Called just before this Command runs the first time
@@ -61,23 +55,13 @@ public class CommandClimber extends CommandBase {
     public void initialize() {
         System.out.println("CommandClimber - initialize");
         Shuffleboard.addEventMarker("CommandClimber init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-        // _lastTriggerL = _lastTriggerR = false;
+
         _lastPOV = -1;
     }
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
-        // double triggerL = m_controller.getLeftTriggerAxis();
-        // if ((triggerL > 0.5) && !_lastTriggerL) { 
-        // }
-        // _lastTriggerL = (triggerL > 0.5);
-
-        // double triggerR = m_controller.getRightTriggerAxis();
-        // if ((triggerR > 0.5) && !_lastTriggerR) {
-        // }
-        // _lastTriggerR = (triggerR > 0.5);
-
         int pov = m_controller.getPOV();
         if (pov != _lastPOV) {
             if (pov == 0) { // up
@@ -92,10 +76,17 @@ public class CommandClimber extends CommandBase {
             _lastPOV = pov;
         }
 
-        m_climber.setClimber(-m_controller.getLeftY() * 0.5);
-        m_climber.setPivotLink(-m_controller.getRightY() * 0.5);
+        double leftTrig = m_controller.getLeftTriggerAxis();
+        double rightTrig = m_controller.getRightTriggerAxis();
+        if ((leftTrig != 0.0) || (rightTrig != 0.0))
+            _manualClimber = true;
 
-        // m_climber.logPeriodic();
+        if (_manualClimber) {
+            m_climber.setClimberHeight(leftTrig);
+            m_climber.setPivotLinkDistance(rightTrig);
+            if ((leftTrig == 0.0) && (rightTrig == 0.0))
+                _manualClimber = false;
+        }
     }
 
     // Called once after isFinished returns true
