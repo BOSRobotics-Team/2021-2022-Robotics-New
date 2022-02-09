@@ -7,8 +7,8 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.*;
-import frc.robot.commands.drivetrain.AutoDriveStraightCommand;
-import frc.robot.commands.ledlights.LEDOnboardLightCommand;
+import frc.robot.commands.drivetrain.*;
+import frc.robot.commands.ledlights.*;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.LEDLights.LEDColor;
 
