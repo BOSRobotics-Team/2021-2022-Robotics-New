@@ -14,6 +14,11 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.*;
+import frc.robot.commands.climber.CommandClimber;
+import frc.robot.commands.drivetrain.AutoDriveStraightCommand;
+import frc.robot.commands.drivetrain.AutoDriveTurnCommand;
+import frc.robot.commands.drivetrain.CommandDriveTrain;
+import frc.robot.commands.ledlights.CommandLights;
 import frc.robot.subsystems.*;
 
 // import oi.limelightvision.limelight.frc.LimeLight;
