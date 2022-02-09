@@ -29,13 +29,10 @@ public class CommandLights extends CommandBase {
     // private final LEDStripLightCommand _stripLightCommand;
     // private final LEDStripLightCommand _stripLightOffCommand;
 
-    // private boolean _lastTriggerL = false;
-    // private boolean _lastTriggerR = false;
-
     public CommandLights(RobotContainer container) {
         System.out.println("CommandLights constructor ");
         m_lights = container.lights;
-        m_controller = container.getOperatorController();
+        m_controller = container.getDriverController();
 
         _animationOffCommand = new LEDAnimationCommand(container);
         _animationRotateCommand = new LEDAnimationRotateCommand(container, true);
@@ -47,11 +44,11 @@ public class CommandLights extends CommandBase {
         // Use addRequirements() here to declare subsystem dependencies.
         addRequirements(m_lights);
 
-        m_buttons[Button.kLeftStick.value] = new JoystickButton(m_controller, Button.kLeftStick.value);
-        m_buttons[Button.kRightStick.value] = new JoystickButton(m_controller, Button.kRightStick.value);
+        m_buttons[Button.kY.value] = new JoystickButton(m_controller, Button.kY.value);
+        m_buttons[Button.kY.value].whenPressed(_animationOffCommand);
 
-        m_buttons[Button.kLeftStick.value].whenPressed(_animationOffCommand);
-        m_buttons[Button.kRightStick.value].whenPressed(_animationRotateCommand);
+        m_buttons[Button.kX.value] = new JoystickButton(m_controller, Button.kX.value);
+        m_buttons[Button.kX.value].whenPressed(_animationRotateCommand);
     }
 
     // Called just before this Command runs the first time
@@ -65,15 +62,11 @@ public class CommandLights extends CommandBase {
     @Override
     public void execute() {
         if (!m_lights.isAnimating()) {
-            double lx = m_controller.getLeftX();
-            double rx = m_controller.getRightX();
+            int lx = (int)((m_controller.getLeftX() + 1.0) * 0x7FFFFF);
 
-            int red = (lx < 0) ? (int)(-lx * 255) : 0;
-            int green = (lx > 0) ? (int)(lx * 255) : 0;
-            int blue = (rx < 0) ? (int)(-rx * 255) : 0;
-            if (rx > 0) {
-                red = (int)(rx * 255); }
-            
+            int red = (lx >> 16) & 0xFF;
+            int green = (lx >> 8) & 0xFF;
+            int blue = lx & 0xFF;
             m_lights.runLights(red, green, blue);
         }
     }
