@@ -6,7 +6,7 @@ package frc.robot.commands;
 
 import frc.robot.*;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.LEDLights.AnimationTypes;
+import frc.robot.subsystems.LEDLights.*;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
@@ -14,15 +14,17 @@ public class LEDAnimationCommand extends InstantCommand {
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final LEDLights m_lights;
     private final AnimationTypes m_type;
+    private LEDColor m_color;
 
-    public LEDAnimationCommand(RobotContainer container, AnimationTypes type) {
+    public LEDAnimationCommand(RobotContainer container, AnimationTypes type, LEDColor color) {
         m_lights = container.lights;
         m_type = type;
+        m_color = color;
 
         addRequirements(m_lights);
     }
     public LEDAnimationCommand(RobotContainer container) {
-        this(container, AnimationTypes.SetAll);
+        this(container, AnimationTypes.SetAll, LEDColor.kOff);
     }
 
     // Called just before this Command runs the first time
@@ -35,7 +37,7 @@ public class LEDAnimationCommand extends InstantCommand {
     // Called repeatedly when this Command is scheduled to run
     @Override
     public void execute() {
-        m_lights.changeAnimation(m_type);
+        m_lights.changeAnimation(m_type, m_color);
     }
 
     // Called once after isFinished returns true

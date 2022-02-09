@@ -14,6 +14,7 @@ import com.ctre.phoenix.led.TwinkleOffAnimation.TwinkleOffPercent;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LEDLights extends SubsystemBase {
+    public static int LEDCount = 128;
 
     public static class LEDColor {
         public int red = 255;
@@ -21,7 +22,9 @@ public class LEDLights extends SubsystemBase {
         public int blue = 255;
         public int white = 255;
         public int startIndex = 0;
-        public int count = 500;
+        public int count = LEDCount;
+        public double brightness = 0.5;
+        public double speed = 0.5;
         public static LEDColor kOff = new LEDColor(0, 0, 0);
         public static LEDColor kWhite = new LEDColor(255, 255, 255);
         public static LEDColor kRed = new LEDColor(255, 0, 0);
@@ -40,9 +43,12 @@ public class LEDLights extends SubsystemBase {
             count = cnt;
         }
         public LEDColor( int r, int g, int b ) {
-            red = r;
-            green = g;
-            blue = b;
+            this(r, g, b, 0, 0, LEDCount);
+        }
+        public LEDColor( int r, int g, int b, double br, double spd ) {
+            this(r, g, b);
+            brightness = br;
+            speed = spd;
         }
     }
     
@@ -65,7 +71,7 @@ public class LEDLights extends SubsystemBase {
     private final int LedCount = 128;
 
     public LEDLights() {
-        changeAnimation(AnimationTypes.SetAll);
+        changeAnimation(AnimationTypes.SetAll, LEDColor.kWhite);
  
         CANdleConfiguration configAll = new CANdleConfiguration();
         configAll.statusLedOffWhenActive = true;
@@ -78,34 +84,34 @@ public class LEDLights extends SubsystemBase {
 
     public void incrementAnimation() {
         switch(m_currentAnimation) {
-            case ColorFlow: changeAnimation(AnimationTypes.Fire); break;
-            case Fire: changeAnimation(AnimationTypes.Larson); break;
-            case Larson: changeAnimation(AnimationTypes.Rainbow); break;
-            case Rainbow: changeAnimation(AnimationTypes.RgbFade); break;
-            case RgbFade: changeAnimation(AnimationTypes.SingleFade); break;
-            case SingleFade: changeAnimation(AnimationTypes.Strobe); break;
-            case Strobe: changeAnimation(AnimationTypes.Twinkle); break;
-            case Twinkle: changeAnimation(AnimationTypes.TwinkleOff); break;
-            case TwinkleOff: changeAnimation(AnimationTypes.ColorFlow); break;
-            case SetAll: changeAnimation(AnimationTypes.ColorFlow); break;
+            case ColorFlow: changeAnimation(AnimationTypes.Fire, new LEDColor(0, 0, 0, 0.5, 0.7)); break;
+            case Fire: changeAnimation(AnimationTypes.Larson, new LEDColor(0, 255, 46, 0.5, 1.0)); break;
+            case Larson: changeAnimation(AnimationTypes.Rainbow, new LEDColor(0, 0, 0, 1.0, 0.1)); break;
+            case Rainbow: changeAnimation(AnimationTypes.RgbFade, new LEDColor(0, 0, 0, 0.7, 0.4)); break;
+            case RgbFade: changeAnimation(AnimationTypes.SingleFade, new LEDColor(50, 2, 200, 0.5, 0.5)); break;
+            case SingleFade: changeAnimation(AnimationTypes.Strobe, new LEDColor(240, 10, 180, 0.5, 98.0 / 256.0)); break;
+            case Strobe: changeAnimation(AnimationTypes.Twinkle, new LEDColor(30, 70, 60, 0.5, 0.4)); break;
+            case Twinkle: changeAnimation(AnimationTypes.TwinkleOff, new LEDColor(70, 90, 175, 0.5, 0.8)); break;
+            case TwinkleOff: changeAnimation(AnimationTypes.ColorFlow, new LEDColor(128, 20, 70, 0.0, 0.7)); break;
+            case SetAll: changeAnimation(AnimationTypes.ColorFlow, new LEDColor(128, 20, 70, 0.0, 0.7)); break;
         }
     }
     public void decrementAnimation() {
         switch(m_currentAnimation) {
-            case ColorFlow: changeAnimation(AnimationTypes.TwinkleOff); break;
-            case Fire: changeAnimation(AnimationTypes.ColorFlow); break;
-            case Larson: changeAnimation(AnimationTypes.Fire); break;
-            case Rainbow: changeAnimation(AnimationTypes.Larson); break;
-            case RgbFade: changeAnimation(AnimationTypes.Rainbow); break;
-            case SingleFade: changeAnimation(AnimationTypes.RgbFade); break;
-            case Strobe: changeAnimation(AnimationTypes.SingleFade); break;
-            case Twinkle: changeAnimation(AnimationTypes.Strobe); break;
-            case TwinkleOff: changeAnimation(AnimationTypes.Twinkle); break;
-            case SetAll: changeAnimation(AnimationTypes.ColorFlow); break;
+            case ColorFlow: changeAnimation(AnimationTypes.TwinkleOff, new LEDColor(70, 90, 175, 0.5, 0.8)); break;
+            case Fire: changeAnimation(AnimationTypes.ColorFlow, new LEDColor(128, 20, 70, 0.0, 0.7)); break;
+            case Larson: changeAnimation(AnimationTypes.Fire, new LEDColor(0, 0, 0, 0.5, 0.7)); break;
+            case Rainbow: changeAnimation(AnimationTypes.Larson, new LEDColor(0, 255, 46, 0.5, 1.0)); break;
+            case RgbFade: changeAnimation(AnimationTypes.Rainbow, new LEDColor(0, 0, 0, 1.0, 0.1)); break;
+            case SingleFade: changeAnimation(AnimationTypes.RgbFade, new LEDColor(0, 0, 0, 0.7, 0.4)); break;
+            case Strobe: changeAnimation(AnimationTypes.SingleFade, new LEDColor(50, 2, 200, 0.5, 0.5)); break;
+            case Twinkle: changeAnimation(AnimationTypes.Strobe, new LEDColor(240, 10, 180, 0.5, 98.0 / 256.0)); break;
+            case TwinkleOff: changeAnimation(AnimationTypes.Twinkle, new LEDColor(30, 70, 60, 0.5, 0.4)); break;
+            case SetAll: changeAnimation(AnimationTypes.ColorFlow, new LEDColor(128, 20, 70, 0.0, 0.7)); break;
         }
     }
     public void setColors() {
-        changeAnimation(AnimationTypes.SetAll);
+        changeAnimation(AnimationTypes.SetAll, LEDColor.kWhite);
     }
 
     /* Wrappers so we can access the CANdle from the subsystem */
@@ -118,37 +124,37 @@ public class LEDLights extends SubsystemBase {
     public void configLedType(LEDStripType type) { m_candle.configLEDType(type, 0); }
     public void configStatusLedBehavior(boolean offWhenActive) { m_candle.configStatusLedState(offWhenActive, 0); }
 
-    public void changeAnimation(AnimationTypes toChange) {
+    public void changeAnimation(AnimationTypes toChange, LEDColor color) {
         m_currentAnimation = toChange;
         
         switch(toChange)
         {
             case ColorFlow:
-                m_toAnimate = new ColorFlowAnimation(128, 20, 70, 0, 0.7, LedCount, Direction.Forward);
+                m_toAnimate = new ColorFlowAnimation(color.red, color.green, color.blue, color.white, color.speed, color.count, Direction.Forward);
                 break;
             case Fire:
-                m_toAnimate = new FireAnimation(0.5, 0.7, LedCount, 0.7, 0.5);
+                m_toAnimate = new FireAnimation(color.brightness, color.speed, color.count, 0.7, 0.5);
                 break;
             case Larson:
-                m_toAnimate = new LarsonAnimation(0, 255, 46, 0, 1, LedCount, BounceMode.Front, 3);
+                m_toAnimate = new LarsonAnimation(color.red, color.green, color.blue, color.white, color.speed, color.count, BounceMode.Front, 3);
                 break;
             case Rainbow:
-                m_toAnimate = new RainbowAnimation(1, 0.1, LedCount);
+                m_toAnimate = new RainbowAnimation(color.brightness, color.speed, color.count);
                 break;
             case RgbFade:
-                m_toAnimate = new RgbFadeAnimation(0.7, 0.4, LedCount);
+                m_toAnimate = new RgbFadeAnimation(color.brightness, color.speed, color.count);
                 break;
             case SingleFade:
-                m_toAnimate = new SingleFadeAnimation(50, 2, 200, 0, 0.5, LedCount);
+                m_toAnimate = new SingleFadeAnimation(color.red, color.green, color.blue, color.white, color.speed, color.count);
                 break;
             case Strobe:
-                m_toAnimate = new StrobeAnimation(240, 10, 180, 0, 98.0 / 256.0, LedCount);
+                m_toAnimate = new StrobeAnimation(color.red, color.green, color.blue, color.white, color.speed, color.count);
                 break;
             case Twinkle:
-                m_toAnimate = new TwinkleAnimation(30, 70, 60, 0, 0.4, LedCount, TwinklePercent.Percent6);
+                m_toAnimate = new TwinkleAnimation(color.red, color.green, color.blue, color.white, color.speed, color.count, TwinklePercent.Percent6);
                 break;
             case TwinkleOff:
-                m_toAnimate = new TwinkleOffAnimation(70, 90, 175, 0, 0.8, LedCount, TwinkleOffPercent.Percent100);
+                m_toAnimate = new TwinkleOffAnimation(color.red, color.green, color.blue, color.white, color.speed, color.count, TwinkleOffPercent.Percent100);
                 break;
             case SetAll:
                 m_toAnimate = null;
@@ -179,17 +185,16 @@ public class LEDLights extends SubsystemBase {
         m_candle.setLEDs(red, green, blue); 
     }
     public void runLights(LEDColor color) {
-        int count = Math.min(color.count - color.startIndex, LedCount);
-        m_candle.setLEDs(color.red, color.green, color.blue, color.white, color.startIndex, count); 
+        m_candle.setLEDs(color.red, color.green, color.blue, color.white, color.startIndex, color.count); 
     }
     public void setOnboardLights(LEDColor color) {
         int start = Math.min(color.startIndex, 7);
-        int count = Math.min(color.count - color.startIndex, 8);
+        int count = Math.min(8 - start, color.count);
         m_candle.setLEDs(color.red, color.green, color.blue, color.white, start, count); 
     }
     public void setStripLights(LEDColor color) {
-        int start = Math.max(color.startIndex + 8, 8);
-        int count = Math.min(color.count - color.startIndex, LedCount - 8);
+        int start = Math.max(8 + color.startIndex, 8);
+        int count = Math.min(LedCount - 8, color.count - 8);
         m_candle.setLEDs(color.red, color.green, color.blue, color.white, start, count); 
     }
     public boolean isAnimating() {
