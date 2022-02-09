@@ -14,12 +14,9 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.*;
-import frc.robot.commands.climber.*;
 import frc.robot.commands.drivetrain.*;
-import frc.robot.commands.ledlights.*;
+import frc.robot.commands.subsystem.*;
 import frc.robot.subsystems.*;
-
-// import oi.limelightvision.limelight.frc.LimeLight;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -41,42 +38,35 @@ public class RobotContainer {
   public final XboxController operatorController = new XboxController(1);
 
   // Camera
-  // public final LimeLight limeLight = new LimeLight();
   public UsbCamera cam0;
   public UsbCamera cam1;
   public UsbCamera cam2;
 
   public final AutonomousCommand m_autoCommand = new AutonomousCommand(this);
   public final AutoDriveStraightCommand m_autoDriveStraightCommand =
-      new AutoDriveStraightCommand(this, 10.0);
+      new AutoDriveStraightCommand(this, -2.0);
   public final AutoDriveTurnCommand m_autoDriveTurnCommand =
-      new AutoDriveTurnCommand(this, 10.0, 45.0);
-  // public final DrivePathWeaverCommand m_autoWeaverCommand = new DrivePathWeaverCommand(this,
-  // "paths/PathWeaver/Paths/BarrelRun");
+      new AutoDriveTurnCommand(this, -2.0, -90.0);
 
   public final CommandDriveTrain m_cmdDriveTrainCommand = new CommandDriveTrain(this);
   public final CommandClimber m_cmdClimberCommand = new CommandClimber(this);
-  // public final CommandIntake m_cmdIntakeCommand = new CommandIntake(this);
   public final CommandLights m_cmdLightsCommand = new CommandLights(this);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     driveTrain.setDefaultCommand(m_cmdDriveTrainCommand);
     climber.setDefaultCommand(m_cmdClimberCommand);
-    // intake.setDefaultCommand(m_cmdIntakeCommand);
     lights.setDefaultCommand(m_cmdLightsCommand);
 
     // Add commands to Autonomous Sendable Chooser
     chooser.setDefaultOption("Autonomous Command", m_autoCommand);
     chooser.addOption("AutoDriveStraight Command", m_autoDriveStraightCommand);
     chooser.addOption("AutoDriveTurn Command", m_autoDriveTurnCommand);
-    // chooser.addOption("PathWeaver Command", m_autoWeaverCommand);
 
     // SmartDashboard Buttons
     SmartDashboard.putData("Autonomous Command", m_autoCommand);
     SmartDashboard.putData("Autonomous AutoDriveStraight", m_autoDriveStraightCommand);
     SmartDashboard.putData("Autonomous AutoDriveTurn", m_autoDriveTurnCommand);
-    // SmartDashboard.putData("PathWeaver Command", m_autoWeaverCommand);
     SmartDashboard.putData("CommandDriveTrain", m_cmdDriveTrainCommand);
     SmartDashboard.putData("Auto mode", chooser);
 
