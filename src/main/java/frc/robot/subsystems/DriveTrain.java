@@ -133,24 +133,7 @@ public class DriveTrain extends SubsystemBase {
   public Boolean isTargetReached() {
     differentialDrive.feed();
     return smartController.isTargetFinished();
-    // // double error = smartController.getClosedLoopError();
-    // // double position = smartController.getActiveTrajectoryPosition();
-    // // double velocity = smartController.getActiveTrajectoryVelocity();
-    // System.out.println("DriveTrain - targetPos: " + smartController.getActiveTrajectoryPosition()
-    // + " pos: " + getNativePosition());// + " vel: " + velocity);
-
-    // double targetPos = getPosition();
-    // return (MathUtil.applyDeadband(targetPos - target, 0.1) == 0.0);
   }
-  // public Boolean isTargetReached(double target, double angle) {
-  //     if (isTargetReached(target)) {
-  //         double targetAngle = getAuxNativePosition() * 0.1;
-
-  //         System.out.println("DriveTrain - targetAngle: " + targetAngle);
-  //         return (MathUtil.applyDeadband(targetAngle - angle, 1.1) == 0.0);
-  //     }
-  //     return false;
-  // }
 
   @Override
   public void periodic() {

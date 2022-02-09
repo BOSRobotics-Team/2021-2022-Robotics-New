@@ -91,17 +91,6 @@ public class Climber extends SubsystemBase {
       _lastLClimberHeight = LPos;
       _lastRClimberHeight = RPos;
     }
-    if (_isClimbing) {
-      System.out.println(
-          "isClimbing - current height = "
-              + smartClimberController.getPosition()
-              + " pos = "
-              + smartClimberController.getNativePosition());
-      if (smartClimberController.isTargetFinished()) {
-        _isClimbing = false;
-        System.out.println("isClimbing - done");
-      }
-    }
     if (_isResetPivoting) {
       double LPos = _leftPivotLinkController.getSelectedSensorPosition();
       double RPos = _rightPivotLinkController.getSelectedSensorPosition();
@@ -117,6 +106,17 @@ public class Climber extends SubsystemBase {
       }
       _lastLPivotDistance = LPos;
       _lastRPivotDistance = RPos;
+    }
+    if (_isClimbing) {
+      System.out.println(
+          "isClimbing - current height = "
+              + smartClimberController.getPosition()
+              + " pos = "
+              + smartClimberController.getNativePosition());
+      if (smartClimberController.isTargetFinished()) {
+        _isClimbing = false;
+        System.out.println("isClimbing - done");
+      }
     }
     if (_isPivoting) {
       System.out.println(
@@ -138,13 +138,8 @@ public class Climber extends SubsystemBase {
   }
 
   public void logPeriodic() {
-    SmartDashboard.putBoolean("isResetClimber", _isResetClimber);
-    SmartDashboard.putBoolean("isResetPivoting", _isResetPivoting);
-    SmartDashboard.putBoolean("isClimbing", _isClimbing);
-    SmartDashboard.putBoolean("isPivoting", _isPivoting);
     SmartDashboard.putNumber("targetHeight", _targetClimberHeight);
     SmartDashboard.putNumber("targetPivot", _targetPivotDistance);
-
     SmartDashboard.putNumber("ClimberPos", smartClimberController.getNativePosition());
     SmartDashboard.putNumber("PivotPos", smartPivotLinkController.getNativePosition());
   }
