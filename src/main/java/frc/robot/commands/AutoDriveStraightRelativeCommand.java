@@ -4,23 +4,21 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.*;
 import frc.robot.subsystems.*;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class AutoDriveStraightRelativeCommand extends SequentialCommandGroup {
-@SuppressWarnings({ "PMD.UnusedPrivateField", "PMD.SingularField" })
+  @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
+  private final DriveTrain m_driveTrain;
 
-    private final DriveTrain m_driveTrain;
+  public AutoDriveStraightRelativeCommand(RobotContainer container, double distance) {
+    m_driveTrain = container.driveTrain;
 
-    public AutoDriveStraightRelativeCommand(RobotContainer container, double distance) {
-        m_driveTrain = container.driveTrain;
+    addRequirements(m_driveTrain);
 
-        addRequirements(m_driveTrain);
-
-        addCommands(
-            new DriveResetPositionCommand(container),
-            new AutoDriveStraightCommand(container, distance)
-        );
-   }
-}    
+    addCommands(
+        new DriveResetPositionCommand(container),
+        new AutoDriveStraightCommand(container, distance));
+  }
+}

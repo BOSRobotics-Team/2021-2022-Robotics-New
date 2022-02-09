@@ -4,20 +4,19 @@
 
 package frc.robot;
 
-import frc.robot.commands.*;
-import frc.robot.subsystems.*;
-
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.commands.*;
+import frc.robot.subsystems.*;
 
-//import oi.limelightvision.limelight.frc.LimeLight;
+// import oi.limelightvision.limelight.frc.LimeLight;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -37,17 +36,20 @@ public class RobotContainer {
   // //Driver Controller
   public final XboxController driverController = new XboxController(0);
   public final XboxController operatorController = new XboxController(1);
-    
-  //Camera
+
+  // Camera
   // public final LimeLight limeLight = new LimeLight();
-  public UsbCamera cam0; 
-  public UsbCamera cam1; 
-  public UsbCamera cam2; 
+  public UsbCamera cam0;
+  public UsbCamera cam1;
+  public UsbCamera cam2;
 
   public final AutonomousCommand m_autoCommand = new AutonomousCommand(this);
-  public final AutoDriveStraightCommand m_autoDriveStraightCommand = new AutoDriveStraightCommand(this, 10.0);
-  public final AutoDriveTurnCommand m_autoDriveTurnCommand = new AutoDriveTurnCommand(this, 10.0, 45.0);
-  // public final DrivePathWeaverCommand m_autoWeaverCommand = new DrivePathWeaverCommand(this, "paths/PathWeaver/Paths/BarrelRun");
+  public final AutoDriveStraightCommand m_autoDriveStraightCommand =
+      new AutoDriveStraightCommand(this, 10.0);
+  public final AutoDriveTurnCommand m_autoDriveTurnCommand =
+      new AutoDriveTurnCommand(this, 10.0, 45.0);
+  // public final DrivePathWeaverCommand m_autoWeaverCommand = new DrivePathWeaverCommand(this,
+  // "paths/PathWeaver/Paths/BarrelRun");
 
   public final CommandDriveTrain m_cmdDriveTrainCommand = new CommandDriveTrain(this);
   public final CommandClimber m_cmdClimberCommand = new CommandClimber(this);
@@ -60,7 +62,7 @@ public class RobotContainer {
     climber.setDefaultCommand(m_cmdClimberCommand);
     // intake.setDefaultCommand(m_cmdIntakeCommand);
     lights.setDefaultCommand(m_cmdLightsCommand);
-    
+
     // Add commands to Autonomous Sendable Chooser
     chooser.setDefaultOption("Autonomous Command", m_autoCommand);
     chooser.addOption("AutoDriveStraight Command", m_autoDriveStraightCommand);
@@ -68,7 +70,7 @@ public class RobotContainer {
     // chooser.addOption("PathWeaver Command", m_autoWeaverCommand);
 
     // SmartDashboard Buttons
-    SmartDashboard.putData("Autonomous Command",m_autoCommand);
+    SmartDashboard.putData("Autonomous Command", m_autoCommand);
     SmartDashboard.putData("Autonomous AutoDriveStraight", m_autoDriveStraightCommand);
     SmartDashboard.putData("Autonomous AutoDriveTurn", m_autoDriveTurnCommand);
     // SmartDashboard.putData("PathWeaver Command", m_autoWeaverCommand);
@@ -79,8 +81,8 @@ public class RobotContainer {
 
     if (RobotBase.isReal()) {
       cam0 = CameraServer.startAutomaticCapture(0);
-      cam1 = CameraServer.startAutomaticCapture(1);  
-      cam2 = CameraServer.startAutomaticCapture(2);  
+      cam1 = CameraServer.startAutomaticCapture(1);
+      cam2 = CameraServer.startAutomaticCapture(2);
     }
   }
 
@@ -97,9 +99,11 @@ public class RobotContainer {
   public XboxController getDriverController() {
     return driverController;
   }
+
   public XboxController getOperatorController() {
     return operatorController;
   }
+
   public LEDLights getLEDLights() {
     return lights;
   }

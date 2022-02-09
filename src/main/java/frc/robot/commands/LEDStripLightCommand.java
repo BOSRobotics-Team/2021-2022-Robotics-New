@@ -4,47 +4,54 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.shuffleboard.*;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.*;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.LEDLights.LEDColor;
-import edu.wpi.first.wpilibj.shuffleboard.*;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 public class LEDStripLightCommand extends InstantCommand {
-@SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-    private final LEDLights m_lights;
-    private final LEDColor m_color;
+  @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
+  private final LEDLights m_lights;
 
-    public LEDStripLightCommand(RobotContainer container, LEDColor color) {
-        m_lights = container.lights;
-        m_color = color;
+  private final LEDColor m_color;
 
-        addRequirements(m_lights);
-    }
-    public LEDStripLightCommand(RobotContainer container) {
-        this(container, LEDColor.kOff);
-    }
+  public LEDStripLightCommand(RobotContainer container, LEDColor color) {
+    m_lights = container.lights;
+    m_color = color;
 
-    // Called just before this Command runs the first time
-    @Override
-    public void initialize() {
-        Shuffleboard.addEventMarker("LEDStripLightCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-        System.out.println("LEDStripLightCommand init : color = " + m_color);
-    }
+    addRequirements(m_lights);
+  }
 
-    // Called when this Command is scheduled to run
-    @Override
-    public void execute() {
-        m_lights.setStripLights(m_color);
-    }
+  public LEDStripLightCommand(RobotContainer container) {
+    this(container, LEDColor.kOff);
+  }
 
-    // Called once after isFinished returns true
-    @Override
-    public void end(boolean interrupted) {
-        System.out.println("LEDStripLightCommand end - interrupted = " + interrupted);
-        if (interrupted) {
-            Shuffleboard.addEventMarker("LEDStripLightCommand Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
-        }
-        Shuffleboard.addEventMarker("LEDStripLightCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+  // Called just before this Command runs the first time
+  @Override
+  public void initialize() {
+    Shuffleboard.addEventMarker(
+        "LEDStripLightCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    System.out.println("LEDStripLightCommand init : color = " + m_color);
+  }
+
+  // Called when this Command is scheduled to run
+  @Override
+  public void execute() {
+    m_lights.setStripLights(m_color);
+  }
+
+  // Called once after isFinished returns true
+  @Override
+  public void end(boolean interrupted) {
+    System.out.println("LEDStripLightCommand end - interrupted = " + interrupted);
+    if (interrupted) {
+      Shuffleboard.addEventMarker(
+          "LEDStripLightCommand Interrupted!",
+          this.getClass().getSimpleName(),
+          EventImportance.kNormal);
     }
+    Shuffleboard.addEventMarker(
+        "LEDStripLightCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+  }
 }

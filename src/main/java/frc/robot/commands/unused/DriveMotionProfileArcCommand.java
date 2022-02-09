@@ -35,8 +35,8 @@ public class DriveMotionProfileArcCommand extends CommandBase {
   @Override
   public void execute() {
 
-    //m_driveTrain.drive(m_controller);
-    //m_driveTrain.logPeriodic();
+    // m_driveTrain.drive(m_controller);
+    // m_driveTrain.logPeriodic();
   }
 
   // Called once after isFinished returns true
@@ -48,11 +48,11 @@ public class DriveMotionProfileArcCommand extends CommandBase {
     m_driveTrain.setUseSquares(true);
     m_driveTrain.setDriveScaling(1.0);
     m_driveTrain.enableDriveTrain(false);
-}
+  }
 
- // Make this return true when this Command no longer needs to run execute()
-@Override
-public boolean isFinished() {
+  // Make this return true when this Command no longer needs to run execute()
+  @Override
+  public boolean isFinished() {
     return false;
- }
+  }
 }
