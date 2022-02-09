@@ -109,7 +109,6 @@ public class DrivePathWeaverCommand extends CommandBase {
 
     mRamseteCommand.execute();
     // m_driveTrain.drive(m_controller);
-    m_driveTrain.logPeriodic();
   }
 
   // Called once after isFinished returns true

@@ -47,11 +47,11 @@ public class Climber extends SubsystemBase {
   public Climber() {
     Preferences.initDouble("ClimberMaxHeight", 1.1);
     Preferences.initDouble("PivotMaxDistance", 1.0);
-
     // Preferences.initDouble("ClimberFeedFwd", 0.5);
-    // _climberFeedFwd = Preferences.getDouble("ClimberFeedFwd", 0.1);
+
     _climberMaxHeight = Preferences.getDouble("ClimberMaxHeight", 1.1);
     _pivotMaxDistance = Preferences.getDouble("PivotMaxDistance", 1.0);
+    // _climberFeedFwd = Preferences.getDouble("ClimberFeedFwd", 0.1);
 
     _leftclimberController.setInverted(InvertType.None);
     _rightclimberController.setInverted(InvertType.InvertMotorOutput);

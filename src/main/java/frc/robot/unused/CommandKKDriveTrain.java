@@ -78,8 +78,6 @@ public class CommandKKDriveTrain extends CommandDriveTrain {
     _lastX1 = xRight;
     _lastY2 = _lastY1;
     _lastY1 = yLeft;
-
-    // m_driveTrain.logPeriodic();
   }
 
   // Called once after isFinished returns true

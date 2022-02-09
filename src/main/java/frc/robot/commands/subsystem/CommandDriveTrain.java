@@ -91,7 +91,6 @@ public class CommandDriveTrain extends CommandBase {
   @Override
   public void execute() {
     m_driveTrain.drive(m_controller);
-    m_driveTrain.logPeriodic();
   }
 
   // Called once after isFinished returns true

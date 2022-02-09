@@ -11,6 +11,7 @@ import com.ctre.phoenix.led.ColorFlowAnimation.Direction;
 import com.ctre.phoenix.led.LarsonAnimation.BounceMode;
 import com.ctre.phoenix.led.TwinkleAnimation.TwinklePercent;
 import com.ctre.phoenix.led.TwinkleOffAnimation.TwinkleOffPercent;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LEDLights extends SubsystemBase {
@@ -280,7 +281,9 @@ public class LEDLights extends SubsystemBase {
     // This method will be called once per scheduler run during simulation
   }
 
-  public void logPeriodic() {}
+  public void logPeriodic() {
+    SmartDashboard.putString("LEDAnimation", m_currentAnimation.toString());
+  }
 
   // Put methods for controlling this subsystem
   // here. Call these from Commands.

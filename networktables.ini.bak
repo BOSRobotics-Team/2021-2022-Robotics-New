@@ -2,6 +2,8 @@
 string "/Preferences/.type"="RobotPreferences"
 double "/Preferences/AutonomousDistance1"=-2
 double "/Preferences/ClimberFeedFwd"=0.5
-double "/Preferences/ClimberHeight1"=1.5
+double "/Preferences/ClimberMaxHeight"=1.1
+double "/Preferences/IntakeGearRatio"=12
 double "/Preferences/PivotLinkDistance1"=1
 double "/Preferences/PivotLinkDistance2"=0.5
+double "/Preferences/PivotMaxDistance"=1
