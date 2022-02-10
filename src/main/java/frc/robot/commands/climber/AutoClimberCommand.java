@@ -5,57 +5,85 @@
 package frc.robot.commands.climber;
 
 import edu.wpi.first.wpilibj.Preferences;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.*;
-import frc.robot.commands.ledlights.LEDAnimationCommand;
-import frc.robot.commands.ledlights.LEDOnboardLightCommand;
-import frc.robot.subsystems.LEDLights.AnimationTypes;
-import frc.robot.subsystems.LEDLights.LEDColor;
+import frc.robot.commands.ledlights.*;
+import frc.robot.subsystems.LEDLights.*;
 
 public class AutoClimberCommand extends SequentialCommandGroup {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
+  private final int kClimberSteps = 19;
+
+  private final String kClimberHeight = "Climber - Height";
+  private final String kClimberTilt = "Climber - Tilt";
+
+  private final double climberPairs[][] =
+      new double[][] {
+        {24.5, 10.0},
+        {0, 10.0},
+        {0, 0},
+        {8.0, 0},
+        {8.0, -10.0},
+        {0, -10.0},
+        {0, 10.0},
+        {24.5, 10.0},
+        {24.5, 25.0},
+        {24.5, 30.0},
+        {21.5, 30.0},
+        {18.0, 30.0},
+        {12.0, 40.0},
+        {12.0, 50.0},
+        {18.0, 50.0},
+        {18.0, 10.0},
+        {0, 10.0},
+        {0, 0},
+        {8.0, 0}
+      };
+  private final LEDColor climberLEDs[] = new LEDColor[kClimberSteps];
+
+  public AutoClimberCommand(RobotContainer container, boolean init) {
+
+    Preferences.initDouble("Climber - MaxHeight", 25.0); // 25 stroke
+    Preferences.initDouble("Climber - MaxTilt", 50.0); // 50 degree tilt
+    for (Integer step = 0; step < kClimberSteps; ++step) {
+      Preferences.initDouble(kClimberHeight + step.toString(), climberPairs[step][0]);
+      Preferences.initDouble(kClimberTilt + step.toString(), climberPairs[step][1]);
+    }
+
+    double maxHeight = 1.0 / Preferences.getDouble("Climber - MaxHeight", 25.0);
+    double maxTilt = 1.0 / (2.0 * Preferences.getDouble("Climber - MaxTilt", 50.0));
+    for (Integer step = 0; step < kClimberSteps; ++step) {
+      climberPairs[step][0] =
+          maxHeight
+              * Preferences.getDouble(kClimberHeight + step.toString(), climberPairs[step][0]);
+      climberPairs[step][1] =
+          0.5
+              + maxTilt
+                  * Preferences.getDouble(kClimberTilt + step.toString(), climberPairs[step][1]);
+    }
+    for (Integer step = 0; step < kClimberSteps; ++step) {
+      climberLEDs[step] = new LEDColor(255, 255, step, 0, 0, step % 8);
+    }
+
+    if (init) {
+      LEDColor led1 = new LEDColor(255, 255, 0, 0, 8, 120);
+      addCommands(
+          new LEDAnimationCommand(container, AnimationTypes.Strobe, led1),
+          new LEDOnboardLightCommand(container, climberLEDs[0]),
+          new PrintCommand("Climber Extend and Tilt initial position"),
+          new ClimberExtendTiltCommand(container, climberPairs[0][0], climberPairs[0][1]));
+    } else {
+      for (Integer step = 1; step < kClimberSteps; ++step) {
+        addCommands(
+            new LEDOnboardLightCommand(container, climberLEDs[step]),
+            new PrintCommand("Climber Extend and Tilt step " + step.toString()),
+            new ClimberExtendTiltCommand(container, climberPairs[step][0], climberPairs[step][1]));
+      }
+    }
+  }
+
   public AutoClimberCommand(RobotContainer container) {
-    Preferences.initDouble("ClimberHeight1", 1.0);
-    Preferences.initDouble("ClimberHeight2", 0.8);
-    Preferences.initDouble("PivotLinkDistance1", 0.0);
-    Preferences.initDouble("ClimberHeight3", 0.1);
-    Preferences.initDouble("PivotLinkDistance2", 1.0);
-    Preferences.initDouble("ClimberHeight4", 0.2);
-    Preferences.initDouble("ClimberHeight5", 0.0);
-
-    double height1 = Preferences.getDouble("ClimberHeight1", 1.0);
-    double height2 = Preferences.getDouble("ClimberHeight2", 0.8);
-    double distance1 = Preferences.getDouble("PivotLinkDistance1", 0.0);
-    double height3 = Preferences.getDouble("ClimberHeight3", 0.1);
-    double distance2 = Preferences.getDouble("PivotLinkDistance2", 1.0);
-    double height4 = Preferences.getDouble("ClimberHeight4", 0.2);
-    double height5 = Preferences.getDouble("ClimberHeight5", 0.0);
-
-    LEDColor led1 = new LEDColor(255, 255, 0, 0, 0, 1);
-    LEDColor led2 = new LEDColor(255, 255, 0, 0, 1, 1);
-    LEDColor led3 = new LEDColor(255, 255, 0, 0, 2, 1);
-    LEDColor led4 = new LEDColor(255, 0, 0, 0, 3, 1);
-    LEDColor led5 = new LEDColor(255, 0, 0, 0, 4, 1);
-    LEDColor led6 = new LEDColor(255, 0, 0, 0, 5, 1);
-    LEDColor led7 = new LEDColor(255, 255, 0, 0, 6, 1);
-    LEDColor led8 = new LEDColor(255, 255, 0, 0, 7, 1);
-
-    addCommands(
-        new LEDAnimationCommand(container, AnimationTypes.Strobe, LEDColor.kYellow),
-        new LEDOnboardLightCommand(container, led1),
-        new ClimberExtendCommand(container, height1),
-        new LEDOnboardLightCommand(container, led2),
-        new ClimberExtendCommand(container, height2),
-        new LEDOnboardLightCommand(container, led3),
-        new PivotLinkExtendCommand(container, distance1),
-        new LEDOnboardLightCommand(container, led4),
-        new ClimberExtendCommand(container, height3),
-        new LEDOnboardLightCommand(container, led5),
-        new PivotLinkExtendCommand(container, distance2),
-        new LEDOnboardLightCommand(container, led6),
-        new ClimberExtendCommand(container, height4),
-        new LEDOnboardLightCommand(container, led7),
-        new ClimberExtendCommand(container, height5),
-        new LEDOnboardLightCommand(container, led8));
+    this(container, false);
   }
 }

@@ -5,8 +5,8 @@
 package frc.robot.commands.subsystem;
 
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.shuffleboard.*;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.RobotContainer;
@@ -44,11 +44,14 @@ public class CommandLights extends CommandBase {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_lights);
 
-    m_buttons[Button.kY.value] = new JoystickButton(m_controller, Button.kY.value);
-    m_buttons[Button.kY.value].whenPressed(_animationOffCommand);
+    // m_buttons[Button.kY.value] = new JoystickButton(m_controller, Button.kY.value);
+    // m_buttons[Button.kY.value].whenPressed(_animationOffCommand);
 
-    m_buttons[Button.kX.value] = new JoystickButton(m_controller, Button.kX.value);
-    m_buttons[Button.kX.value].whenPressed(_animationRotateCommand);
+    // m_buttons[Button.kX.value] = new JoystickButton(m_controller, Button.kX.value);
+    // m_buttons[Button.kX.value].whenPressed(_animationRotateCommand);
+
+    SmartDashboard.putData("Animation Off", _animationOffCommand);
+    SmartDashboard.putData("Animation Rotate", _animationRotateCommand);
   }
 
   // Called just before this Command runs the first time

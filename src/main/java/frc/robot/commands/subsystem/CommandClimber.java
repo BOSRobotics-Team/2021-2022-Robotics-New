@@ -26,6 +26,7 @@ public class CommandClimber extends CommandBase {
   public final PivotLinkExtendCommand m_pivotLinkExtendCommand;
   public final PivotLinkRetractCommand m_pivotLinkRetractCommand;
   public final AutoClimberCommand m_autoClimberCommand;
+  public final AutoClimberCommand m_autoClimberInitCommand;
 
   private int _lastPOV = -1;
   private boolean _manualClimber = false;
@@ -40,12 +41,16 @@ public class CommandClimber extends CommandBase {
     m_pivotLinkExtendCommand = new PivotLinkExtendCommand(container, 0.25);
     m_pivotLinkRetractCommand = new PivotLinkRetractCommand(container);
     m_autoClimberCommand = new AutoClimberCommand(container);
+    m_autoClimberInitCommand = new AutoClimberCommand(container, true);
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_climber);
 
+    m_buttons[Button.kX.value] = new JoystickButton(m_controller, Button.kX.value);
+    m_buttons[Button.kX.value].whenPressed(m_autoClimberCommand);
+
     m_buttons[Button.kStart.value] = new JoystickButton(m_controller, Button.kStart.value);
-    m_buttons[Button.kStart.value].whenPressed(m_autoClimberCommand);
+    m_buttons[Button.kStart.value].whenPressed(m_autoClimberInitCommand);
 
     m_buttons[Button.kBack.value] = new JoystickButton(m_controller, Button.kBack.value);
     m_buttons[Button.kBack.value].whenPressed(m_climberResetCommand);
