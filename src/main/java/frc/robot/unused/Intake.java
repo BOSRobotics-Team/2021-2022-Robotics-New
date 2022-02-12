@@ -11,8 +11,8 @@ package frc.robot.unused;
 // import frc.robot.util.*;
 
 // public class Intake extends SubsystemBase {
-//   private final WPI_TalonSRX _intakeController = new WPI_TalonSRX(5);
-//   private final WPI_TalonSRX _liftController = new WPI_TalonSRX(6);
+//   private final WPI_TalonSRX _intakeController = new WPI_TalonSRX(Constants.kID_Intake);
+//   private final WPI_TalonSRX _liftController = new WPI_TalonSRX(Constants.kID_IntakeLift);
 
 //   private final SmartMotorController smartIntakeController =
 //       new SmartMotorController(_intakeController);

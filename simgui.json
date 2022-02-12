@@ -22,6 +22,7 @@
       "/LiveWindow/Intake": "Subsystem",
       "/LiveWindow/LEDLights": "Subsystem",
       "/LiveWindow/Lights": "Subsystem",
+      "/LiveWindow/Shooter": "Subsystem",
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
       "/LiveWindow/Ungrouped/Talon FX [10]": "Motor Controller",
       "/LiveWindow/Ungrouped/Talon FX [11]": "Motor Controller",
@@ -31,9 +32,13 @@
       "/LiveWindow/Ungrouped/Talon SRX [3]": "Motor Controller",
       "/LiveWindow/Ungrouped/Talon SRX [5]": "Motor Controller",
       "/LiveWindow/Ungrouped/Talon SRX [6]": "Motor Controller",
+      "/LiveWindow/Ungrouped/Victor SPX [15]": "Motor Controller",
       "/LiveWindow/Ungrouped/Victor SPX [2]": "Motor Controller",
       "/LiveWindow/Ungrouped/Victor SPX [3]": "Motor Controller",
       "/LiveWindow/Ungrouped/navX-Sensor[4]": "Gyro",
+      "/SmartDashboard/Animation Off": "Command",
+      "/SmartDashboard/Animation Rotate": "Command",
+      "/SmartDashboard/Arm Sim": "Mechanism2d",
       "/SmartDashboard/Auto mode": "String Chooser",
       "/SmartDashboard/Autonomous AutoDrive": "Command",
       "/SmartDashboard/Autonomous AutoDriveStraight": "Command",
@@ -55,6 +60,11 @@
         }
       },
       "/LiveWindow/LEDLights": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/Arm Sim": {
         "window": {
           "visible": true
         }

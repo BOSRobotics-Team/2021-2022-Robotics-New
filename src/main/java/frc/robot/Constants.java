@@ -4,16 +4,23 @@ import frc.robot.util.*;
 
 public class Constants {
 
-  public static final double kIntakeSpeed = 1.0; // meters/sec
-  public static final double kUnjamIntakeSpeed = 0.75;
+  public static final int kID_RMasterDrive = 0; // TalonFX
+  public static final int kID_LMasterDrive = 1; // TalonFX
+  public static final int kID_RFollowDrive = 3; // VictorSPX
+  public static final int kID_LFollowDrive = 2; // VictorSPX
+  public static final int kID_LClimber = 9; // TalonFX
+  public static final int kID_RClimber = 10; // TalonFX
+  public static final int kID_LPivot = 11; // TalonFX
+  public static final int kID_RPivot = 12; // TalonFX
+  public static final int kID_Shooter = 15; // VictorSPX
+  // public static final int kID_Intake = 5;       //TalonSRX
+  // public static final int kID_IntakeLift = 6;   //TalonSRX
+  public static final int kID_CANdle = 0;
 
   public static final double kGearRatio = 10.71;
   public static final double kWheelRadiusInches = 3;
   public static final double kLengthChassisMeters = 1.0;
   public static final double kWidthChassisMeters = 0.8;
-
-  /* 	 * Number of rotations to drive when performing Distance Closed Loop  */
-  public static final double kRotationsToTravel = 6;
 
   /**
    * PID Gains may have to be adjusted based on the responsiveness of control loop. kF: 1023

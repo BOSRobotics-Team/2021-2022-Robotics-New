@@ -13,6 +13,7 @@ import com.ctre.phoenix.led.TwinkleAnimation.TwinklePercent;
 import com.ctre.phoenix.led.TwinkleOffAnimation.TwinkleOffPercent;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class LEDLights extends SubsystemBase {
   public static int LEDCount = 128;
@@ -55,7 +56,7 @@ public class LEDLights extends SubsystemBase {
     }
   }
 
-  public final CANdle m_candle = new CANdle(0);
+  public final CANdle m_candle = new CANdle(Constants.kID_CANdle);
 
   public enum AnimationTypes {
     ColorFlow,

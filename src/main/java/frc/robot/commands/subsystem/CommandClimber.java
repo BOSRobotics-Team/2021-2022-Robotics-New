@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.RobotContainer;
 import frc.robot.commands.climber.*;
 import frc.robot.subsystems.*;
@@ -19,6 +20,7 @@ public class CommandClimber extends CommandBase {
 
   public final XboxController m_controller;
   public final JoystickButton m_buttons[] = new JoystickButton[11];
+  public final POVButton m_povs[] = new POVButton[4];
 
   public final ClimberExtendCommand m_climberExtendCommand;
   public final ClimberRetrackCommand m_climberRetractCommand;
@@ -28,7 +30,6 @@ public class CommandClimber extends CommandBase {
   public final AutoClimberCommand m_autoClimberCommand;
   public final AutoClimberCommand m_autoClimberInitCommand;
 
-  private int _lastPOV = -1;
   private boolean _manualClimber = false;
 
   public CommandClimber(RobotContainer container) {
@@ -54,6 +55,18 @@ public class CommandClimber extends CommandBase {
 
     m_buttons[Button.kBack.value] = new JoystickButton(m_controller, Button.kBack.value);
     m_buttons[Button.kBack.value].whenPressed(m_climberResetCommand);
+
+    m_povs[0] = new POVButton(m_controller, 0);
+    m_povs[0].whenPressed(m_climberExtendCommand);
+
+    m_povs[1] = new POVButton(m_controller, 90);
+    m_povs[1].whenPressed(m_climberRetractCommand);
+
+    m_povs[2] = new POVButton(m_controller, 180);
+    m_povs[2].whenPressed(m_pivotLinkExtendCommand);
+
+    m_povs[3] = new POVButton(m_controller, 270);
+    m_povs[3].whenPressed(m_pivotLinkRetractCommand);
   }
 
   // Called just before this Command runs the first time
@@ -62,27 +75,11 @@ public class CommandClimber extends CommandBase {
     System.out.println("CommandClimber - initialize");
     Shuffleboard.addEventMarker(
         "CommandClimber init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-
-    _lastPOV = -1;
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   public void execute() {
-    int pov = m_controller.getPOV();
-    if (pov != _lastPOV) {
-      if (pov == 0) { // up
-        m_climberExtendCommand.schedule();
-      } else if (pov == 180) { // down
-        m_climberRetractCommand.schedule();
-      } else if (pov == 270) { // left
-        m_pivotLinkExtendCommand.schedule();
-      } else if (pov == 90) { // right
-        m_pivotLinkRetractCommand.schedule();
-      }
-      _lastPOV = pov;
-    }
-
     double leftTrig = m_controller.getLeftTriggerAxis();
     double rightTrig = m_controller.getRightTriggerAxis();
     if ((leftTrig != 0.0) || (rightTrig != 0.0)) _manualClimber = true;

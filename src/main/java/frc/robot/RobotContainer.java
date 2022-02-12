@@ -33,6 +33,7 @@ public class RobotContainer {
   // public final Intake intake = new Intake();
   public final Climber climber = new Climber();
   public final LEDLights lights = new LEDLights();
+  public final Shooter shooter = new Shooter();
 
   // //Driver Controller
   public final XboxController driverController = new XboxController(0);
@@ -52,6 +53,7 @@ public class RobotContainer {
   public final CommandDriveTrain m_cmdDriveTrainCommand = new CommandDriveTrain(this);
   public final CommandClimber m_cmdClimberCommand = new CommandClimber(this);
   public final CommandLights m_cmdLightsCommand = new CommandLights(this);
+  public final CommandShooter m_cmdShooterCommand = new CommandShooter(this);
 
   class LogPeriodic implements java.lang.Runnable {
     public static final double _period = 0.1;

@@ -27,10 +27,10 @@ public class DriveTrain extends SubsystemBase {
     CURVATURE
   }
 
-  private final WPI_TalonFX rightMaster = new WPI_TalonFX(0);
-  private final WPI_TalonFX leftMaster = new WPI_TalonFX(1);
-  private final WPI_VictorSPX rightFollower = new WPI_VictorSPX(3);
-  private final WPI_VictorSPX leftFollower = new WPI_VictorSPX(2);
+  private final WPI_TalonFX rightMaster = new WPI_TalonFX(Constants.kID_RMasterDrive);
+  private final WPI_TalonFX leftMaster = new WPI_TalonFX(Constants.kID_LMasterDrive);
+  private final WPI_VictorSPX rightFollower = new WPI_VictorSPX(Constants.kID_RFollowDrive);
+  private final WPI_VictorSPX leftFollower = new WPI_VictorSPX(Constants.kID_LFollowDrive);
 
   public final SmartMotorController smartController =
       new SmartMotorController(leftMaster, rightMaster);
@@ -161,19 +161,19 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public Double getPosition() {
-    return smartController.getPosition();
+    return smartController.getDistance();
   }
 
   public Double getNativePosition() {
-    return smartController.getNativePosition();
+    return smartController.getPosition();
   }
 
   public Double getAuxPosition() {
-    return smartController.getAuxPosition();
+    return smartController.getAuxDistance();
   }
 
   public Double getAuxNativePosition() {
-    return smartController.getAuxNativePosition();
+    return smartController.getAuxPosition();
   }
 
   /**
