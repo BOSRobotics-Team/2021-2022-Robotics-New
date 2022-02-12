@@ -25,7 +25,7 @@ public class ClimberResetCommand extends CommandBase {
     Shuffleboard.addEventMarker(
         "ClimberRetrackCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
     m_climber.resetClimber();
-    m_climber.resetPivotLink();
+    // m_climber.resetPivotLink();
 
     System.out.println("ClimberRetrackCommand - init");
   }

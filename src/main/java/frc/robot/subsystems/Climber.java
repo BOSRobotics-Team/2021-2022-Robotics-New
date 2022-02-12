@@ -30,17 +30,17 @@ public class Climber extends SubsystemBase {
       new SmartMotorController(_rightPivotLinkController, _leftPivotLinkController);
 
   private final GearRatios kGearRatio_Climber = new GearRatios(12.0, 1.0, 1.0);
-  public final Gains kGains_Climber = new Gains(0.2, 0.0, 0.0, 0.2, 0, 0.80);
+  public final Gains kGains_Climber = new Gains(0.5, 0.0, 0.0, 0.5, 0, 1.0);
   private boolean _isClimbing = false;
   private boolean _isResetClimber = false;
   private double _lastLClimberHeight = 0.0;
   private double _lastRClimberHeight = 0.0;
   private double _targetClimberHeight = 0;
-  private double kResetClimberSpeed = -0.1;
+  private double kResetClimberSpeed = -0.05;
   private double _climberMaxHeight = 1.5;
   // private double _climberFeedFwd = 0.1;
 
-  private final GearRatios kGearRatio_PivotLink = new GearRatios(20.0, 1.0, 1.0);
+  private final GearRatios kGearRatio_PivotLink = new GearRatios(100.0, 1.0, 2.0);
   public final Gains kGains_PivotLink = new Gains(0.2, 0.0, 0.0, 0.2, 0, 0.4);
   private boolean _isPivoting = false;
   private boolean _isResetPivoting = false;
@@ -71,14 +71,15 @@ public class Climber extends SubsystemBase {
   private final SingleJointedArmSim m_armSim =
       new SingleJointedArmSim(
           DCMotor.getFalcon500(1),
-          kGearRatio_PivotLink.kGearRatio * 10,
+          kGearRatio_PivotLink.kGearRatio * 2,
           SingleJointedArmSim.estimateMOI(m_armLength, m_armMass),
           m_armLength,
           Units.degreesToRadians(40),
           Units.degreesToRadians(140),
           m_armMass,
           true,
-          null // VecBuilder.fill(kArmEncoderDistPerPulse) // Add noise with a std-dev of 1 tick
+          null // VecBuilder.fill(kArmEncoderDistPerPulse) // Add noise with a std-dev of 1
+          // tick
           );
 
   // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
@@ -120,7 +121,7 @@ public class Climber extends SubsystemBase {
     smartClimberController.initController();
     smartClimberController.configureRatios(kGearRatio_Climber);
     smartClimberController.enableBrakes(true);
-    smartClimberController.setDistanceConfigs(kGains_Climber);
+    smartClimberController.setDistanceAndTurnConfigs(kGains_Climber, kGains_Climber);
     smartClimberController.resetPosition();
 
     _leftPivotLinkController.setInverted(InvertType.None);
@@ -129,7 +130,7 @@ public class Climber extends SubsystemBase {
     smartPivotLinkController.initController();
     smartPivotLinkController.configureRatios(kGearRatio_PivotLink);
     smartPivotLinkController.enableBrakes(true);
-    smartPivotLinkController.setDistanceConfigs(kGains_PivotLink);
+    smartPivotLinkController.setDistanceAndTurnConfigs(kGains_PivotLink, kGains_PivotLink);
     smartPivotLinkController.resetPosition();
 
     // Put Mechanism 2d to SmartDashboard
@@ -208,7 +209,8 @@ public class Climber extends SubsystemBase {
     m_elevatorSim.update(0.020);
     m_armSim.update(0.020);
 
-    // Finally, we set our simulated encoder's readings and simulated battery voltage
+    // Finally, we set our simulated encoder's readings and simulated battery
+    // voltage
     // m_encoderSim.setDistance(m_elevatorSim.getPositionMeters());
     // m_encoderSim.setDistance(m_armSim.getAngleRads());
     // SimBattery estimates loaded battery voltages
@@ -225,14 +227,18 @@ public class Climber extends SubsystemBase {
     SmartDashboard.putNumber("targetHeight", _targetClimberHeight);
     SmartDashboard.putNumber("targetPivot", _targetPivotDistance);
     SmartDashboard.putNumber("ClimberPos", smartClimberController.getPosition());
+    SmartDashboard.putNumber("ClimberLPos", smartClimberController.getLeftPosition());
+    SmartDashboard.putNumber("ClimberRPos", smartClimberController.getRightPosition());
     SmartDashboard.putNumber("PivotPos", smartPivotLinkController.getPosition());
+    SmartDashboard.putNumber("PivotLPos", smartPivotLinkController.getLeftPosition());
+    SmartDashboard.putNumber("PivotRPos", smartPivotLinkController.getRightPosition());
   }
 
   // Put methods for controlling this subsystem
   // here. Call these from Commands.
   public void setClimberHeight(double pctHeight) {
     _targetClimberHeight = MathUtil.clamp(pctHeight, 0.0, 1.0) * _climberMaxHeight;
-    smartClimberController.setTarget(_targetClimberHeight); // , _climberFeedFwd);
+    smartClimberController.setTarget(_targetClimberHeight, 0); // , _climberFeedFwd);
     _isClimbing = true;
   }
 
@@ -261,7 +267,7 @@ public class Climber extends SubsystemBase {
 
   public void setPivotLinkDistance(double pctDistance) {
     _targetPivotDistance = MathUtil.clamp(pctDistance, 0.0, 1.0) * _pivotMaxDistance;
-    smartPivotLinkController.setTarget(_targetPivotDistance); // , _climberFeedFwd);
+    smartPivotLinkController.setTarget(_targetPivotDistance, 0); // , _climberFeedFwd);
     _isPivoting = true;
   }
 

@@ -429,7 +429,7 @@ public class SmartMotorController {
         DemandType.ArbitraryFeedForward,
         _feedForwardCalculator.ks);
     if (_auxController != null) {
-      _auxController.follow(_controller);
+      _auxController.follow(_controller, FollowerType.AuxOutput1);
     }
     _mode = SetPointMode.Distance;
   }
