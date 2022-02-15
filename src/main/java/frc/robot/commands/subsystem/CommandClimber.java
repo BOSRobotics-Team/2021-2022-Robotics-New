@@ -89,8 +89,8 @@ public class CommandClimber extends CommandBase {
       _manualClimber = true;
 
     if (_manualClimber) {
-      m_climber.setClimberHeight(_leftTriggerVal);
-      m_climber.setPivotLinkAngle(_rightTriggerVal);
+      m_climber.setClimberHeightPct(_leftTriggerVal);
+      m_climber.setPivotLinkPct(_rightTriggerVal);
       _manualClimber = ((_leftTriggerVal > 0.0) || (_rightTriggerVal > 0.0));
     }
   }
