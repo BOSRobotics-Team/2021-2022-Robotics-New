@@ -129,7 +129,7 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public void setTarget(double distance, double angle) {
-    smartController.setTarget(distance, angle);
+    smartController.setTargetAndAngle(distance, angle);
     differentialDrive.feed();
     System.out.println("target (meters) = " + distance + " angle: " + angle);
   }

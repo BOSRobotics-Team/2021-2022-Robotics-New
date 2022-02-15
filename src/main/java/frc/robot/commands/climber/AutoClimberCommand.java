@@ -15,8 +15,8 @@ public class AutoClimberCommand extends SequentialCommandGroup {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final int kClimberSteps = 19;
 
-  private final String kClimberHeight = "Climber - Height";
-  private final String kClimberTilt = "Climber - Tilt";
+  private final String kClimberHeight = "%02d: Climber_Height";
+  private final String kClimberTilt = "%02d: Climber_Tilt";
 
   private final double climberPairs[][] =
       new double[][] {
@@ -47,8 +47,8 @@ public class AutoClimberCommand extends SequentialCommandGroup {
     Preferences.initDouble("Climber - MaxHeight", 25.0); // 25 stroke
     Preferences.initDouble("Climber - MaxTilt", 50.0); // 50 degree tilt
     for (Integer step = 0; step < kClimberSteps; ++step) {
-      Preferences.initDouble(kClimberHeight + step.toString(), climberPairs[step][0]);
-      Preferences.initDouble(kClimberTilt + step.toString(), climberPairs[step][1]);
+      Preferences.initDouble(String.format(kClimberHeight, step), climberPairs[step][0]);
+      Preferences.initDouble(String.format(kClimberTilt, step), climberPairs[step][1]);
     }
 
     double maxHeight = 1.0 / Preferences.getDouble("Climber - MaxHeight", 25.0);
@@ -56,11 +56,11 @@ public class AutoClimberCommand extends SequentialCommandGroup {
     for (Integer step = 0; step < kClimberSteps; ++step) {
       climberPairs[step][0] =
           maxHeight
-              * Preferences.getDouble(kClimberHeight + step.toString(), climberPairs[step][0]);
+              * Preferences.getDouble(String.format(kClimberHeight, step), climberPairs[step][0]);
       climberPairs[step][1] =
           0.5
               + maxTilt
-                  * Preferences.getDouble(kClimberTilt + step.toString(), climberPairs[step][1]);
+                  * Preferences.getDouble(String.format(kClimberTilt, step), climberPairs[step][1]);
     }
     for (Integer step = 0; step < kClimberSteps; ++step) {
       climberLEDs[step] = new LEDColor(255, 255, step, 0, 0, step % 8);

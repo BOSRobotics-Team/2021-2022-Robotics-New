@@ -5,6 +5,7 @@ import edu.wpi.first.math.util.Units;
 public class Convertor {
   public static final int k100msPerSecond = 10;
   public static final double k2PI = 2.0 * Math.PI;
+  public static final double kWheelRadiusForRadians = Units.metersToInches(1);
   public static final double kWheelRadiusForDegrees = Units.metersToInches(360.0 / k2PI);
 
   public int _countsPerRev = 2048;

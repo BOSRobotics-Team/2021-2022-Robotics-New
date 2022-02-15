@@ -38,8 +38,8 @@ public class Climber extends SubsystemBase {
   private double _lastLClimberHeight = 0.0;
   private double _lastRClimberHeight = 0.0;
   private double _targetClimberHeight = 0;
-  private double _climberMaxHeight = 1.5;
-  // private double _climberFeedFwd = 0.1;
+  private double _climberMaxHeight = 0.55;
+  private double _climberFeedFwd = 0.0;
 
   private final GearRatios kGearRatio_PivotLink =
       new GearRatios(100.0, Convertor.kWheelRadiusForDegrees, 2.0);
@@ -47,8 +47,6 @@ public class Climber extends SubsystemBase {
   private final Gains kGains_PivotLinkTurn = new Gains(0.1, 0.0, 0.0, 0.1, 0, 0.3);
   private final double kPivotLinkMass = 3.0; // Kilograms
   private final double kPivotLinkLength = Units.inchesToMeters(30);
-  private final double kMinPivotLinkAngle = 50.0;
-  private final double kMaxPivotLinkAngle = 130.0;
   private final double kResetPivotSpeed = -0.05;
   private boolean _isPivoting = false;
   private boolean _isResetLPivoting = false;
@@ -59,6 +57,8 @@ public class Climber extends SubsystemBase {
   private double _lastRPivotAngle = 0.0;
   private double _targetPivotAngle = 0;
   private double _resetThresholdUnits = 10;
+  private double _minPivotLinkAngle = 50.0;
+  private double _maxPivotLinkAngle = 130.0;
 
   private final ClimberSim _climberSim =
       new ClimberSim(
@@ -72,14 +72,20 @@ public class Climber extends SubsystemBase {
           kGearRatio_PivotLink,
           kPivotLinkMass,
           kPivotLinkLength,
-          kMinPivotLinkAngle,
-          kMaxPivotLinkAngle);
+          _minPivotLinkAngle,
+          _maxPivotLinkAngle);
 
   public Climber() {
     Preferences.initDouble("ClimberMaxHeight", 0.55);
+    Preferences.initDouble("ClimberFeedForward", 0.0);
+    Preferences.initDouble("MinPivotLinkAngle", 50.0);
+    Preferences.initDouble("MaxPivotLinkAngle", 130.0);
     Preferences.initDouble("ResetThresholdUnits", 10.0);
 
     _climberMaxHeight = Preferences.getDouble("ClimberMaxHeight", 0.55);
+    _climberFeedFwd = Preferences.getDouble("ClimberFeedForward", 0.0);
+    _minPivotLinkAngle = Preferences.getDouble("MinPivotLinkAngle", 50);
+    _maxPivotLinkAngle = Preferences.getDouble("MaxPivotLinkAngle", 130);
     _resetThresholdUnits = Preferences.getDouble("ResetThresholdUnits", 10.0);
 
     _leftClimberController.setInverted(InvertType.None);
@@ -148,7 +154,7 @@ public class Climber extends SubsystemBase {
       //         + smartClimberController.getPosition());
       if (smartClimberController.isTargetFinished()) {
         _isClimbing = false;
-        // System.out.println("isClimbing - done");
+        System.out.println("isClimbing - done");
       }
     }
     if (_isPivoting) {
@@ -158,7 +164,7 @@ public class Climber extends SubsystemBase {
       //         + smartPivotLinkController.getPosition());
       if (smartPivotLinkController.isTargetFinished()) {
         _isPivoting = false;
-        // System.out.println("isPivoting - done");
+        System.out.println("isPivoting - done");
       }
     }
     smartClimberController.update();
@@ -178,19 +184,30 @@ public class Climber extends SubsystemBase {
 
   // Put methods for controlling this subsystem
   // here. Call these from Commands.
-  public void setClimberHeight(double pctHeight) {
-    _targetClimberHeight = MathUtil.clamp(pctHeight, 0.0, 1.0) * _climberMaxHeight;
-    smartClimberController.setTarget(_targetClimberHeight, 0); // , _climberFeedFwd);
+  public void setClimberHeight(double height) {
+    _targetClimberHeight = MathUtil.clamp(height, 0.0, _climberMaxHeight);
+    if (_climberFeedFwd > 0)
+      smartClimberController.setTarget(_targetClimberHeight, _climberFeedFwd);
+    else smartClimberController.setTargetAndAngle(_targetClimberHeight, 0);
     _isClimbing = true;
   }
 
+  public void setClimberHeightPct(double pctHeight) {
+    setClimberHeight(pctHeight * _climberMaxHeight);
+  }
+
   public double getClimberHeight() {
-    return smartClimberController.getDistance() / _climberMaxHeight;
+    return smartClimberController.getDistance();
+  }
+
+  public double getClimberHeightPct() {
+    return getClimberHeight() / _climberMaxHeight;
   }
 
   public boolean isClimbing() {
     return _isClimbing;
   }
+
   public boolean isResettingClimber() {
     return _isResetLClimber || _isResetRClimber;
   }
@@ -210,20 +227,29 @@ public class Climber extends SubsystemBase {
     smartClimberController.set(kResetClimberSpeed, kResetClimberSpeed);
   }
 
-  public void setPivotLinkAngle(double pctAngle) {
-    _targetPivotAngle =
-        MathUtil.clamp(pctAngle, 0.0, 1.0) * (kMaxPivotLinkAngle - kMinPivotLinkAngle);
-    smartPivotLinkController.setTarget(_targetPivotAngle, 0); // , _climberFeedFwd);
+  public void setPivotLinkAngle(double angleDegrees) {
+    _targetPivotAngle = MathUtil.clamp(angleDegrees, _minPivotLinkAngle, _maxPivotLinkAngle);
+    smartPivotLinkController.setTargetAndAngle(_targetPivotAngle, 0);
+    // smartPivotLinkController.setTarget(_targetPivotAngle, _climberFeedFwd);
     _isPivoting = true;
   }
 
+  public void setPivotLinkPct(double pctAngle) {
+    setPivotLinkAngle(pctAngle * (_maxPivotLinkAngle - _minPivotLinkAngle));
+  }
+
   public double getPivotLinkAngle() {
-    return smartPivotLinkController.getDistance() / (kMaxPivotLinkAngle - kMinPivotLinkAngle);
+    return smartPivotLinkController.getDistance();
+  }
+
+  public double getPivotLinkAnglePct() {
+    return getPivotLinkAngle() / (_maxPivotLinkAngle - _minPivotLinkAngle);
   }
 
   public boolean isPivoting() {
     return _isPivoting;
   }
+
   public boolean isResettingPivot() {
     return _isResetLPivoting || _isResetRPivoting;
   }

@@ -436,17 +436,28 @@ public class SmartMotorController {
         DemandType.ArbitraryFeedForward,
         _feedForwardCalculator.ks);
     if (_auxController != null) {
-      _auxController.follow(_controller, FollowerType.AuxOutput1);
+      _auxController.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
+      _auxController.set(
+          ControlMode.MotionMagic,
+          _nativeSetpoint,
+          DemandType.ArbitraryFeedForward,
+          _feedForwardCalculator.ks);
+      // _auxController.follow(_controller, FollowerType.AuxOutput1);
     }
     _mode = SetPointMode.Distance;
   }
 
-  public void setTarget(double meters, double aux) {
+  public void setTarget(double meters, double _feedfwd) {
+    configureFeedForward(_feedfwd);
+    setTarget(meters);
+  }
+
+  public void setTargetAndAngle(double meters, double angle) {
     _mode = SetPointMode.None;
     _setpoint = meters;
     _nativeSetpoint = _convertor.distanceMetersToNativeUnits(meters);
-    _auxpoint = aux;
-    _nativeAuxpoint = aux * 20.0; // 3600 for 180 degrees
+    _auxpoint = angle;
+    _nativeAuxpoint = angle * 20.0; // 3600 for 180 degrees
 
     _controller.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
     _controller.selectProfileSlot(kSlot_Turning, PID_TURN);

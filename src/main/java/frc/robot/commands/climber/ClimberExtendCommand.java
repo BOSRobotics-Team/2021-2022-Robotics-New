@@ -27,7 +27,7 @@ public class ClimberExtendCommand extends CommandBase {
   public void initialize() {
     Shuffleboard.addEventMarker(
         "ClimberExtendCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-    m_climber.setClimberHeight(m_height);
+    m_climber.setClimberHeightPct(m_height);
 
     System.out.println("ClimberExtendCommand - init : height = " + m_height);
   }
