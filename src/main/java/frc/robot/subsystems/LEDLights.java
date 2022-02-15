@@ -14,6 +14,7 @@ import com.ctre.phoenix.led.TwinkleOffAnimation.TwinkleOffPercent;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Robot;
 
 public class LEDLights extends SubsystemBase {
   public static int LEDCount = 128;
@@ -56,7 +57,7 @@ public class LEDLights extends SubsystemBase {
     }
   }
 
-  public final CANdle m_candle = new CANdle(Constants.kID_CANdle);
+  public final CANdle m_candle;
 
   public enum AnimationTypes {
     ColorFlow,
@@ -71,20 +72,28 @@ public class LEDLights extends SubsystemBase {
     SetAll
   }
 
-  private AnimationTypes m_currentAnimation;
+  private AnimationTypes m_currentAnimation = AnimationTypes.SetAll;
   private Animation m_toAnimate = null;
   private final int LedCount = 128;
 
-  public LEDLights() {
-    changeAnimation(AnimationTypes.SetAll, LEDColor.kWhite);
+  public LEDLights(boolean sim) {
+    m_candle = sim ? null : new CANdle(Constants.kID_CANdle);
 
-    CANdleConfiguration configAll = new CANdleConfiguration();
-    configAll.statusLedOffWhenActive = true;
-    configAll.disableWhenLOS = false;
-    configAll.stripType = LEDStripType.GRB;
-    configAll.brightnessScalar = 0.5;
-    configAll.vBatOutputMode = VBatOutputMode.Modulated;
-    m_candle.configAllSettings(configAll, 100);
+    if (m_candle != null) {
+      changeAnimation(AnimationTypes.SetAll, LEDColor.kWhite);
+
+      CANdleConfiguration configAll = new CANdleConfiguration();
+      configAll.statusLedOffWhenActive = true;
+      configAll.disableWhenLOS = false;
+      configAll.stripType = LEDStripType.GRB;
+      configAll.brightnessScalar = 0.5;
+      configAll.vBatOutputMode = VBatOutputMode.Modulated;
+      m_candle.configAllSettings(configAll, 100);
+    }
+  }
+
+  public LEDLights() {
+    this(Robot.isSimulation());
   }
 
   public void incrementAnimation() {
@@ -163,35 +172,35 @@ public class LEDLights extends SubsystemBase {
 
   /* Wrappers so we can access the CANdle from the subsystem */
   public double getVbat() {
-    return m_candle.getBusVoltage();
+    return m_candle != null ? m_candle.getBusVoltage() : 0;
   }
 
   public double get5V() {
-    return m_candle.get5VRailVoltage();
+    return m_candle != null ? m_candle.get5VRailVoltage() : 0;
   }
 
   public double getCurrent() {
-    return m_candle.getCurrent();
+    return m_candle != null ? m_candle.getCurrent() : 0;
   }
 
   public double getTemperature() {
-    return m_candle.getTemperature();
+    return m_candle != null ? m_candle.getTemperature() : 0;
   }
 
   public void configBrightness(double percent) {
-    m_candle.configBrightnessScalar(percent, 0);
+    if (m_candle != null) m_candle.configBrightnessScalar(percent, 0);
   }
 
   public void configLos(boolean disableWhenLos) {
-    m_candle.configLOSBehavior(disableWhenLos, 0);
+    if (m_candle != null) m_candle.configLOSBehavior(disableWhenLos, 0);
   }
 
   public void configLedType(LEDStripType type) {
-    m_candle.configLEDType(type, 0);
+    if (m_candle != null) m_candle.configLEDType(type, 0);
   }
 
   public void configStatusLedBehavior(boolean offWhenActive) {
-    m_candle.configStatusLedState(offWhenActive, 0);
+    if (m_candle != null) m_candle.configStatusLedState(offWhenActive, 0);
   }
 
   public void changeAnimation(AnimationTypes toChange, LEDColor color) {
@@ -273,7 +282,7 @@ public class LEDLights extends SubsystemBase {
   public void periodic() {
     // Put code here to be run every loop
     if (isAnimating()) {
-      m_candle.animate(m_toAnimate);
+      if (m_candle != null) m_candle.animate(m_toAnimate);
     }
   }
 
@@ -289,24 +298,29 @@ public class LEDLights extends SubsystemBase {
   // Put methods for controlling this subsystem
   // here. Call these from Commands.
   public void runLights(int red, int green, int blue) {
-    m_candle.setLEDs(red, green, blue);
+    if (m_candle != null) m_candle.setLEDs(red, green, blue);
   }
 
   public void runLights(LEDColor color) {
-    m_candle.setLEDs(
-        color.red, color.green, color.blue, color.white, color.startIndex, color.count);
+    if (m_candle != null)
+      m_candle.setLEDs(
+          color.red, color.green, color.blue, color.white, color.startIndex, color.count);
   }
 
   public void setOnboardLights(LEDColor color) {
-    int start = Math.min(color.startIndex, 7);
-    int count = Math.min(8 - start, color.count);
-    m_candle.setLEDs(color.red, color.green, color.blue, color.white, start, count);
+    if (m_candle != null) {
+      int start = Math.min(color.startIndex, 7);
+      int count = Math.min(8 - start, color.count);
+      m_candle.setLEDs(color.red, color.green, color.blue, color.white, start, count);
+    }
   }
 
   public void setStripLights(LEDColor color) {
-    int start = Math.max(8 + color.startIndex, 8);
-    int count = Math.min(LedCount - 8, color.count - 8);
-    m_candle.setLEDs(color.red, color.green, color.blue, color.white, start, count);
+    if (m_candle != null) {
+      int start = Math.max(8 + color.startIndex, 8);
+      int count = Math.min(LedCount - 8, color.count - 8);
+      m_candle.setLEDs(color.red, color.green, color.blue, color.white, start, count);
+    }
   }
 
   public boolean isAnimating() {

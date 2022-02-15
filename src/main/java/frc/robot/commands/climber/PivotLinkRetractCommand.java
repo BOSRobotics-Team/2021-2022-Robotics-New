@@ -24,7 +24,7 @@ public class PivotLinkRetractCommand extends CommandBase {
   public void initialize() {
     Shuffleboard.addEventMarker(
         "PivotLinkRetractCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-    m_climber.setPivotLinkDistance(0.0);
+    m_climber.setPivotLinkAngle(0.0);
     System.out.println("PivotLinkRetractCommand - init : distance = 0.0");
   }
 

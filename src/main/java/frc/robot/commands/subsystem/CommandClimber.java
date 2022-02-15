@@ -30,6 +30,8 @@ public class CommandClimber extends CommandBase {
   public final AutoClimberCommand m_autoClimberCommand;
   public final AutoClimberCommand m_autoClimberInitCommand;
 
+  private double _leftTriggerVal = 0;
+  private double _rightTriggerVal = 0;
   private boolean _manualClimber = false;
 
   public CommandClimber(RobotContainer container) {
@@ -75,37 +77,33 @@ public class CommandClimber extends CommandBase {
     System.out.println("CommandClimber - initialize");
     Shuffleboard.addEventMarker(
         "CommandClimber init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    _leftTriggerVal = _rightTriggerVal = 0;
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   public void execute() {
-    double leftTrig = m_controller.getLeftTriggerAxis();
-    double rightTrig = m_controller.getRightTriggerAxis();
-    if ((leftTrig != 0.0) || (rightTrig != 0.0)) _manualClimber = true;
+    _leftTriggerVal = m_controller.getLeftTriggerAxis();
+    _rightTriggerVal = m_controller.getRightTriggerAxis();
+    if (!_manualClimber && ((_leftTriggerVal != 0.0) || (_rightTriggerVal != 0.0)))
+      _manualClimber = true;
 
     if (_manualClimber) {
-      m_climber.setClimberHeight(leftTrig);
-      m_climber.setPivotLinkDistance(rightTrig);
-      if ((leftTrig == 0.0) && (rightTrig == 0.0)) _manualClimber = false;
+      m_climber.setClimberHeight(_leftTriggerVal);
+      m_climber.setPivotLinkAngle(_rightTriggerVal);
+      _manualClimber = ((_leftTriggerVal > 0.0) || (_rightTriggerVal > 0.0));
     }
   }
 
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    System.out.println("CommandClimber - end : interrupted = " + interrupted);
+    // System.out.println("CommandClimber - end : interrupted = " + interrupted);
     if (interrupted) {
       Shuffleboard.addEventMarker(
           "CommandClimber Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
     }
     Shuffleboard.addEventMarker(
         "CommandClimber end.", this.getClass().getSimpleName(), EventImportance.kNormal);
-  }
-
-  // Make this return true when this Command no longer needs to run execute()
-  @Override
-  public boolean isFinished() {
-    return false;
   }
 }

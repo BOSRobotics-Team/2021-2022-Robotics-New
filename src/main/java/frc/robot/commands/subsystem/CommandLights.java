@@ -20,6 +20,9 @@ public class CommandLights extends CommandBase {
   public final XboxController m_controller;
   public final JoystickButton m_buttons[] = new JoystickButton[11];
 
+  private double _lastVal = 0.0;
+  private double _currentVal = 0.0;
+
   private final LEDAnimationCommand _animationOffCommand;
   private final LEDAnimationRotateCommand _animationRotateCommand;
 
@@ -60,18 +63,19 @@ public class CommandLights extends CommandBase {
     System.out.println("CommandLights - initialize");
     Shuffleboard.addEventMarker(
         "CommandLights init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    _currentVal = _lastVal = 0.0;
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   public void execute() {
     if (!m_lights.isAnimating()) {
-      int lx = (int) ((m_controller.getLeftX() + 1.0) * 0x7FFFFF);
-
-      int red = (lx >> 16) & 0xFF;
-      int green = (lx >> 8) & 0xFF;
-      int blue = lx & 0xFF;
-      m_lights.runLights(red, green, blue);
+      _currentVal = m_controller.getLeftX();
+      if (_currentVal != _lastVal) {
+        int lx = (int) ((_currentVal + 1.0) * 0x7FFFFF);
+        m_lights.runLights((lx >> 16) & 0xFF, (lx >> 8) & 0xFF, lx & 0xFF);
+        _lastVal = _currentVal;
+      }
     }
   }
 

@@ -3,9 +3,8 @@ package frc.robot.util;
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
-import frc.robot.sim.PhysicsSim;
 
 public class SmartMotorController {
   /** ---- Flat constants, you should not need to change these ---- */
@@ -62,6 +61,7 @@ public class SmartMotorController {
 
   private final BaseTalon _controller;
   private final BaseTalon _auxController;
+  private final String _name;
 
   private final int _controllerType;
   private final Convertor _convertor;
@@ -83,20 +83,18 @@ public class SmartMotorController {
   private double _nativeSetpoint = 0.0; // The setpoint in native units.
   private double _auxpoint = 0.0; // The most recently set auxpoint.
   private double _nativeAuxpoint = 0.0; // The auxpoint in native units.
+  private double _currentTrajPos = 0.0; // The current trajectory position.
 
-  public SmartMotorController(final BaseTalon talon, final BaseTalon auxTalon) {
+  public SmartMotorController(final BaseTalon talon, final BaseTalon auxTalon, final String name) {
     _controller = talon;
     _auxController = auxTalon;
+    _name = name;
 
     _controller.configFactoryDefault();
     if (_controller.getClass() == WPI_TalonFX.class) {
       _controllerType = kTalonFX;
-      if (RobotBase.isSimulation())
-        PhysicsSim.getInstance().addTalonFX((WPI_TalonFX) _controller, 0.2, 6800);
     } else if (_controller.getClass() == WPI_TalonSRX.class) {
       _controllerType = kTalonSRX;
-      if (RobotBase.isSimulation())
-        PhysicsSim.getInstance().addTalonSRX((WPI_TalonSRX) _controller, 0.2, 6800);
     } else {
       _controllerType = kTalonNone;
     }
@@ -107,18 +105,11 @@ public class SmartMotorController {
 
     if (_auxController != null) {
       _auxController.configFactoryDefault();
-      if (RobotBase.isSimulation()) {
-        if (_auxController.getClass() == WPI_TalonFX.class) {
-          PhysicsSim.getInstance().addTalonFX((WPI_TalonFX) _auxController, 0.2, 6800);
-        } else if (_auxController.getClass() == WPI_TalonSRX.class) {
-          PhysicsSim.getInstance().addTalonSRX((WPI_TalonSRX) _auxController, 0.2, 6800);
-        }
-      }
     }
   }
 
-  public SmartMotorController(final BaseTalon talon) {
-    this(talon, null);
+  public SmartMotorController(final BaseTalon talon, final String name) {
+    this(talon, null, name);
   }
 
   public void initController() {
@@ -278,6 +269,22 @@ public class SmartMotorController {
       }
       _controller.configSelectedFeedbackCoefficient(0.5, PID_PRIMARY, kTimeoutMs);
     }
+  }
+
+  public double UnitsToMeters(int units) {
+    return _convertor.nativeUnitsToDistanceMeters(units);
+  }
+
+  public double UnitsToVelocity(int units) {
+    return _convertor.nativeUnitsToVelocity(units);
+  }
+
+  public int MetersToUnits(double meters) {
+    return _convertor.distanceMetersToNativeUnits(meters);
+  }
+
+  public int VelocityToUnits(double mps) {
+    return _convertor.velocityToNativeUnits(mps);
   }
 
   /**
@@ -473,20 +480,31 @@ public class SmartMotorController {
 
   /** Resets the position of the Talon to 0. */
   public void resetPosition() {
+    resetLeftPosition();
+    resetRightPosition();
+  }
+
+  public void resetLeftPosition() {
     if (_controllerType == kTalonFX) {
       ((WPI_TalonFX) _controller).getSensorCollection().setIntegratedSensorPosition(0, kTimeoutMs);
-      if (_auxController != null)
+    } else if (_controllerType == kTalonSRX) {
+      ((WPI_TalonSRX) _controller).getSensorCollection().setQuadraturePosition(0, kTimeoutMs);
+    } else {
+      _controller.setSelectedSensorPosition(0, PID_PRIMARY, kTimeoutMs);
+    }
+  }
+
+  public void resetRightPosition() {
+    if (_auxController != null) {
+      if (_controllerType == kTalonFX) {
         ((WPI_TalonFX) _auxController)
             .getSensorCollection()
             .setIntegratedSensorPosition(0, kTimeoutMs);
-    } else if (_controllerType == kTalonSRX) {
-      ((WPI_TalonSRX) _controller).getSensorCollection().setQuadraturePosition(0, kTimeoutMs);
-      if (_auxController != null)
+      } else if (_controllerType == kTalonSRX) {
         ((WPI_TalonSRX) _auxController).getSensorCollection().setQuadraturePosition(0, kTimeoutMs);
-    } else {
-      _controller.setSelectedSensorPosition(0, PID_PRIMARY, kTimeoutMs);
-      if (_auxController != null)
+      } else {
         _auxController.setSelectedSensorPosition(0, PID_PRIMARY, kTimeoutMs);
+      }
     }
   }
 
@@ -519,52 +537,44 @@ public class SmartMotorController {
 
   /** Updates all cached values with current ones. */
   public void update() {
-    if (RobotBase.isSimulation()) {
-      PhysicsSim.getInstance().run();
-    }
-
     switch (_mode) {
       case Distance:
         {
-          double trajPos = getActiveTrajectoryPosition();
-          System.out.println(
-              "SmartMotorController - targetPos: " + _nativeSetpoint + " pos: " + trajPos);
-          if (Math.abs(trajPos - _nativeSetpoint) < 10) _mode = SetPointMode.Finished;
+          _currentTrajPos = getActiveTrajectoryPosition();
+          if (Math.abs(_currentTrajPos - _nativeSetpoint) < 10) _mode = SetPointMode.Finished;
           break;
         }
       case DistanceAux:
         {
-          double trajPos = getActiveTrajectoryPosition();
-          double looptarget = getClosedLoopTarget();
-          double looperror = getClosedLoopError();
-          System.out.println(
-              "SmartMotorController - targetPos: "
-                  + _nativeSetpoint
-                  + " pos: "
-                  + trajPos
-                  + " tgt: "
-                  + looptarget
-                  + " err: "
-                  + looperror);
-          if (Math.abs(trajPos - _nativeSetpoint) < 10) _mode = SetPointMode.Finished;
+          _currentTrajPos = getActiveTrajectoryPosition();
+          if (Math.abs(_currentTrajPos - _nativeSetpoint) < 10) _mode = SetPointMode.Finished;
           break;
         }
       case Velocity:
         {
-          double trajVel = getActiveTrajectoryVelocity();
-          System.out.println(
-              "SmartMotorController - targetPos: " + _nativeSetpoint + " pos: " + trajVel);
-          if (Math.abs(trajVel - _nativeSetpoint) < 10) _mode = SetPointMode.Finished;
+          _currentTrajPos = getActiveTrajectoryVelocity();
+          if (Math.abs(_currentTrajPos - _nativeSetpoint) < 10) _mode = SetPointMode.Finished;
 
           _controller.getFaults(_faults);
           if (_faults.SensorOutOfPhase) {
-            double leftVelUnitsPer100ms = _controller.getSelectedSensorVelocity(0);
-            System.out.println("sensor is out of phase: " + leftVelUnitsPer100ms);
+            System.out.println(
+                "sensor is out of phase: " + _controller.getSelectedSensorVelocity(0));
           }
           break;
         }
       default:
         break;
     }
+  }
+
+  public void logPeriodic() {
+    SmartDashboard.putString(_name + "- Mode", _mode.toString());
+    SmartDashboard.putNumber(_name + "- SetPoint", _nativeSetpoint);
+    SmartDashboard.putNumber(_name + "- AuxPoint", _nativeAuxpoint);
+    SmartDashboard.putNumber(_name + "- ActiveTrajectory", _currentTrajPos);
+    SmartDashboard.putNumber(_name + "- Position", getPosition());
+    SmartDashboard.putNumber(_name + "- Distance", getDistance());
+    if (_auxController != null)
+      SmartDashboard.putNumber(_name + "- AuxPosition", _auxController.getSelectedSensorPosition());
   }
 }

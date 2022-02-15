@@ -56,10 +56,4 @@ public class CommandShooter extends CommandBase {
     Shuffleboard.addEventMarker(
         "CommandShooter end.", this.getClass().getSimpleName(), EventImportance.kNormal);
   }
-
-  // Make this return true when this Command no longer needs to run execute()
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
 }

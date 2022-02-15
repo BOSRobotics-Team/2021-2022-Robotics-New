@@ -82,6 +82,15 @@ package frc.robot.unused;
 //     // this.configController(_intakeController, kDefaultGains_Velocity);
 //     // _intakeController.setNeutralMode(NeutralMode.Coast);
 //     // _intakeConvertor.setRatios(kGearRatio_Intake);
+
+    // if (RobotBase.isSimulation())
+    // PhysicsSim.getInstance().addTalonFX((WPI_TalonFX) _controller, 0.2, 6800);
+    // if (RobotBase.isSimulation())
+    // PhysicsSim.getInstance().addTalonSRX((WPI_TalonSRX) _controller, 0.2, 6800);
+    // if (RobotBase.isSimulation()) {
+    // PhysicsSim.getInstance().run();
+    // }
+
 //   }
 
 //   // public void configController(WPI_TalonSRX _controller, Gains gain) {

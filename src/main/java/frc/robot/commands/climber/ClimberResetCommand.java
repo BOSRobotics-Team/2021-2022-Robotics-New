@@ -23,26 +23,26 @@ public class ClimberResetCommand extends CommandBase {
   @Override
   public void initialize() {
     Shuffleboard.addEventMarker(
-        "ClimberRetrackCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        "ClimberResetCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
     m_climber.resetClimber();
-    // m_climber.resetPivotLink();
+    m_climber.resetPivotLink();
 
-    System.out.println("ClimberRetrackCommand - init");
+    System.out.println("ClimberResetCommand - init");
   }
 
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    System.out.println("ClimberRetrackCommand - end : interrupted = " + interrupted);
+    System.out.println("ClimberResetCommand - end : interrupted = " + interrupted);
 
     if (interrupted) {
       Shuffleboard.addEventMarker(
-          "ClimberRetrackCommand Interrupted!",
+          "ClimberResetCommand Interrupted!",
           this.getClass().getSimpleName(),
           EventImportance.kNormal);
     }
     Shuffleboard.addEventMarker(
-        "ClimberRetrackCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        "ClimberResetCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
   }
 
   // Make this return true when this Command no longer needs to run execute()

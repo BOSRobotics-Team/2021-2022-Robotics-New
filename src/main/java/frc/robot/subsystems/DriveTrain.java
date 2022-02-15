@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
@@ -32,29 +33,18 @@ public class DriveTrain extends SubsystemBase {
   private final WPI_VictorSPX rightFollower = new WPI_VictorSPX(Constants.kID_RFollowDrive);
   private final WPI_VictorSPX leftFollower = new WPI_VictorSPX(Constants.kID_LFollowDrive);
 
-  public final SmartMotorController smartController =
-      new SmartMotorController(leftMaster, rightMaster);
+  private final TalonFXSimCollection leftMasterSim = leftMaster.getSimCollection();
+  private final TalonFXSimCollection rightMasterSim = rightMaster.getSimCollection();
 
-  /** The NavX gyro */
-  private final DriveGyro gyro = new DriveGyro(true);
+  public final SmartMotorController smartController =
+      new SmartMotorController(leftMaster, rightMaster, "DriveTrain");
 
   public final DifferentialDrive differentialDrive;
 
-  /* Simulation model of the drivetrain */
-  private final DifferentialDrivetrainSim m_driveSim =
-      new DifferentialDrivetrainSim(
-          DCMotor.getCIM(2), // 2 CIMS on each side of the drivetrain.
-          SmartMotorController.kDefaultGearRatio.kGearRatio, // Standard AndyMark Gearing reduction.
-          2.1, // MOI of 2.1 kg m^2 (from CAD model).
-          26.5, // Mass of the robot is 26.5 kg.
-          Units.inchesToMeters(
-              SmartMotorController.kDefaultGearRatio
-                  .kWheelRadiusInches), // Robot uses 3" radius (6" diameter) wheels.
-          Constants.kWidthChassisMeters, // Distance between wheels is _ meters.
-          null // VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005) //Uncomment this line
-          // to add measurement noise.
-          );
   private final Field2d m_field = new Field2d();
+
+  /** The NavX gyro */
+  private final DriveGyro gyro = new DriveGyro(true);
 
   /** Drivetrain odometry tracker for tracking position */
   private final DifferentialDriveOdometry driveOdometry =
@@ -63,6 +53,20 @@ public class DriveTrain extends SubsystemBase {
   /** Drivetrain kinematics processor for measuring individual wheel speeds */
   private final DifferentialDriveKinematics driveKinematics =
       new DifferentialDriveKinematics(Constants.kWidthChassisMeters);
+
+  /* Simulation model of the drivetrain */
+  private final DifferentialDrivetrainSim m_driveSim =
+      new DifferentialDrivetrainSim(
+          DCMotor.getFalcon500(2), // 2 CIMS on each side of the drivetrain.
+          SmartMotorController.kDefaultGearRatio.kGearRatio, // Standard AndyMark Gearing reduction.
+          2.1, // MOI of 2.1 kg m^2 (from CAD model).
+          26.5, // Mass of the robot is 26.5 kg.
+          Units.inchesToMeters(
+              SmartMotorController.kDefaultGearRatio
+                  .kWheelRadiusInches), // Robot uses 3" radius (6" diameter) wheels.
+          Constants.kWidthChassisMeters, // Distance between wheels is _ meters.
+          null // VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005)
+          );
 
   // private boolean voltageCompEnabled = false;
   // private Double maxSpeed;
@@ -92,8 +96,6 @@ public class DriveTrain extends SubsystemBase {
     rightFollower.follow(rightMaster);
     rightFollower.setInverted(InvertType.FollowMaster);
 
-    SmartDashboard.putData("Field2d", m_field);
-
     differentialDrive = new DifferentialDrive(leftMaster, rightMaster);
     differentialDrive.setSafetyEnabled(false);
     differentialDrive.setExpiration(0.1);
@@ -102,6 +104,8 @@ public class DriveTrain extends SubsystemBase {
     resetPosition();
 
     addChild("Differential Drive", differentialDrive);
+
+    SmartDashboard.putData("Field2d", m_field);
   }
 
   public void configForPID() {
@@ -143,9 +147,9 @@ public class DriveTrain extends SubsystemBase {
 
   @Override
   public void simulationPeriodic() {
+
     m_driveSim.setInputs(
-        leftMaster.getSimCollection().getMotorOutputLeadVoltage(),
-        -rightMaster.getSimCollection().getMotorOutputLeadVoltage());
+        leftMasterSim.getMotorOutputLeadVoltage(), -rightMasterSim.getMotorOutputLeadVoltage());
 
     /*
      * Advance the model by 20 ms. Note that if you are running this
@@ -153,7 +157,22 @@ public class DriveTrain extends SubsystemBase {
      * timestep of TimedRobot, this value needs to match it.
      */
     m_driveSim.update(0.02);
+
+    // Update all of our sensors.
+    leftMasterSim.setIntegratedSensorRawPosition(
+        smartController.MetersToUnits(m_driveSim.getLeftPositionMeters()));
+    rightMasterSim.setIntegratedSensorRawPosition(
+        smartController.MetersToUnits(m_driveSim.getRightPositionMeters()));
+    leftMasterSim.setIntegratedSensorVelocity(
+        smartController.VelocityToUnits(m_driveSim.getLeftVelocityMetersPerSecond()));
+    rightMasterSim.setIntegratedSensorVelocity(
+        smartController.VelocityToUnits(m_driveSim.getRightVelocityMetersPerSecond()));
+
     gyro.setRawHeadingDegrees(m_driveSim.getHeading().getDegrees());
+
+    // Update other inputs to Talons
+    leftMasterSim.setBusVoltage(RobotController.getBatteryVoltage());
+    rightMasterSim.setBusVoltage(RobotController.getBatteryVoltage());
   }
 
   public Double getVelocity() {
@@ -279,8 +298,6 @@ public class DriveTrain extends SubsystemBase {
     // smartController.logPeriodic();
 
     SmartDashboard.putData("Field2d", m_field);
-    SmartDashboard.putNumber("LeftMasterNative", getLeftDistance());
-    SmartDashboard.putNumber("RightMasterNative", getRightDistance());
   }
 
   public void enableDriveTrain(boolean enable) {

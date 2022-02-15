@@ -9,7 +9,6 @@ import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
-import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.*;
@@ -55,25 +54,8 @@ public class RobotContainer {
   public final CommandLights m_cmdLightsCommand = new CommandLights(this);
   public final CommandShooter m_cmdShooterCommand = new CommandShooter(this);
 
-  class LogPeriodic implements java.lang.Runnable {
-    public static final double _period = 0.1;
-    private final RobotContainer _container;
-
-    public LogPeriodic(RobotContainer container) {
-      _container = container;
-    }
-
-    public void run() {
-      _container.logPeriodic();
-    }
-  }
-
-  public final Notifier _periodic;
-
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    _periodic = new Notifier(new LogPeriodic(this));
-
     driveTrain.setDefaultCommand(m_cmdDriveTrainCommand);
     climber.setDefaultCommand(m_cmdClimberCommand);
     lights.setDefaultCommand(m_cmdLightsCommand);
@@ -97,7 +79,6 @@ public class RobotContainer {
       cam1 = CameraServer.startAutomaticCapture(1);
       cam2 = CameraServer.startAutomaticCapture(2);
     }
-    _periodic.startPeriodic(LogPeriodic._period);
   }
 
   public void logPeriodic() {
