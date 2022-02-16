@@ -8,15 +8,12 @@ import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.*;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.*;
+import frc.robot.sim.*;
 import frc.robot.util.*;
 import frc.robot.wrappers.*;
 
@@ -32,9 +29,6 @@ public class DriveTrain extends SubsystemBase {
   private final WPI_TalonFX leftMaster = new WPI_TalonFX(Constants.kID_LMasterDrive);
   private final WPI_VictorSPX rightFollower = new WPI_VictorSPX(Constants.kID_RFollowDrive);
   private final WPI_VictorSPX leftFollower = new WPI_VictorSPX(Constants.kID_LFollowDrive);
-
-  private final TalonFXSimCollection leftMasterSim = leftMaster.getSimCollection();
-  private final TalonFXSimCollection rightMasterSim = rightMaster.getSimCollection();
 
   public final SmartMotorController smartController =
       new SmartMotorController(leftMaster, rightMaster, "DriveTrain");
@@ -54,19 +48,14 @@ public class DriveTrain extends SubsystemBase {
   private final DifferentialDriveKinematics driveKinematics =
       new DifferentialDriveKinematics(Constants.kWidthChassisMeters);
 
-  /* Simulation model of the drivetrain */
-  private final DifferentialDrivetrainSim m_driveSim =
-      new DifferentialDrivetrainSim(
-          DCMotor.getFalcon500(2), // 2 CIMS on each side of the drivetrain.
-          SmartMotorController.kDefaultGearRatio.kGearRatio, // Standard AndyMark Gearing reduction.
-          2.1, // MOI of 2.1 kg m^2 (from CAD model).
-          26.5, // Mass of the robot is 26.5 kg.
-          Units.inchesToMeters(
-              SmartMotorController.kDefaultGearRatio
-                  .kWheelRadiusInches), // Robot uses 3" radius (6" diameter) wheels.
-          Constants.kWidthChassisMeters, // Distance between wheels is _ meters.
-          null // VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005)
-          );
+  private final DrivetrainSim m_drivetrainSim =
+      new DrivetrainSim(
+          leftMaster,
+          rightMaster,
+          gyro,
+          SmartMotorController.kDefaultGearRatio,
+          53.0,
+          Constants.kWidthChassisMeters);
 
   // private boolean voltageCompEnabled = false;
   // private Double maxSpeed;
@@ -128,7 +117,7 @@ public class DriveTrain extends SubsystemBase {
     System.out.println("target (meters) = " + distance);
   }
 
-  public void setTarget(double distance, double angle) {
+  public void setTargetAndAngle(double distance, double angle) {
     smartController.setTargetAndAngle(distance, angle);
     differentialDrive.feed();
     System.out.println("target (meters) = " + distance + " angle: " + angle);
@@ -147,32 +136,7 @@ public class DriveTrain extends SubsystemBase {
 
   @Override
   public void simulationPeriodic() {
-
-    m_driveSim.setInputs(
-        leftMasterSim.getMotorOutputLeadVoltage(), -rightMasterSim.getMotorOutputLeadVoltage());
-
-    /*
-     * Advance the model by 20 ms. Note that if you are running this
-     * subsystem in a separate thread or have changed the nominal
-     * timestep of TimedRobot, this value needs to match it.
-     */
-    m_driveSim.update(0.02);
-
-    // Update all of our sensors.
-    leftMasterSim.setIntegratedSensorRawPosition(
-        smartController.MetersToUnits(m_driveSim.getLeftPositionMeters()));
-    rightMasterSim.setIntegratedSensorRawPosition(
-        smartController.MetersToUnits(m_driveSim.getRightPositionMeters()));
-    leftMasterSim.setIntegratedSensorVelocity(
-        smartController.VelocityToUnits(m_driveSim.getLeftVelocityMetersPerSecond()));
-    rightMasterSim.setIntegratedSensorVelocity(
-        smartController.VelocityToUnits(m_driveSim.getRightVelocityMetersPerSecond()));
-
-    gyro.setRawHeadingDegrees(m_driveSim.getHeading().getDegrees());
-
-    // Update other inputs to Talons
-    leftMasterSim.setBusVoltage(RobotController.getBatteryVoltage());
-    rightMasterSim.setBusVoltage(RobotController.getBatteryVoltage());
+    m_drivetrainSim.run();
   }
 
   public Double getVelocity() {

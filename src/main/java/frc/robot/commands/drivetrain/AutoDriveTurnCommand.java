@@ -48,7 +48,7 @@ public class AutoDriveTurnCommand extends CommandBase {
     m_driveTrain.configForPID2();
     if (_smoothing >= 0) m_driveTrain.configMotionSCurveStrength(_smoothing);
 
-    m_driveTrain.setTarget(_targetDistance, _targetAngle);
+    m_driveTrain.setTargetAndAngle(_targetDistance, _targetAngle);
 
     System.out.println(
         "AutoDriveTurnCommand init : targetDistance = "
