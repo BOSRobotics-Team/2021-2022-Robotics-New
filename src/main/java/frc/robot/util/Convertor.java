@@ -8,33 +8,43 @@ public class Convertor {
   public static final double kWheelRadiusForRadians = Units.metersToInches(1);
   public static final double kWheelRadiusForDegrees = Units.metersToInches(360.0 / k2PI);
 
-  public int _countsPerRev = 2048;
+  public int unitsPerRevolution = 2048;
+  public GearRatios gearRatios;
 
-  public double _metersToUnitsFactor = _countsPerRev / (2. * Math.PI);
+  public double _metersToUnitsFactor = unitsPerRevolution / (2. * Math.PI);
   public double _velToUnitsFactor = _metersToUnitsFactor / k100msPerSecond;
-  public double _unitsToMetersFactor = (2. * Math.PI) / _countsPerRev;
+  public double _unitsToMetersFactor = (2. * Math.PI) / unitsPerRevolution;
   public double _unitsToVelFactor = _unitsToMetersFactor * k100msPerSecond;
+  public double _wheelCircumferenceMeters = Units.inchesToMeters(k2PI * kWheelRadiusForRadians);
 
-  public Convertor(int countsPerRev) {
-    _countsPerRev = countsPerRev;
+  public Convertor(int unitsPerRev, GearRatios ratios) {
+    unitsPerRevolution = unitsPerRev;
+    gearRatios = ratios;
+    this.setRatios(gearRatios);
   }
 
-  public Convertor(int countsPerRev, GearRatios gearRatio) {
-    _countsPerRev = countsPerRev;
-    this.setRatios(gearRatio);
-  }
-
-  public void setRatios(double gearRatio, double wheelRadiusInches, double pulleyRatio) {
-    double wheelCircumferenceMeters = Units.inchesToMeters(k2PI * wheelRadiusInches);
-    _metersToUnitsFactor = _countsPerRev * pulleyRatio * gearRatio / wheelCircumferenceMeters;
-    _velToUnitsFactor = _metersToUnitsFactor / k100msPerSecond;
-
-    _unitsToMetersFactor = wheelCircumferenceMeters / (_countsPerRev * pulleyRatio * gearRatio);
-    _unitsToVelFactor = _unitsToMetersFactor * k100msPerSecond;
+  public Convertor(int unitsPerRev) {
+    this(unitsPerRev, new GearRatios(1.0, kWheelRadiusForRadians, 1.0));
   }
 
   public void setRatios(GearRatios ratios) {
-    this.setRatios(ratios.kGearRatio, ratios.kWheelRadiusInches, ratios.kPulleyRatio);
+    gearRatios = ratios;
+    _wheelCircumferenceMeters = Units.inchesToMeters(k2PI * gearRatios.kWheelRadiusInches);
+    _metersToUnitsFactor =
+        unitsPerRevolution
+            * gearRatios.kPulleyRatio
+            * gearRatios.kGearRatio
+            / _wheelCircumferenceMeters;
+    _velToUnitsFactor = _metersToUnitsFactor / k100msPerSecond;
+
+    _unitsToMetersFactor =
+        _wheelCircumferenceMeters
+            / (unitsPerRevolution * gearRatios.kPulleyRatio * gearRatios.kGearRatio);
+    _unitsToVelFactor = _unitsToMetersFactor * k100msPerSecond;
+  }
+
+  public void setRatios(double gearRatio, double wheelRadiusInches, double pulleyRatio) {
+    this.setRatios(new GearRatios(gearRatio, wheelRadiusInches, pulleyRatio));
   }
 
   public int distanceMetersToNativeUnits(double positionMeters) {

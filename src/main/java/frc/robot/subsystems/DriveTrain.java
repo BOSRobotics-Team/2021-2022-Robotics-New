@@ -53,8 +53,8 @@ public class DriveTrain extends SubsystemBase {
           leftMaster,
           rightMaster,
           gyro,
-          SmartMotorController.kDefaultGearRatio,
-          53.0,
+          smartController.convertor,
+          23.0, // 53.0,
           Constants.kWidthChassisMeters);
 
   // private boolean voltageCompEnabled = false;
@@ -221,6 +221,7 @@ public class DriveTrain extends SubsystemBase {
         getRightDistance());
     m_field.setRobotPose(driveOdometry.getPoseMeters());
     SmartDashboard.putString("Heading", driveOdometry.getPoseMeters().getRotation().toString());
+    SmartDashboard.putData("Field2d", m_field);
   }
 
   /** @return Current estimated pose based on odometry tracker data */
@@ -260,8 +261,6 @@ public class DriveTrain extends SubsystemBase {
 
     gyro.logPeriodic();
     // smartController.logPeriodic();
-
-    SmartDashboard.putData("Field2d", m_field);
   }
 
   public void enableDriveTrain(boolean enable) {
@@ -325,12 +324,16 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public void drive(XboxController ctrl) {
-    if (m_DriveMode == DriveMode.ARCADE) {
-      this.setOutput(-ctrl.getLeftY(), ctrl.getRightX());
-    } else if (m_DriveMode == DriveMode.TANK) {
-      this.setOutput(-ctrl.getLeftY(), -ctrl.getRightY());
-    } else if (m_DriveMode == DriveMode.CURVATURE) {
-      this.setOutput(-ctrl.getLeftY(), ctrl.getRightX());
+    switch (m_DriveMode) {
+      case ARCADE:
+        this.setOutput(-ctrl.getLeftY(), ctrl.getRightX());
+        break;
+      case TANK:
+        this.setOutput(-ctrl.getLeftY(), -ctrl.getRightY());
+        break;
+      case CURVATURE:
+        this.setOutput(-ctrl.getLeftY(), ctrl.getRightX());
+        break;
     }
   }
 
@@ -340,12 +343,16 @@ public class DriveTrain extends SubsystemBase {
     _lastLSmoothing = left;
     _lastRSmoothing = right;
 
-    if (m_DriveMode == DriveMode.ARCADE) {
-      this.driveArcade(newleft, newRight, m_UseSquares);
-    } else if (m_DriveMode == DriveMode.TANK) {
-      this.driveTank(newleft, newRight);
-    } else if (m_DriveMode == DriveMode.CURVATURE) {
-      this.driveCurvature(newleft, newRight, m_QuickTurn);
+    switch (m_DriveMode) {
+      case ARCADE:
+        this.driveArcade(newleft, newRight, m_UseSquares);
+        break;
+      case TANK:
+        this.driveTank(newleft, newRight);
+        break;
+      case CURVATURE:
+        this.driveCurvature(newleft, newRight, m_QuickTurn);
+        break;
     }
   }
 

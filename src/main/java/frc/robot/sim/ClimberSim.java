@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.util.Convertor;
-import frc.robot.util.GearRatios;
 
 public class ClimberSim {
   private final WPI_TalonFX _leftClimberController;
@@ -24,7 +23,6 @@ public class ClimberSim {
 
   // Simulation classes help us simulate what's going on, including gravity.
   private final Convertor m_elevatorConvertor;
-  private final GearRatios m_elevatorRatio;
   private final double m_carriageMass;
   private final double m_minElevatorHeight;
   private final double m_maxElevatorHeight;
@@ -32,7 +30,6 @@ public class ClimberSim {
   private final ElevatorSim m_rElevatorSim;
 
   private final Convertor m_armConvertor;
-  private final GearRatios m_armRatio;
   private final double m_armMass;
   private final double m_armLength;
   private final double m_minArmAngle;
@@ -51,12 +48,12 @@ public class ClimberSim {
   public ClimberSim(
       WPI_TalonFX lClimber,
       WPI_TalonFX rClimber,
-      GearRatios climbRatio,
+      Convertor climbConvertor,
       double climbMass,
       double climbHt,
       WPI_TalonFX lPivot,
       WPI_TalonFX rPivot,
-      GearRatios pivotRatio,
+      Convertor pivotConvertor,
       double armMass,
       double armLen,
       double minAngle,
@@ -66,8 +63,7 @@ public class ClimberSim {
     _leftClimberSim = _leftClimberController.getSimCollection();
     _rightClimberSim = _rightClimberController.getSimCollection();
 
-    m_elevatorConvertor = new Convertor(2048, climbRatio);
-    m_elevatorRatio = climbRatio;
+    m_elevatorConvertor = climbConvertor;
     m_carriageMass = climbMass;
     m_minElevatorHeight = 0;
     m_maxElevatorHeight = climbHt;
@@ -75,9 +71,9 @@ public class ClimberSim {
     m_lElevatorSim =
         new ElevatorSim(
             DCMotor.getFalcon500(1),
-            m_elevatorRatio.kGearRatio * m_elevatorRatio.kPulleyRatio,
+            climbConvertor.gearRatios.kGearRatio * climbConvertor.gearRatios.kPulleyRatio,
             m_carriageMass,
-            Units.inchesToMeters(m_elevatorRatio.kWheelRadiusInches),
+            Units.inchesToMeters(climbConvertor.gearRatios.kWheelRadiusInches),
             m_minElevatorHeight,
             m_maxElevatorHeight,
             null // VecBuilder.fill(0.01)
@@ -85,9 +81,9 @@ public class ClimberSim {
     m_rElevatorSim =
         new ElevatorSim(
             DCMotor.getFalcon500(1),
-            m_elevatorRatio.kGearRatio * m_elevatorRatio.kPulleyRatio,
+            climbConvertor.gearRatios.kGearRatio * climbConvertor.gearRatios.kPulleyRatio,
             m_carriageMass,
-            Units.inchesToMeters(m_elevatorRatio.kWheelRadiusInches),
+            Units.inchesToMeters(climbConvertor.gearRatios.kWheelRadiusInches),
             m_minElevatorHeight,
             m_maxElevatorHeight,
             null // VecBuilder.fill(0.01)
@@ -99,8 +95,7 @@ public class ClimberSim {
     _leftPivotSim = _leftPivotLinkController.getSimCollection();
     _rightPivotSim = _rightPivotLinkController.getSimCollection();
 
-    m_armConvertor = new Convertor(2048, pivotRatio);
-    m_armRatio = pivotRatio;
+    m_armConvertor = pivotConvertor;
     m_armMass = armMass;
     m_armLength = armLen;
     m_minArmAngle = Units.degreesToRadians(minAngle);
@@ -108,7 +103,7 @@ public class ClimberSim {
     m_lPivotSim =
         new SingleJointedArmSim(
             DCMotor.getFalcon500(1),
-            m_armRatio.kGearRatio * m_armRatio.kPulleyRatio,
+            m_armConvertor.gearRatios.kGearRatio * m_armConvertor.gearRatios.kPulleyRatio,
             SingleJointedArmSim.estimateMOI(m_armLength, m_armMass),
             m_armLength,
             m_minArmAngle,
@@ -120,7 +115,7 @@ public class ClimberSim {
     m_rPivotSim =
         new SingleJointedArmSim(
             DCMotor.getFalcon500(1),
-            m_armRatio.kGearRatio * m_armRatio.kPulleyRatio,
+            m_armConvertor.gearRatios.kGearRatio * m_armConvertor.gearRatios.kPulleyRatio,
             SingleJointedArmSim.estimateMOI(m_armLength, m_armMass),
             m_armLength,
             m_minArmAngle,

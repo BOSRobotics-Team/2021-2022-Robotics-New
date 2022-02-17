@@ -20,7 +20,6 @@ public class DrivetrainSim {
   private final DriveGyro gyro;
 
   private final Convertor m_driveConvertor;
-  private final GearRatios m_driveRatio;
   private final double m_driveMass;
   private final double m_driveWidth;
 
@@ -31,7 +30,7 @@ public class DrivetrainSim {
       WPI_TalonFX left,
       WPI_TalonFX right,
       DriveGyro gy,
-      GearRatios driveRatio,
+      Convertor driveConvertor,
       double driveMass,
       double driveWidth) {
     leftMaster = left;
@@ -41,19 +40,17 @@ public class DrivetrainSim {
     rightMasterSim = rightMaster.getSimCollection();
 
     gyro = gy;
-    m_driveConvertor = new Convertor(2048, driveRatio);
-    m_driveRatio = driveRatio;
+    m_driveConvertor = driveConvertor;
     m_driveMass = driveMass;
     m_driveWidth = driveWidth;
 
     m_driveSim =
         new DifferentialDrivetrainSim(
             DCMotor.getFalcon500(2), // 2 CIMS on each side of the drivetrain.
-            m_driveRatio.kGearRatio, // Standard AndyMark Gearing reduction.
+            driveConvertor.gearRatios.kGearRatio, // Standard AndyMark Gearing reduction.
             2.1, // MOI of 2.1 kg m^2 (from CAD model).
             m_driveMass, // 26.5, // Mass of the robot is 26.5 kg.
-            Units.inchesToMeters(
-                driveRatio.kWheelRadiusInches), // Robot uses 3" radius (6" diameter) wheels.
+            Units.inchesToMeters(driveConvertor.gearRatios.kWheelRadiusInches), // 3" radius wheels.
             m_driveWidth, // Distance between wheels is _ meters.
             null // VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005)
             );
@@ -69,7 +66,7 @@ public class DrivetrainSim {
     leftMasterSim.setIntegratedSensorRawPosition(
         m_driveConvertor.distanceMetersToNativeUnits(m_driveSim.getLeftPositionMeters()));
     rightMasterSim.setIntegratedSensorRawPosition(
-        m_driveConvertor.distanceMetersToNativeUnits(m_driveSim.getRightPositionMeters()));
+        -m_driveConvertor.distanceMetersToNativeUnits(m_driveSim.getRightPositionMeters()));
     leftMasterSim.setIntegratedSensorVelocity(
         m_driveConvertor.velocityToNativeUnits(m_driveSim.getLeftVelocityMetersPerSecond()));
     rightMasterSim.setIntegratedSensorVelocity(
