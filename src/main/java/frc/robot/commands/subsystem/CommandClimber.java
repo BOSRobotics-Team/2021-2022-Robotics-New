@@ -38,10 +38,14 @@ public class CommandClimber extends CommandBase {
   private double _rightTriggerVal = 0;
   private boolean _manualClimber = false;
 
-  private double _currLStickVal = 0;
-  private double _currRStickVal = 0;
-  private double _lastLStickVal = 0;
-  private double _lastRStickVal = 0;
+  private double _currLStickXVal = 0;
+  private double _currRStickXVal = 0;
+  private double _lastLStickXVal = 0;
+  private double _lastRStickXVal = 0;
+  private double _currLStickYVal = 0;
+  private double _currRStickYVal = 0;
+  private double _lastLStickYVal = 0;
+  private double _lastRStickYVal = 0;
 
   public CommandClimber(RobotContainer container) {
     m_climber = container.climber;
@@ -106,7 +110,8 @@ public class CommandClimber extends CommandBase {
     Shuffleboard.addEventMarker(
         "CommandClimber init.", this.getClass().getSimpleName(), EventImportance.kNormal);
     _leftTriggerVal = _rightTriggerVal = 0;
-    _currLStickVal = _currRStickVal = _lastLStickVal = _lastRStickVal = 0;
+    _currLStickXVal = _currRStickXVal = _lastLStickXVal = _lastRStickXVal = 0;
+    _currLStickYVal = _currRStickYVal = _lastLStickYVal = _lastRStickYVal = 0;
   }
 
   // Called repeatedly when this Command is scheduled to run
@@ -123,21 +128,24 @@ public class CommandClimber extends CommandBase {
       _manualClimber = ((_leftTriggerVal > 0.0) || (_rightTriggerVal > 0.0));
     }
 
-    _currLStickVal = -m_operatorController.getLeftY();
-    if (_currLStickVal != 0) {
-      m_climber.setClimberSpeed(_currLStickVal);
-    } else if (_lastLStickVal != 0) {
-      m_climber.setClimberSpeed(0);
-    }
-    _lastLStickVal = _currLStickVal;
+    _currLStickXVal = m_operatorController.getLeftX();
+    _currLStickYVal = -m_operatorController.getLeftY();
 
-    _currRStickVal = -m_operatorController.getRightY();
-    if (_currRStickVal != 0) {
-      m_climber.setClimberSpeed(_currRStickVal);
-    } else if (_lastRStickVal != 0) {
-      m_climber.setClimberSpeed(0);
+    _currRStickXVal = m_operatorController.getRightX();
+    _currRStickYVal = -m_operatorController.getRightY();
+
+    if ((_currLStickYVal != 0) || (_currRStickYVal != 0) ||
+        (_lastLStickYVal != 0) || (_lastRStickYVal != 0)) {
+      m_climber.setClimberSpeed(_currLStickYVal, _currRStickYVal);
     }
-    _lastRStickVal = _currRStickVal;
+    if ((_currLStickXVal != 0) || (_currRStickXVal != 0) ||
+        (_lastLStickXVal != 0) || (_lastRStickXVal != 0)) {
+      m_climber.setPivotLinkSpeed(_currLStickXVal, _currRStickXVal);
+    }
+    _lastLStickXVal = _currLStickXVal;
+    _lastLStickYVal = _currLStickYVal;
+    _lastRStickXVal = _currRStickXVal;
+    _lastRStickYVal = _currRStickYVal;
   }
 
   // Called once after isFinished returns true
