@@ -43,7 +43,7 @@ public class Climber extends SubsystemBase {
   private double _climberFeedFwd = 0.0;
 
   private final GearRatios kGearRatio_PivotLink =
-      new GearRatios(100.0, Convertor.kWheelRadiusForDegrees, 2.0);
+      new GearRatios(100.0, Convertor.kWheelRadiusForDegrees, 1.75);
   private final Gains kGains_PivotLink = new Gains(0.2, 0.0, 0.0, 0.2, 0, 0.3);
   private final Gains kGains_PivotLinkTurn = new Gains(0.1, 0.0, 0.0, 0.1, 0, 0.3);
   private final double kPivotLinkMass = 3.0; // Kilograms

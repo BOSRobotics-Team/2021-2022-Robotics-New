@@ -31,7 +31,7 @@ public class RobotContainer {
   public final DriveTrain driveTrain = new DriveTrain();
   // public final Intake intake = new Intake();
   public final Climber climber = new Climber();
-  public final LEDLights lights = new LEDLights();
+  public final LEDLights lights = new LEDLights(true);
   public final Shooter shooter = new Shooter();
 
   // //Driver Controller
