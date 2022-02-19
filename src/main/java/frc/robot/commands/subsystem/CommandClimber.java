@@ -145,8 +145,8 @@ public class CommandClimber extends CommandBase {
     _leftTriggerVal[kLast] = _leftTriggerVal[kCurr];
     _rightTriggerVal[kLast] = _rightTriggerVal[kCurr];
 
-    _LStickVal[kY][kCurr] = -m_operatorController.getLeftY();
-    _RStickVal[kY][kCurr] = -m_operatorController.getRightY();
+    _LStickVal[kY][kCurr] = -m_operatorController.getLeftY() * 0.4;
+    _RStickVal[kY][kCurr] = -m_operatorController.getRightY() * 0.4;
     if ((_LStickVal[kY][kCurr] != 0)
         || (_RStickVal[kY][kCurr] != 0)
         || (_LStickVal[kY][kLast] != 0)
@@ -156,8 +156,8 @@ public class CommandClimber extends CommandBase {
     _LStickVal[kY][kLast] = _LStickVal[kY][kCurr];
     _RStickVal[kY][kLast] = _RStickVal[kY][kCurr];
 
-    _LStickVal[kX][kCurr] = m_operatorController.getLeftX();
-    _RStickVal[kX][kCurr] = m_operatorController.getRightX();
+    _LStickVal[kX][kCurr] = m_operatorController.getLeftX() * 0.1;
+    _RStickVal[kX][kCurr] = m_operatorController.getRightX() * 0.1;
     if ((_LStickVal[kX][kCurr] != 0)
         || (_RStickVal[kX][kCurr] != 0)
         || (_LStickVal[kX][kLast] != 0)
