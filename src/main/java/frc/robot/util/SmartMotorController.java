@@ -437,6 +437,8 @@ public class SmartMotorController {
         _nativeSetpoint,
         DemandType.ArbitraryFeedForward,
         _feedForwardCalculator.ks);
+    System.out.println(
+        name + " setTarget - " + _nativeSetpoint + " ffwd: " + _feedForwardCalculator.ks);
     if (_auxController != null) {
       // _auxController.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
       // _auxController.set(
@@ -464,6 +466,8 @@ public class SmartMotorController {
     _controller.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
     _controller.selectProfileSlot(kSlot_Turning, PID_TURN);
     _controller.set(ControlMode.MotionMagic, _nativeSetpoint, DemandType.AuxPID, _nativeAuxpoint);
+    System.out.println(
+        name + " setTargetAndAngle - " + _nativeSetpoint + " ffwd: " + _feedForwardCalculator.ks);
     if (_auxController != null) {
       _auxController.follow(_controller, FollowerType.AuxOutput1);
     }

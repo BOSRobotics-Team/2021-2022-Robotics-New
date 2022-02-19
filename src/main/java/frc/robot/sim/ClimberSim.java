@@ -175,10 +175,10 @@ public class ClimberSim {
 
     _leftPivotSim.setIntegratedSensorRawPosition(
         m_armConvertor.distanceMetersToNativeUnits(
-            Units.radiansToDegrees(m_lPivotSim.getAngleRads() - m_minArmAngle)));
+            Units.radiansToDegrees(m_lPivotSim.getAngleRads() - m_maxArmAngle)));
     _rightPivotSim.setIntegratedSensorRawPosition(
         -m_armConvertor.distanceMetersToNativeUnits(
-            Units.radiansToDegrees(m_rPivotSim.getAngleRads() - m_minArmAngle)));
+            Units.radiansToDegrees(m_rPivotSim.getAngleRads() - m_maxArmAngle)));
 
     // SimBattery estimates loaded battery voltages
     RoboRioSim.setVInVoltage(

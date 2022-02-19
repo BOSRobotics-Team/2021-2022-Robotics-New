@@ -7,6 +7,7 @@ package frc.robot.commands.subsystem;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.shuffleboard.*;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.*;
 import frc.robot.RobotContainer;
@@ -41,8 +42,16 @@ public class CommandClimber extends CommandBase {
   private double _leftTriggerVal[] = {0, 0};
   private double _rightTriggerVal[] = {0, 0};
 
-  private double _LStickVal[][] = {{0, 0}, {0, 0}};
-  private double _RStickVal[][] = {{0, 0}, {0, 0}};
+  private double _LStickVal[] = {0, 0};
+  private double _RStickVal[] = {0, 0};
+
+  public enum ClimbingMode {
+    DefaultMode,
+    Manual,
+    Trigger
+  }
+
+  public ClimbingMode climbingMode = ClimbingMode.DefaultMode;
 
   public CommandClimber(RobotContainer container) {
     m_climber = container.climber;
@@ -85,7 +94,11 @@ public class CommandClimber extends CommandBase {
 
     m_operatorButtons[Button.kBack.value] =
         new JoystickButton(m_operatorController, Button.kBack.value);
-    m_operatorButtons[Button.kBack.value].whenPressed(() -> m_climber.resetClimber());
+    m_operatorButtons[Button.kBack.value].whenPressed(() -> m_climber.zeroClimberPosition());
+
+    m_operatorButtons[Button.kLeftStick.value] =
+        new JoystickButton(m_operatorController, Button.kLeftStick.value);
+    m_operatorButtons[Button.kLeftStick.value].whenPressed(() -> toggleClimbingMode());
 
     m_operatorButtons[Button.kLeftBumper.value] =
         new JoystickButton(m_operatorController, Button.kLeftBumper.value);
@@ -99,20 +112,16 @@ public class CommandClimber extends CommandBase {
         .whenPressed(() -> m_climber.tripPivotRevLimitSwitches_test(true))
         .whenReleased(() -> m_climber.tripPivotRevLimitSwitches_test(false));
     m_operatorPOVs[0] = new POVButton(m_operatorController, 0);
-    m_operatorPOVs[0].whileHeld(
-        () -> m_climber.setClimberHeightPct(m_climber.getClimberHeightPct() + 0.01));
+    m_operatorPOVs[0].whileHeld(() -> m_climber.setClimberHeightInc(0.01));
 
-    m_operatorPOVs[1] = new POVButton(m_operatorController, 90);
-    m_operatorPOVs[1].whileHeld(
-        () -> m_climber.setClimberHeightPct(m_climber.getClimberHeightPct() - 0.01));
+    m_operatorPOVs[1] = new POVButton(m_operatorController, 180);
+    m_operatorPOVs[1].whileHeld(() -> m_climber.setClimberHeightInc(-0.01));
 
-    m_operatorPOVs[2] = new POVButton(m_operatorController, 180);
-    m_operatorPOVs[2].whileHeld(
-        () -> m_climber.setPivotLinkAnglePct(m_climber.getPivotLinkAnglePct() + 0.01));
+    m_operatorPOVs[2] = new POVButton(m_operatorController, 270);
+    m_operatorPOVs[2].whileHeld(() -> m_climber.setPivotLinkAngleInc(0.01));
 
-    m_operatorPOVs[3] = new POVButton(m_operatorController, 270);
-    m_operatorPOVs[3].whileHeld(
-        () -> m_climber.setPivotLinkAnglePct(m_climber.getPivotLinkAnglePct() - 0.01));
+    m_operatorPOVs[3] = new POVButton(m_operatorController, 90);
+    m_operatorPOVs[3].whileHeld(() -> m_climber.setPivotLinkAngleInc(-0.01));
   }
 
   // Called just before this Command runs the first time
@@ -124,50 +133,47 @@ public class CommandClimber extends CommandBase {
     _leftTriggerVal[kLast] = _leftTriggerVal[kCurr] = 0;
     _rightTriggerVal[kLast] = _rightTriggerVal[kCurr] = 0;
 
-    _LStickVal[kX][kCurr] = _LStickVal[kX][kLast] = 0;
-    _RStickVal[kX][kCurr] = _RStickVal[kX][kLast] = 0;
-    _LStickVal[kY][kCurr] = _LStickVal[kY][kLast] = 0;
-    _RStickVal[kY][kCurr] = _RStickVal[kY][kLast] = 0;
+    _LStickVal[kX] = 0;
+    _RStickVal[kX] = 0;
+    _LStickVal[kY] = 0;
+    _RStickVal[kY] = 0;
+
+    SmartDashboard.putString("ClimbingMode", climbingMode.toString());
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   public void execute() {
-    _leftTriggerVal[kCurr] = m_driverController.getLeftTriggerAxis();
-    _rightTriggerVal[kCurr] = m_driverController.getRightTriggerAxis();
-    if ((_leftTriggerVal[kCurr] != 0.0)
-        || (_rightTriggerVal[kCurr] != 0.0)
-        || (_leftTriggerVal[kLast] != 0.0)
-        || (_rightTriggerVal[kLast] != 0.0)) {
-      m_climber.setClimberHeightPct(_leftTriggerVal[kCurr]);
-      m_climber.setPivotLinkAnglePct(_rightTriggerVal[kCurr]);
-    }
-    _leftTriggerVal[kLast] = _leftTriggerVal[kCurr];
-    _rightTriggerVal[kLast] = _rightTriggerVal[kCurr];
 
-    _LStickVal[kY][kCurr] = -m_operatorController.getLeftY() * 0.4;
-    _RStickVal[kY][kCurr] = -m_operatorController.getRightY() * 0.4;
-    if ((_LStickVal[kY][kCurr] != 0)
-        || (_RStickVal[kY][kCurr] != 0)
-        || (_LStickVal[kY][kLast] != 0)
-        || (_RStickVal[kY][kLast] != 0)) {
-      m_climber.setClimberSpeed(_LStickVal[kY][kCurr], _RStickVal[kY][kCurr]);
-    }
-    _LStickVal[kY][kLast] = _LStickVal[kY][kCurr];
-    _RStickVal[kY][kLast] = _RStickVal[kY][kCurr];
+    switch (climbingMode) {
+      case DefaultMode:
+        break;
+      case Manual:
+        {
+          _LStickVal[kY] = -m_operatorController.getLeftY() * 0.4;
+          _RStickVal[kY] = -m_operatorController.getRightY() * 0.4;
+          m_climber.setClimberSpeed(_LStickVal[kY], _RStickVal[kY]);
 
-    _LStickVal[kX][kCurr] = m_operatorController.getLeftX() * 0.1;
-    _RStickVal[kX][kCurr] = m_operatorController.getRightX() * 0.1;
-    if ((_LStickVal[kX][kCurr] != 0)
-        || (_RStickVal[kX][kCurr] != 0)
-        || (_LStickVal[kX][kLast] != 0)
-        || (_RStickVal[kX][kLast] != 0)) {
-      m_climber.setPivotLinkSpeed(_LStickVal[kX][kCurr], _RStickVal[kX][kCurr]);
+          _LStickVal[kX] = m_operatorController.getLeftX() * 0.1;
+          _RStickVal[kX] = m_operatorController.getRightX() * 0.1;
+          m_climber.setPivotLinkSpeed(_LStickVal[kX], _RStickVal[kX]);
+        }
+      case Trigger:
+        {
+          _leftTriggerVal[kCurr] = m_driverController.getLeftTriggerAxis();
+          _rightTriggerVal[kCurr] = m_driverController.getRightTriggerAxis();
+          if ((_leftTriggerVal[kCurr] != 0.0)
+              || (_rightTriggerVal[kCurr] != 0.0)
+              || (_leftTriggerVal[kLast] != 0.0)
+              || (_rightTriggerVal[kLast] != 0.0)) {
+            m_climber.setClimberHeightPct(_leftTriggerVal[kCurr]);
+            m_climber.setPivotLinkAnglePct(_rightTriggerVal[kCurr]);
+          }
+          _leftTriggerVal[kLast] = _leftTriggerVal[kCurr];
+          _rightTriggerVal[kLast] = _rightTriggerVal[kCurr];
+        }
     }
-    _LStickVal[kX][kLast] = _LStickVal[kX][kCurr];
-    _RStickVal[kX][kLast] = _RStickVal[kX][kCurr];
   }
-
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
@@ -178,5 +184,19 @@ public class CommandClimber extends CommandBase {
     }
     Shuffleboard.addEventMarker(
         "CommandClimber end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+  }
+
+  public void toggleClimbingMode() {
+    switch (climbingMode) {
+      case DefaultMode:
+        climbingMode = ClimbingMode.Manual;
+        break;
+      case Manual:
+        climbingMode = ClimbingMode.Trigger;
+        break;
+      case Trigger:
+        climbingMode = ClimbingMode.DefaultMode;
+    }
+    SmartDashboard.putString("ClimbingMode", climbingMode.toString());
   }
 }
