@@ -25,27 +25,15 @@ public class Climber extends SubsystemBase {
   private final SmartMotorController smartPivotLinkController =
       new SmartMotorController(_rightPivotLinkController, _leftPivotLinkController, "Pivot");
 
-  private final GearRatios kGearRatio_Climber = new GearRatios(20.0, 0.5, 1.0);
-  private final Gains kGains_Climber = new Gains(0.2, 0.0, 0.0, 0., 0, 1.0);
-  private final Gains kGains_ClimberTurn = new Gains(0.1, 0.0, 0.0, 0., 0, 1.0);
-  private final double kCarriageMass = 54.0; // Kilograms
   private final double kResetClimberSpeed = -0.05;
   private boolean _isClimbing = false;
   private boolean _isResetLClimber = false;
   private boolean _isResetRClimber = false;
   private boolean _isClimberRevLimitSwitchTest = false;
-  // private double _currLClimberHeight = 0.0;
-  // private double _currRClimberHeight = 0.0;
-  // private double _lastLClimberHeight = 0.0;
-  // private double _lastRClimberHeight = 0.0;
   private double _targetClimberHeight = 0;
   private double _climberMaxHeight = 0.55;
   private double _climberFeedFwd = 0.0;
 
-  private final GearRatios kGearRatio_PivotLink =
-      new GearRatios(100.0, Convertor.kWheelRadiusForDegrees, 1.75);
-  private final Gains kGains_PivotLink = new Gains(0.2, 0.0, 0.0, 0.2, 0, 0.3);
-  private final Gains kGains_PivotLinkTurn = new Gains(0.1, 0.0, 0.0, 0.1, 0, 0.3);
   private final double kPivotLinkMass = 3.0; // Kilograms
   private final double kPivotLinkLength = Units.inchesToMeters(30);
   private final double kResetPivotSpeed = -0.05;
@@ -53,22 +41,18 @@ public class Climber extends SubsystemBase {
   private boolean _isResetLPivoting = false;
   private boolean _isResetRPivoting = false;
   private boolean _isPivotRevLimitSwitchTest = false;
-  // private double _currLPivotAngle = 0.0;
-  // private double _currRPivotAngle = 0.0;
-  // private double _lastLPivotAngle = 0.0;
-  // private double _lastRPivotAngle = 0.0;
-  private double _resetThresholdUnits = 10;
   private double _targetPivotAngle = 0;
   private double _minPivotLinkAngle = 50.0;
   private double _maxPivotLinkAngle = 130.0;
   private double _pivotFeedFwd = 0.0;
+  // private double _resetThresholdUnits = 10;
 
   private final ClimberSim _climberSim =
       new ClimberSim(
           _leftClimberController,
           _rightClimberController,
           smartClimberController.convertor,
-          kCarriageMass,
+          Constants.kDriveCarriageMass,
           Units.inchesToMeters(21.65),
           _leftPivotLinkController,
           _rightPivotLinkController,
@@ -84,31 +68,33 @@ public class Climber extends SubsystemBase {
     Preferences.initDouble("PivotFeedForward", 0.0);
     Preferences.initDouble("MinPivotLinkAngle", 50.0);
     Preferences.initDouble("MaxPivotLinkAngle", 130.0);
-    Preferences.initDouble("ResetThresholdUnits", 10.0);
+    // Preferences.initDouble("ResetThresholdUnits", 10.0);
 
     _climberMaxHeight = Preferences.getDouble("ClimberMaxHeight", 0.55);
     _climberFeedFwd = Preferences.getDouble("ClimberFeedForward", 0.0);
     _pivotFeedFwd = Preferences.getDouble("PivotFeedForward", 0.0);
     _minPivotLinkAngle = Preferences.getDouble("MinPivotLinkAngle", 50);
     _maxPivotLinkAngle = Preferences.getDouble("MaxPivotLinkAngle", 130);
-    _resetThresholdUnits = Preferences.getDouble("ResetThresholdUnits", 10.0);
+    // _resetThresholdUnits = Preferences.getDouble("ResetThresholdUnits", 10.0);
 
     _leftClimberController.setInverted(InvertType.None);
     _rightClimberController.setInverted(InvertType.InvertMotorOutput);
 
     smartClimberController.initController();
-    smartClimberController.configureRatios(kGearRatio_Climber);
+    smartClimberController.configureRatios(Constants.kClimberGearRatio);
     smartClimberController.enableBrakes(true);
-    smartClimberController.setDistanceAndTurnConfigs(kGains_Climber, kGains_ClimberTurn);
+    smartClimberController.setDistanceAndTurnConfigs(
+        Constants.kClimberGains_Distance, Constants.kClimberGains_Turn);
     smartClimberController.resetPosition();
 
     _leftPivotLinkController.setInverted(InvertType.None);
     _rightPivotLinkController.setInverted(InvertType.InvertMotorOutput);
 
     smartPivotLinkController.initController();
-    smartPivotLinkController.configureRatios(kGearRatio_PivotLink);
+    smartPivotLinkController.configureRatios(Constants.kPivotLinkGearRatio);
     smartPivotLinkController.enableBrakes(true);
-    smartPivotLinkController.setDistanceAndTurnConfigs(kGains_PivotLink, kGains_PivotLinkTurn);
+    smartPivotLinkController.setDistanceAndTurnConfigs(
+        Constants.kPivotLinkGains_Distance, Constants.kPivotLinkGains_Turn);
     smartPivotLinkController.resetPosition();
   }
 
@@ -219,6 +205,7 @@ public class Climber extends SubsystemBase {
       _isClimbing = false;
     }
   }
+
   public void setClimberSpeed(double speedL, double speedR, double arbFF) {
     smartClimberController.configureFeedForward(arbFF);
     setClimberSpeed(speedL, speedR);
@@ -238,7 +225,7 @@ public class Climber extends SubsystemBase {
     _isPivoting = true;
   }
 
-  public void setPivotLinkPct(double pctAngle) {
+  public void setPivotLinkAnglePct(double pctAngle) {
     setPivotLinkAngle(pctAngle * (_maxPivotLinkAngle - _minPivotLinkAngle));
   }
 
@@ -264,10 +251,12 @@ public class Climber extends SubsystemBase {
       _isPivoting = false;
     }
   }
+
   public void setPivotLinkSpeed(double speedL, double speedR, double arbFF) {
     smartPivotLinkController.configureFeedForward(arbFF);
-    setPivotLinkSpeed(speedL, speedR); 
+    setPivotLinkSpeed(speedL, speedR);
   }
+
   public void resetPivotLink() {
     _isPivoting = false;
     _isResetLPivoting = _isResetRPivoting = true;

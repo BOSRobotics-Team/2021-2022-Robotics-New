@@ -8,8 +8,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.POVButton;
+import edu.wpi.first.wpilibj2.command.button.*;
 import frc.robot.RobotContainer;
 import frc.robot.commands.climber.*;
 import frc.robot.subsystems.*;
@@ -34,18 +33,16 @@ public class CommandClimber extends CommandBase {
   public final AutoClimberCommand m_autoClimberCommand;
   public final AutoClimberCommand m_autoClimberInitCommand;
 
-  private double _leftTriggerVal = 0;
-  private double _rightTriggerVal = 0;
-  private boolean _manualClimber = false;
+  private final int kX = 0;
+  private final int kY = 1;
+  private final int kCurr = 0;
+  private final int kLast = 1;
 
-  private double _currLStickXVal = 0;
-  private double _currRStickXVal = 0;
-  private double _lastLStickXVal = 0;
-  private double _lastRStickXVal = 0;
-  private double _currLStickYVal = 0;
-  private double _currRStickYVal = 0;
-  private double _lastLStickYVal = 0;
-  private double _lastRStickYVal = 0;
+  private double _leftTriggerVal[] = {0, 0};
+  private double _rightTriggerVal[] = {0, 0};
+
+  private double _LStickVal[][] = {{0, 0}, {0, 0}};
+  private double _RStickVal[][] = {{0, 0}, {0, 0}};
 
   public CommandClimber(RobotContainer container) {
     m_climber = container.climber;
@@ -101,6 +98,21 @@ public class CommandClimber extends CommandBase {
     m_operatorButtons[Button.kRightBumper.value]
         .whenPressed(() -> m_climber.tripPivotRevLimitSwitches_test(true))
         .whenReleased(() -> m_climber.tripPivotRevLimitSwitches_test(false));
+    m_operatorPOVs[0] = new POVButton(m_operatorController, 0);
+    m_operatorPOVs[0].whileHeld(
+        () -> m_climber.setClimberHeightPct(m_climber.getClimberHeightPct() + 0.01));
+
+    m_operatorPOVs[1] = new POVButton(m_operatorController, 90);
+    m_operatorPOVs[1].whileHeld(
+        () -> m_climber.setClimberHeightPct(m_climber.getClimberHeightPct() - 0.01));
+
+    m_operatorPOVs[2] = new POVButton(m_operatorController, 180);
+    m_operatorPOVs[2].whileHeld(
+        () -> m_climber.setPivotLinkAnglePct(m_climber.getPivotLinkAnglePct() + 0.01));
+
+    m_operatorPOVs[3] = new POVButton(m_operatorController, 270);
+    m_operatorPOVs[3].whileHeld(
+        () -> m_climber.setPivotLinkAnglePct(m_climber.getPivotLinkAnglePct() - 0.01));
   }
 
   // Called just before this Command runs the first time
@@ -109,43 +121,51 @@ public class CommandClimber extends CommandBase {
     System.out.println("CommandClimber - initialize");
     Shuffleboard.addEventMarker(
         "CommandClimber init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-    _leftTriggerVal = _rightTriggerVal = 0;
-    _currLStickXVal = _currRStickXVal = _lastLStickXVal = _lastRStickXVal = 0;
-    _currLStickYVal = _currRStickYVal = _lastLStickYVal = _lastRStickYVal = 0;
+    _leftTriggerVal[kLast] = _leftTriggerVal[kCurr] = 0;
+    _rightTriggerVal[kLast] = _rightTriggerVal[kCurr] = 0;
+
+    _LStickVal[kX][kCurr] = _LStickVal[kX][kLast] = 0;
+    _RStickVal[kX][kCurr] = _RStickVal[kX][kLast] = 0;
+    _LStickVal[kY][kCurr] = _LStickVal[kY][kLast] = 0;
+    _RStickVal[kY][kCurr] = _RStickVal[kY][kLast] = 0;
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   public void execute() {
-    _leftTriggerVal = m_driverController.getLeftTriggerAxis();
-    _rightTriggerVal = m_driverController.getRightTriggerAxis();
-    if (!_manualClimber && ((_leftTriggerVal != 0.0) || (_rightTriggerVal != 0.0)))
-      _manualClimber = true;
-
-    if (_manualClimber) {
-      m_climber.setClimberHeightPct(_leftTriggerVal);
-      m_climber.setPivotLinkPct(_rightTriggerVal);
-      _manualClimber = ((_leftTriggerVal > 0.0) || (_rightTriggerVal > 0.0));
+    _leftTriggerVal[kCurr] = m_driverController.getLeftTriggerAxis();
+    _rightTriggerVal[kCurr] = m_driverController.getRightTriggerAxis();
+    if ((_leftTriggerVal[kCurr] != 0.0)
+        || (_rightTriggerVal[kCurr] != 0.0)
+        || (_leftTriggerVal[kLast] != 0.0)
+        || (_rightTriggerVal[kLast] != 0.0)) {
+      m_climber.setClimberHeightPct(_leftTriggerVal[kCurr]);
+      m_climber.setPivotLinkAnglePct(_rightTriggerVal[kCurr]);
     }
+    _leftTriggerVal[kLast] = _leftTriggerVal[kCurr];
+    _rightTriggerVal[kLast] = _rightTriggerVal[kCurr];
 
-    _currLStickXVal = m_operatorController.getLeftX();
-    _currLStickYVal = -m_operatorController.getLeftY();
-
-    _currRStickXVal = m_operatorController.getRightX();
-    _currRStickYVal = -m_operatorController.getRightY();
-
-    if ((_currLStickYVal != 0) || (_currRStickYVal != 0) ||
-        (_lastLStickYVal != 0) || (_lastRStickYVal != 0)) {
-      m_climber.setClimberSpeed(_currLStickYVal, _currRStickYVal);
+    _LStickVal[kY][kCurr] = -m_operatorController.getLeftY();
+    _RStickVal[kY][kCurr] = -m_operatorController.getRightY();
+    if ((_LStickVal[kY][kCurr] != 0)
+        || (_RStickVal[kY][kCurr] != 0)
+        || (_LStickVal[kY][kLast] != 0)
+        || (_RStickVal[kY][kLast] != 0)) {
+      m_climber.setClimberSpeed(_LStickVal[kY][kCurr], _RStickVal[kY][kCurr]);
     }
-    if ((_currLStickXVal != 0) || (_currRStickXVal != 0) ||
-        (_lastLStickXVal != 0) || (_lastRStickXVal != 0)) {
-      m_climber.setPivotLinkSpeed(_currLStickXVal, _currRStickXVal);
+    _LStickVal[kY][kLast] = _LStickVal[kY][kCurr];
+    _RStickVal[kY][kLast] = _RStickVal[kY][kCurr];
+
+    _LStickVal[kX][kCurr] = m_operatorController.getLeftX();
+    _RStickVal[kX][kCurr] = m_operatorController.getRightX();
+    if ((_LStickVal[kX][kCurr] != 0)
+        || (_RStickVal[kX][kCurr] != 0)
+        || (_LStickVal[kX][kLast] != 0)
+        || (_RStickVal[kX][kLast] != 0)) {
+      m_climber.setPivotLinkSpeed(_LStickVal[kX][kCurr], _RStickVal[kX][kCurr]);
     }
-    _lastLStickXVal = _currLStickXVal;
-    _lastLStickYVal = _currLStickYVal;
-    _lastRStickXVal = _currRStickXVal;
-    _lastRStickYVal = _currRStickYVal;
+    _LStickVal[kX][kLast] = _LStickVal[kX][kCurr];
+    _RStickVal[kX][kLast] = _RStickVal[kX][kCurr];
   }
 
   // Called once after isFinished returns true

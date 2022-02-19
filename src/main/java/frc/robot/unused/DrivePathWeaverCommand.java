@@ -53,8 +53,8 @@ public class DrivePathWeaverCommand extends CommandBase {
     // Create config for trajectory
     TrajectoryConfig config =
         new TrajectoryConfig(
-                Constants.kMaxSpeedMetersPerSecond,
-                Constants.kMaxAccelerationMetersPerSecondSquared)
+                Constants.kDriveMaxSpeedMetersPerSecond,
+                Constants.kDriveMaxAccelerationMetersPerSecondSquared)
             // Add kinematics to ensure max speed is actually obeyed
             .setKinematics(m_driveTrain.getDriveKinematics())
             // Apply the voltage constraint

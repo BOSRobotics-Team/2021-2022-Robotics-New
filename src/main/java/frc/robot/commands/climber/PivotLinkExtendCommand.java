@@ -27,7 +27,7 @@ public class PivotLinkExtendCommand extends CommandBase {
   public void initialize() {
     Shuffleboard.addEventMarker(
         "PivotLinkExtendCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-    m_climber.setPivotLinkPct(m_distance);
+    m_climber.setPivotLinkAnglePct(m_distance);
 
     System.out.println("PivotLinkExtendCommand - init : distance = " + m_distance);
   }

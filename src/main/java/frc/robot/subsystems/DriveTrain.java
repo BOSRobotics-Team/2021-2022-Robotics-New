@@ -46,7 +46,7 @@ public class DriveTrain extends SubsystemBase {
 
   /** Drivetrain kinematics processor for measuring individual wheel speeds */
   private final DifferentialDriveKinematics driveKinematics =
-      new DifferentialDriveKinematics(Constants.kWidthChassisMeters);
+      new DifferentialDriveKinematics(Constants.kDriveChassisWidthMeters);
 
   private final DrivetrainSim m_drivetrainSim =
       new DrivetrainSim(
@@ -55,7 +55,7 @@ public class DriveTrain extends SubsystemBase {
           gyro,
           smartController.convertor,
           23.0, // 53.0,
-          Constants.kWidthChassisMeters);
+          Constants.kDriveChassisWidthMeters);
 
   // private boolean voltageCompEnabled = false;
   // private Double maxSpeed;
@@ -98,11 +98,12 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public void configForPID() {
-    smartController.setDistanceConfigs(Constants.kGains_Distanc);
+    smartController.setDistanceConfigs(Constants.kDriveGains_Distanc);
   }
 
   public void configForPID2() {
-    smartController.setDistanceAndTurnConfigs(Constants.kGains_Distanc, Constants.kGains_Turning);
+    smartController.setDistanceAndTurnConfigs(
+        Constants.kDriveGains_Distanc, Constants.kDriveGains_Turning);
   }
 
   public void configMotionSCurveStrength(int smoothing) {

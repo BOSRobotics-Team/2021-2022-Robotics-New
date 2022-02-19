@@ -41,7 +41,7 @@ public class SmartMotorController {
   };
 
   public static final GearRatios kDefaultGearRatio =
-      new GearRatios(Constants.kGearRatio, Constants.kWheelRadiusInches, 1.0);
+      new GearRatios(Constants.kDriveGearRatio, Constants.kDriveWheelRadiusInches, 1.0);
   public static final Gains kDefaultGains_Distanc = new Gains(0.0, 0.0, 0.0, 0.0, 100, 1.0);
 
   /**
