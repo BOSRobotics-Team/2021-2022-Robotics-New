@@ -6,8 +6,8 @@ public class Constants {
 
   public static final int kID_RMasterDrive = 0; // TalonFX
   public static final int kID_LMasterDrive = 1; // TalonFX
-  public static final int kID_RFollowDrive = 3; // VictorSPX
-  public static final int kID_LFollowDrive = 2; // VictorSPX
+  public static final int kID_RFollowDrive = 2; // VictorSPX
+  public static final int kID_LFollowDrive = 3; // VictorSPX
   public static final int kID_LClimber = 9; // TalonFX
   public static final int kID_RClimber = 10; // TalonFX
   public static final int kID_LPivot = 11; // TalonFX
