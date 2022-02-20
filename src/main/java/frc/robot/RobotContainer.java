@@ -32,7 +32,6 @@ public class RobotContainer {
   // public final Intake intake = new Intake();
   public final Climber climber = new Climber();
   public final LEDLights lights = new LEDLights(true);
-  public final Shooter shooter = new Shooter();
 
   // //Driver Controller
   public final XboxController driverController = new XboxController(0);
@@ -41,7 +40,6 @@ public class RobotContainer {
   // Camera
   public UsbCamera cam0;
   public UsbCamera cam1;
-  public UsbCamera cam2;
 
   public final AutonomousCommand m_autoCommand = new AutonomousCommand(this);
   public final AutoDriveStraightCommand m_autoDriveStraightCommand =
@@ -52,7 +50,6 @@ public class RobotContainer {
   public final CommandDriveTrain m_cmdDriveTrainCommand = new CommandDriveTrain(this);
   public final CommandClimber m_cmdClimberCommand = new CommandClimber(this);
   public final CommandLights m_cmdLightsCommand = new CommandLights(this);
-  public final CommandShooter m_cmdShooterCommand = new CommandShooter(this);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -77,7 +74,6 @@ public class RobotContainer {
     if (RobotBase.isReal()) {
       cam0 = CameraServer.startAutomaticCapture(0);
       cam1 = CameraServer.startAutomaticCapture(1);
-      cam2 = CameraServer.startAutomaticCapture(2);
     }
   }
 

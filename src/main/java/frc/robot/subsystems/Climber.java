@@ -36,7 +36,7 @@ public class Climber extends SubsystemBase {
 
   private final double kPivotLinkMass = 3.0; // Kilograms
   private final double kPivotLinkLength = Units.inchesToMeters(30);
-  private final double kResetPivotSpeed = -0.05;
+  private final double kResetPivotSpeed = 0.025;
   private boolean _isPivoting = false;
   private boolean _isResetLPivoting = false;
   private boolean _isResetRPivoting = false;
@@ -45,37 +45,17 @@ public class Climber extends SubsystemBase {
   private double _minPivotLinkAngle = 40.0;
   private double _maxPivotLinkAngle = 100.0;
   private double _pivotFeedFwd = 0.0;
-  // private double _resetThresholdUnits = 10;
 
-  private final ClimberSim _climberSim =
-      new ClimberSim(
-          _leftClimberController,
-          _rightClimberController,
-          smartClimberController.convertor,
-          Constants.kDriveCarriageMass,
-          Units.inchesToMeters(21.65),
-          _leftPivotLinkController,
-          _rightPivotLinkController,
-          smartPivotLinkController.convertor,
-          kPivotLinkMass,
-          kPivotLinkLength,
-          _minPivotLinkAngle,
-          _maxPivotLinkAngle);
+  private final ClimberSim _climberSim;
 
   public Climber() {
     Preferences.initDouble("ClimberMaxHeight", 0.55);
     Preferences.initDouble("ClimberFeedForward", 0.0);
     Preferences.initDouble("PivotFeedForward", 0.0);
-    // Preferences.initDouble("MinPivotLinkAngle", 40.0);
-    // Preferences.initDouble("MaxPivotLinkAngle", 100.0);
-    // Preferences.initDouble("ResetThresholdUnits", 10.0);
 
     _climberMaxHeight = Preferences.getDouble("ClimberMaxHeight", 0.55);
     _climberFeedFwd = Preferences.getDouble("ClimberFeedForward", 0.0);
     _pivotFeedFwd = Preferences.getDouble("PivotFeedForward", 0.0);
-    // _minPivotLinkAngle = Preferences.getDouble("MinPivotLinkAngle", 80);
-    // _maxPivotLinkAngle = Preferences.getDouble("MaxPivotLinkAngle", 130);
-    // _resetThresholdUnits = Preferences.getDouble("ResetThresholdUnits", 10.0);
 
     _leftClimberController.setInverted(InvertType.None);
     _rightClimberController.setInverted(InvertType.InvertMotorOutput);
@@ -85,7 +65,6 @@ public class Climber extends SubsystemBase {
     smartClimberController.enableBrakes(true);
     smartClimberController.setDistanceAndTurnConfigs(
         Constants.kClimberGains_Distance, Constants.kClimberGains_Turn);
-    smartClimberController.resetPosition();
 
     _leftPivotLinkController.setInverted(InvertType.None);
     _rightPivotLinkController.setInverted(InvertType.InvertMotorOutput);
@@ -95,7 +74,23 @@ public class Climber extends SubsystemBase {
     smartPivotLinkController.enableBrakes(true);
     smartPivotLinkController.setDistanceAndTurnConfigs(
         Constants.kPivotLinkGains_Distance, Constants.kPivotLinkGains_Turn);
-    smartPivotLinkController.resetPosition();
+
+    _climberSim =
+        new ClimberSim(
+            _leftClimberController,
+            _rightClimberController,
+            smartClimberController.convertor,
+            Constants.kDriveCarriageMass,
+            Units.inchesToMeters(21.65),
+            _leftPivotLinkController,
+            _rightPivotLinkController,
+            smartPivotLinkController.convertor,
+            kPivotLinkMass,
+            kPivotLinkLength,
+            _minPivotLinkAngle,
+            _maxPivotLinkAngle);
+
+    this.zeroClimberPosition();
   }
 
   @Override
@@ -118,7 +113,7 @@ public class Climber extends SubsystemBase {
       }
     }
     if (_isResetLPivoting) {
-      if (isLPivotRevLimitSwitchClosed()) {
+      if (isLPivotFwdLimitSwitchClosed()) {
         _leftPivotLinkController.set(0.0);
         smartPivotLinkController.resetLeftPosition();
         _isResetLPivoting = false;
@@ -126,7 +121,7 @@ public class Climber extends SubsystemBase {
       }
     }
     if (_isResetRPivoting) {
-      if (isRPivotRevLimitSwitchClosed()) {
+      if (isRPivotFwdLimitSwitchClosed()) {
         _rightPivotLinkController.set(0.0);
         smartPivotLinkController.resetRightPosition();
         _isResetRPivoting = false;
@@ -134,21 +129,21 @@ public class Climber extends SubsystemBase {
       }
     }
     if (_isClimbing) {
-      // System.out.println(
-      //     "isClimbing - current height = "
-      //         + smartClimberController.getDistance()
-      //         + " pos = "
-      //         + smartClimberController.getPosition());
+      System.out.println(
+          "isClimbing - current height = "
+              + smartClimberController.getDistance()
+              + " pos = "
+              + smartClimberController.getPosition());
       if (smartClimberController.isTargetFinished()) {
         _isClimbing = false;
         System.out.println("isClimbing - done");
       }
     }
     if (_isPivoting) {
-      // System.out.println(
-      //     "isPivoting - current distance = "
-      //         + smartPivotLinkController.getDistance()
-      //         + smartPivotLinkController.getPosition());
+      System.out.println(
+          "isPivoting - current distance = "
+              + smartPivotLinkController.getDistance()
+              + smartPivotLinkController.getPosition());
       if (smartPivotLinkController.isTargetFinished()) {
         _isPivoting = false;
         System.out.println("isPivoting - done");
@@ -218,8 +213,11 @@ public class Climber extends SubsystemBase {
   public void resetClimber() {
     _isClimbing = false;
     _isResetLClimber = _isResetRClimber = true;
-    smartClimberController.set(kResetClimberSpeed, kResetClimberSpeed);
-    // resetPivotLink();
+    double rSpeed = isRClimberRevLimitSwitchClosed() ? 0.0 : kResetClimberSpeed;
+    double lSpeed = isLClimberRevLimitSwitchClosed() ? 0.0 : kResetClimberSpeed;
+    smartClimberController.set(rSpeed, lSpeed);
+
+    this.resetPivotLink();
   }
 
   public void zeroClimberPosition() {
@@ -229,8 +227,15 @@ public class Climber extends SubsystemBase {
 
   public void setPivotLinkAngle(double angleDegrees) {
     _targetPivotAngle = MathUtil.clamp(angleDegrees, _minPivotLinkAngle, _maxPivotLinkAngle);
-    // smartPivotLinkController.setTargetAndAngle(_targetPivotAngle, 0);
-    smartPivotLinkController.setTarget(_maxPivotLinkAngle - _targetPivotAngle, _pivotFeedFwd);
+    System.out.println(
+        "setPivotLinkAngle: "
+            + angleDegrees
+            + " tgtAngle: "
+            + _targetPivotAngle
+            + " setTgt: "
+            + (_targetPivotAngle - _maxPivotLinkAngle));
+    // smartPivotLinkController.setTargetAndAngle(_targetPivotAngle - _maxPivotLinkAngle, 0);
+    smartPivotLinkController.setTarget(_targetPivotAngle - _maxPivotLinkAngle, _pivotFeedFwd);
     _isPivoting = true;
   }
 
@@ -273,7 +278,9 @@ public class Climber extends SubsystemBase {
   public void resetPivotLink() {
     _isPivoting = false;
     _isResetLPivoting = _isResetRPivoting = true;
-    smartPivotLinkController.set(kResetPivotSpeed, kResetPivotSpeed);
+    double rSpeed = isRPivotFwdLimitSwitchClosed() ? 0.0 : kResetPivotSpeed;
+    double lSpeed = isLPivotFwdLimitSwitchClosed() ? 0.0 : kResetPivotSpeed;
+    smartPivotLinkController.set(rSpeed, lSpeed);
   }
 
   public boolean isResetting() {
@@ -281,35 +288,35 @@ public class Climber extends SubsystemBase {
   }
 
   public boolean isLClimberRevLimitSwitchClosed() {
-    // _currLClimberHeight = smartClimberController.getLeftPosition();
-    // boolean val = Math.abs(_currLClimberHeight - _lastLClimberHeight) < _resetThresholdUnits;
-    // _lastLClimberHeight = _currLClimberHeight;
-    // return val;
     return smartClimberController.isLeftRevLimitSwitchClosed() || _isClimberRevLimitSwitchTest;
   }
 
+  public boolean isLClimberFwdLimitSwitchClosed() {
+    return smartClimberController.isLeftFwdLimitSwitchClosed() || _isClimberRevLimitSwitchTest;
+  }
+
   public boolean isRClimberRevLimitSwitchClosed() {
-    // _currRClimberHeight = smartClimberController.getRightPosition();
-    // boolean val = Math.abs(_currRClimberHeight - _lastRClimberHeight) < _resetThresholdUnits;
-    // _lastRClimberHeight = _currRClimberHeight;
-    // return val;
     return smartClimberController.isRightRevLimitSwitchClosed() || _isClimberRevLimitSwitchTest;
   }
 
+  public boolean isRClimberFwdLimitSwitchClosed() {
+    return smartClimberController.isRightFwdLimitSwitchClosed() || _isClimberRevLimitSwitchTest;
+  }
+
   public boolean isLPivotRevLimitSwitchClosed() {
-    // _currLPivotAngle = smartClimberController.getLeftPosition();
-    // boolean val = Math.abs(_currLPivotAngle - _lastLPivotAngle) < _resetThresholdUnits;
-    // _lastLPivotAngle = _currLPivotAngle;
-    // return val;
     return smartPivotLinkController.isLeftRevLimitSwitchClosed() || _isPivotRevLimitSwitchTest;
   }
 
+  public boolean isLPivotFwdLimitSwitchClosed() {
+    return smartPivotLinkController.isLeftFwdLimitSwitchClosed() || _isPivotRevLimitSwitchTest;
+  }
+
   public boolean isRPivotRevLimitSwitchClosed() {
-    // _currRPivotAngle = smartClimberController.getRightPosition();
-    // boolean val = Math.abs(_currRPivotAngle - _lastRPivotAngle) < _resetThresholdUnits;
-    // _lastRPivotAngle = _currRPivotAngle;
-    // return val;
     return smartPivotLinkController.isRightRevLimitSwitchClosed() || _isPivotRevLimitSwitchTest;
+  }
+
+  public boolean isRPivotFwdLimitSwitchClosed() {
+    return smartPivotLinkController.isRightFwdLimitSwitchClosed() || _isPivotRevLimitSwitchTest;
   }
 
   public void tripClimberRevLimitSwitches_test(boolean trip) {

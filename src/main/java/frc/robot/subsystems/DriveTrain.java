@@ -41,21 +41,12 @@ public class DriveTrain extends SubsystemBase {
   private final DriveGyro gyro = new DriveGyro(true);
 
   /** Drivetrain odometry tracker for tracking position */
-  private final DifferentialDriveOdometry driveOdometry =
-      new DifferentialDriveOdometry(gyro.getHeading());
+  private final DifferentialDriveOdometry driveOdometry;
 
   /** Drivetrain kinematics processor for measuring individual wheel speeds */
-  private final DifferentialDriveKinematics driveKinematics =
-      new DifferentialDriveKinematics(Constants.kDriveChassisWidthMeters);
+  private final DifferentialDriveKinematics driveKinematics;
 
-  private final DrivetrainSim m_drivetrainSim =
-      new DrivetrainSim(
-          leftMaster,
-          rightMaster,
-          gyro,
-          smartController.convertor,
-          23.0, // 53.0,
-          Constants.kDriveChassisWidthMeters);
+  private final DrivetrainSim m_drivetrainSim;
 
   // private boolean voltageCompEnabled = false;
   // private Double maxSpeed;
@@ -90,10 +81,20 @@ public class DriveTrain extends SubsystemBase {
     differentialDrive.setExpiration(0.1);
     differentialDrive.setMaxOutput(0.75);
     differentialDrive.setDeadband(0.02);
-    resetPosition();
-
     addChild("Differential Drive", differentialDrive);
 
+    driveOdometry = new DifferentialDriveOdometry(gyro.getHeading());
+    driveKinematics = new DifferentialDriveKinematics(Constants.kDriveChassisWidthMeters);
+    m_drivetrainSim =
+        new DrivetrainSim(
+            leftMaster,
+            rightMaster,
+            gyro,
+            smartController.convertor,
+            23.0, // 53.0,
+            Constants.kDriveChassisWidthMeters);
+
+    this.resetPosition();
     SmartDashboard.putData("Field2d", m_field);
   }
 

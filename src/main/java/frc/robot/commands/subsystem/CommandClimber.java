@@ -118,10 +118,10 @@ public class CommandClimber extends CommandBase {
     m_operatorPOVs[1].whileHeld(() -> m_climber.setClimberHeightInc(-0.01));
 
     m_operatorPOVs[2] = new POVButton(m_operatorController, 270);
-    m_operatorPOVs[2].whileHeld(() -> m_climber.setPivotLinkAngleInc(0.01));
+    m_operatorPOVs[2].whileHeld(() -> m_climber.setPivotLinkAngleInc(0.1));
 
     m_operatorPOVs[3] = new POVButton(m_operatorController, 90);
-    m_operatorPOVs[3].whileHeld(() -> m_climber.setPivotLinkAngleInc(-0.01));
+    m_operatorPOVs[3].whileHeld(() -> m_climber.setPivotLinkAngleInc(-0.1));
   }
 
   // Called just before this Command runs the first time

@@ -71,9 +71,9 @@ public class ClimberSim {
     m_lElevatorSim =
         new ElevatorSim(
             DCMotor.getFalcon500(1),
-            climbConvertor.gearRatios.kGearRatio * climbConvertor.gearRatios.kPulleyRatio,
+            m_elevatorConvertor.gearRatios.kGearRatio * m_elevatorConvertor.gearRatios.kPulleyRatio,
             m_carriageMass,
-            Units.inchesToMeters(climbConvertor.gearRatios.kWheelRadiusInches),
+            Units.inchesToMeters(m_elevatorConvertor.gearRatios.kWheelRadiusInches),
             m_minElevatorHeight,
             m_maxElevatorHeight,
             null // VecBuilder.fill(0.01)
@@ -81,9 +81,9 @@ public class ClimberSim {
     m_rElevatorSim =
         new ElevatorSim(
             DCMotor.getFalcon500(1),
-            climbConvertor.gearRatios.kGearRatio * climbConvertor.gearRatios.kPulleyRatio,
+            m_elevatorConvertor.gearRatios.kGearRatio * m_elevatorConvertor.gearRatios.kPulleyRatio,
             m_carriageMass,
-            Units.inchesToMeters(climbConvertor.gearRatios.kWheelRadiusInches),
+            Units.inchesToMeters(m_elevatorConvertor.gearRatios.kWheelRadiusInches),
             m_minElevatorHeight,
             m_maxElevatorHeight,
             null // VecBuilder.fill(0.01)
@@ -131,7 +131,7 @@ public class ClimberSim {
     m_arm =
         m_armPivot.append(
             new MechanismLigament2d(
-                "Arm", Units.metersToInches(m_armLength), 180, 6, new Color8Bit(Color.kYellow)));
+                "Arm", Units.metersToInches(m_armLength), 0, 6, new Color8Bit(Color.kYellow)));
     m_climbTower =
         m_armClimber.append(
             new MechanismLigament2d("HookTower", 25, 90, 8, new Color8Bit(Color.kAqua)));
@@ -176,9 +176,13 @@ public class ClimberSim {
     _leftPivotSim.setIntegratedSensorRawPosition(
         m_armConvertor.distanceMetersToNativeUnits(
             Units.radiansToDegrees(m_lPivotSim.getAngleRads() - m_maxArmAngle)));
+    _leftPivotSim.setIntegratedSensorVelocity(
+        m_armConvertor.velocityToNativeUnits(m_lPivotSim.getVelocityRadPerSec()));
     _rightPivotSim.setIntegratedSensorRawPosition(
         -m_armConvertor.distanceMetersToNativeUnits(
             Units.radiansToDegrees(m_rPivotSim.getAngleRads() - m_maxArmAngle)));
+    _rightPivotSim.setIntegratedSensorVelocity(
+        m_armConvertor.velocityToNativeUnits(m_lPivotSim.getVelocityRadPerSec()));
 
     // SimBattery estimates loaded battery voltages
     RoboRioSim.setVInVoltage(
