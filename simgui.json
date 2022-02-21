@@ -112,6 +112,7 @@
       "/SmartDashboard/Autonomous AutoDriveStraight": "Command",
       "/SmartDashboard/Autonomous AutoDriveTurn": "Command",
       "/SmartDashboard/Autonomous Command": "Command",
+      "/SmartDashboard/ClimberSim": "Mechanism2d",
       "/SmartDashboard/CommandDriveTrain": "Command",
       "/SmartDashboard/DrivePathWeaverCommand": "Command",
       "/SmartDashboard/Field2d": "Field2d"
@@ -122,7 +123,7 @@
           "visible": true
         }
       },
-      "/SmartDashboard/Arm Sim": {
+      "/SmartDashboard/ClimberSim": {
         "window": {
           "visible": true
         }

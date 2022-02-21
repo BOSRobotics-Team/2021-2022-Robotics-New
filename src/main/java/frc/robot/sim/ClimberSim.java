@@ -39,11 +39,16 @@ public class ClimberSim {
 
   // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
   private final Mechanism2d m_mech2d;
-  private final MechanismRoot2d m_armPivot;
-  private final MechanismRoot2d m_armClimber;
-  private final MechanismLigament2d m_arm;
-  private final MechanismLigament2d m_climbTower;
-  private final MechanismLigament2d m_climb;
+  private final MechanismRoot2d m_armLPivot;
+  private final MechanismRoot2d m_armRPivot;
+  private final MechanismRoot2d m_armLClimber;
+  private final MechanismRoot2d m_armRClimber;
+  private final MechanismLigament2d m_armL;
+  private final MechanismLigament2d m_armR;
+  private final MechanismLigament2d m_climbLTower;
+  private final MechanismLigament2d m_climbRTower;
+  private final MechanismLigament2d m_climbL;
+  private final MechanismLigament2d m_climbR;
 
   public ClimberSim(
       WPI_TalonFX lClimber,
@@ -125,27 +130,44 @@ public class ClimberSim {
             null // VecBuilder.fill(kArmEncoderDistPerPulse) // Add noise with a std-dev of 1
             );
 
-    m_mech2d = new Mechanism2d(60, 60);
-    m_armPivot = m_mech2d.getRoot("ArmPivot", 30, 0);
-    m_armClimber = m_mech2d.getRoot("ArmClimber", 30, 0);
-    m_arm =
-        m_armPivot.append(
+    m_mech2d = new Mechanism2d(90, 60);
+    m_armLPivot = m_mech2d.getRoot("ArmLPivot", 20, 0);
+    m_armRPivot = m_mech2d.getRoot("ArmRPivot", 60, 0);
+    m_armLClimber = m_mech2d.getRoot("ArmLClimber", 20, 0);
+    m_armRClimber = m_mech2d.getRoot("ArmRClimber", 60, 0);
+    m_armL =
+        m_armLPivot.append(
             new MechanismLigament2d(
-                "Arm", Units.metersToInches(m_armLength), 0, 6, new Color8Bit(Color.kYellow)));
-    m_climbTower =
-        m_armClimber.append(
-            new MechanismLigament2d("HookTower", 25, 90, 8, new Color8Bit(Color.kAqua)));
-    m_climb =
-        m_climbTower.append(
+                "ArmL", Units.metersToInches(m_armLength), 0, 6, new Color8Bit(Color.kYellow)));
+    m_armR =
+        m_armRPivot.append(
             new MechanismLigament2d(
-                "Hook",
+                "ArmR", Units.metersToInches(m_armLength), 0, 6, new Color8Bit(Color.kYellow)));
+    m_climbLTower =
+        m_armLClimber.append(
+            new MechanismLigament2d("TowerL", 30, 90, 8, new Color8Bit(Color.kCadetBlue)));
+    m_climbRTower =
+        m_armRClimber.append(
+            new MechanismLigament2d("TowerR", 30, 90, 8, new Color8Bit(Color.kCadetBlue)));
+    m_climbL =
+        m_climbLTower.append(
+            new MechanismLigament2d(
+                "ClimberL",
+                Units.metersToInches(m_maxElevatorHeight),
+                0,
+                6,
+                new Color8Bit(Color.kAqua)));
+    m_climbR =
+        m_climbRTower.append(
+            new MechanismLigament2d(
+                "ClimberR",
                 Units.metersToInches(m_maxElevatorHeight),
                 0,
                 6,
                 new Color8Bit(Color.kAqua)));
 
     // Put Mechanism 2d to SmartDashboard
-    SmartDashboard.putData("Arm Sim", m_mech2d);
+    SmartDashboard.putData("ClimberSim", m_mech2d);
   }
 
   public void run() {
@@ -193,7 +215,9 @@ public class ClimberSim {
                 + m_rPivotSim.getCurrentDrawAmps()));
 
     // Update the Mechanism Arm angle based on the simulated arm angle
-    m_arm.setAngle(Units.radiansToDegrees(m_lPivotSim.getAngleRads()));
-    m_climb.setLength(Units.metersToInches(m_lElevatorSim.getPositionMeters()));
+    m_armL.setAngle(Units.radiansToDegrees(m_lPivotSim.getAngleRads()));
+    m_armR.setAngle(Units.radiansToDegrees(m_rPivotSim.getAngleRads()));
+    m_climbL.setLength(Units.metersToInches(m_lElevatorSim.getPositionMeters()));
+    m_climbR.setLength(Units.metersToInches(m_rElevatorSim.getPositionMeters()));
   }
 }

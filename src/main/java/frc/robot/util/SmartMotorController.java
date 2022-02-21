@@ -65,6 +65,7 @@ public class SmartMotorController {
   private final int _controllerType;
   private final BaseTalon _controller;
   private final BaseTalon _auxController;
+  private final boolean _hasAuxController;
 
   private final Faults _faults = new Faults();
 
@@ -74,6 +75,7 @@ public class SmartMotorController {
   private enum SetPointMode {
     None,
     Distance,
+    DistanceFollow,
     DistanceAux,
     Velocity,
     Finished
@@ -85,6 +87,7 @@ public class SmartMotorController {
   private double _auxpoint = 0.0; // The most recently set auxpoint.
   private double _nativeAuxpoint = 0.0; // The auxpoint in native units.
   private double _currentTrajPos = 0.0; // The current trajectory position.
+  private double _currentAuxTrajPos = 0.0; // The current aux trajectory position.
 
   public SmartMotorController(final BaseTalon talon, final BaseTalon auxTalon, final String nm) {
     name = nm;
@@ -103,7 +106,9 @@ public class SmartMotorController {
     _auxController = auxTalon;
 
     _controller.configFactoryDefault();
-    if (_auxController != null) {
+
+    _hasAuxController = (_auxController != null);
+    if (_hasAuxController) {
       _auxController.configFactoryDefault();
     }
 
@@ -117,10 +122,10 @@ public class SmartMotorController {
   public void initController() {
     _mode = SetPointMode.None;
     initController(_controller);
-    if (_auxController != null) {
+    if (_hasAuxController) {
       initController(_auxController);
     }
-    this.setDistanceConfigs(SmartMotorController.kDefaultGains_Distanc);
+    this.setSeparateDistanceConfigs(SmartMotorController.kDefaultGains_Distanc);
   }
 
   public void configureRatios(GearRatios gearRatio) {
@@ -167,30 +172,33 @@ public class SmartMotorController {
     talon.configClosedLoopPeriod(slot, 1);
   }
 
-  public void setDistanceConfigs(Gains gains) {
-    setClosedLoopGains(_controller, kSlot_Distanc, gains);
+  private void setDistanceConfigs(BaseTalon talon, Gains gains) {
+    this.setClosedLoopGains(talon, kSlot_Distanc, gains);
 
     // Set acceleration and vcruise velocity - see documentation
-    _controller.configMotionAcceleration(gains.kMotionAccel, kTimeoutMs);
-    _controller.configMotionCruiseVelocity(gains.kMotionCruiseVel, kTimeoutMs);
-    _controller.configMotionSCurveStrength(gains.kMotionSCurve, kTimeoutMs);
+    talon.configMotionAcceleration(gains.kMotionAccel, kTimeoutMs);
+    talon.configMotionCruiseVelocity(gains.kMotionCruiseVel, kTimeoutMs);
+    talon.configMotionSCurveStrength(gains.kMotionSCurve, kTimeoutMs);
 
-    _controller.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
-    _controller.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 5, kTimeoutMs);
-    _controller.setStatusFramePeriod(StatusFrame.Status_10_Targets, 10, kTimeoutMs);
-    _controller.setStatusFramePeriod(StatusFrame.Status_13_Base_PIDF0, 10, kTimeoutMs);
+    talon.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
+    talon.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 5, kTimeoutMs);
+    talon.setStatusFramePeriod(StatusFrame.Status_10_Targets, 10, kTimeoutMs);
+    talon.setStatusFramePeriod(StatusFrame.Status_13_Base_PIDF0, 10, kTimeoutMs);
 
     /* Configure Sensor Source for Primary PID */
-    _controller.configSelectedFeedbackSensor(_feedbackDevice, PID_PRIMARY, kTimeoutMs);
+    talon.configSelectedFeedbackSensor(_feedbackDevice, PID_PRIMARY, kTimeoutMs);
+  }
 
-    if (_auxController != null) {
-      setClosedLoopGains(_auxController, kSlot_Distanc, gains);
-      _auxController.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 5, kTimeoutMs);
-      _auxController.setStatusFramePeriod(StatusFrame.Status_10_Targets, 10, kTimeoutMs);
-      _auxController.setStatusFramePeriod(StatusFrame.Status_13_Base_PIDF0, 10, kTimeoutMs);
+  public void setSeparateDistanceConfigs(Gains gains) {
+    this.setDistanceConfigs(_controller, gains);
+    if (_hasAuxController) this.setDistanceConfigs(_auxController, gains);
+  }
 
-      /* Configure Sensor Source for Primary PID */
-      _auxController.configSelectedFeedbackSensor(_feedbackDevice, PID_PRIMARY, kTimeoutMs);
+  public void setDistanceConfigs(Gains gains) {
+    this.setDistanceConfigs(_controller, gains);
+
+    if (_hasAuxController) {
+      this.setDistanceConfigs(_auxController, gains);
 
       _controller.configRemoteFeedbackFilter(
           _auxController.getDeviceID(), RemoteSensorSource.TalonFX_SelectedSensor, REMOTE_0);
@@ -212,15 +220,15 @@ public class SmartMotorController {
   }
 
   public void setDistanceAndTurnConfigs(Gains dgains, Gains tgains) {
-    setDistanceConfigs(dgains);
+    this.setDistanceConfigs(dgains);
 
-    setClosedLoopGains(_controller, kSlot_Turning, tgains);
+    this.setClosedLoopGains(_controller, kSlot_Turning, tgains);
 
     _controller.selectProfileSlot(kSlot_Turning, PID_TURN);
     _controller.setStatusFramePeriod(StatusFrame.Status_12_Feedback1, 10, kTimeoutMs);
     _controller.setStatusFramePeriod(StatusFrame.Status_14_Turn_PIDF1, 10, kTimeoutMs);
 
-    if (_auxController != null) {
+    if (_hasAuxController) {
       setClosedLoopGains(_auxController, kSlot_Turning, tgains);
       _auxController.setStatusFramePeriod(StatusFrame.Status_12_Feedback1, 10, kTimeoutMs);
       _auxController.setStatusFramePeriod(StatusFrame.Status_14_Turn_PIDF1, 10, kTimeoutMs);
@@ -253,7 +261,7 @@ public class SmartMotorController {
     /* Configure Sensor Source for Primary PID */
     _controller.configSelectedFeedbackSensor(_feedbackDevice, PID_PRIMARY, kTimeoutMs);
 
-    if (_auxController != null) {
+    if (_hasAuxController) {
       setClosedLoopGains(_auxController, kSlot_Velocit, gains);
 
       _controller.configRemoteFeedbackFilter(
@@ -271,22 +279,6 @@ public class SmartMotorController {
       }
       _controller.configSelectedFeedbackCoefficient(0.5, PID_PRIMARY, kTimeoutMs);
     }
-  }
-
-  public double UnitsToMeters(int units) {
-    return convertor.nativeUnitsToDistanceMeters(units);
-  }
-
-  public double UnitsToVelocity(int units) {
-    return convertor.nativeUnitsToVelocity(units);
-  }
-
-  public int MetersToUnits(double meters) {
-    return convertor.distanceMetersToNativeUnits(meters);
-  }
-
-  public int VelocityToUnits(double mps) {
-    return convertor.velocityToNativeUnits(mps);
   }
 
   /**
@@ -362,7 +354,7 @@ public class SmartMotorController {
   }
 
   public Double getAuxPosition() {
-    return (_auxController != null)
+    return (_hasAuxController)
         ? _auxController.getSelectedSensorPosition(PID_PRIMARY)
         : getPosition();
   }
@@ -372,7 +364,7 @@ public class SmartMotorController {
   }
 
   public Double getAuxVelocityUPS() {
-    return (_auxController != null)
+    return (_hasAuxController)
         ? _auxController.getSelectedSensorVelocity(PID_PRIMARY)
         : getVelocityUPS();
   }
@@ -381,79 +373,81 @@ public class SmartMotorController {
     return convertor.nativeUnitsToDistanceMeters(getAuxVelocityUPS());
   }
 
-  public Double getPrimaryPosition() {
-    return getPosition();
-  }
-
-  public Double getPrimaryDistance() {
-    return getDistance();
-  }
-
-  public Double getPrimaryVelocityUPS() {
-    return getVelocityUPS();
-  }
-
-  public Double getPrimaryVelocity() {
-    return getVelocity();
+  public void set(double pctOutput, double arbFF) {
+    _mode = SetPointMode.None;
+    _controller.set(ControlMode.PercentOutput, pctOutput, DemandType.ArbitraryFeedForward, arbFF);
+    if (_hasAuxController) {
+      _auxController.follow(_controller);
+    }
   }
 
   public void set(double pctOutput) {
-    _mode = SetPointMode.None;
-    _controller.set(
-        ControlMode.PercentOutput,
-        pctOutput,
-        DemandType.ArbitraryFeedForward,
-        _feedForwardCalculator.ks);
-    if (_auxController != null) {
-      _auxController.follow(_controller, FollowerType.PercentOutput);
-    }
+    this.set(pctOutput, 0.0);
   }
 
-  public void set(double pctOutput, double auxOutput) {
+  public void setOutput(double pctOutput, double arbFF) {
     _mode = SetPointMode.None;
-    _controller.set(
-        ControlMode.PercentOutput,
-        pctOutput,
-        DemandType.ArbitraryFeedForward,
-        _feedForwardCalculator.ks);
-    if (_auxController != null) {
+    _controller.set(ControlMode.PercentOutput, pctOutput);
+  }
+
+  public void setAuxOutput(double auxOutput, double arbFF) {
+    _mode = SetPointMode.None;
+    if (_hasAuxController) {
       _auxController.set(
-          ControlMode.PercentOutput,
-          auxOutput,
-          DemandType.ArbitraryFeedForward,
-          _feedForwardCalculator.ks);
+          ControlMode.PercentOutput, auxOutput, DemandType.ArbitraryFeedForward, arbFF);
     }
   }
 
-  public void setTarget(double meters) {
+  public void setOutput(double pctOutput, double auxOutput, double arbFF) {
+    this.setOutput(pctOutput, arbFF);
+    this.setAuxOutput(auxOutput, arbFF);
+  }
+
+  public void setTarget(double meters, double auxMeters, double _feedfwd) {
     _mode = SetPointMode.None;
     _setpoint = meters;
-    _nativeSetpoint = convertor.distanceMetersToNativeUnits(meters);
-    _auxpoint = _nativeAuxpoint = 0;
+    _nativeSetpoint = convertor.distanceMetersToNativeUnits(_setpoint);
+    _auxpoint = auxMeters;
+    _nativeAuxpoint = convertor.distanceMetersToNativeUnits(_auxpoint);
 
     _controller.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
     _controller.set(
-        ControlMode.MotionMagic,
-        _nativeSetpoint,
-        DemandType.ArbitraryFeedForward,
-        _feedForwardCalculator.ks);
-    System.out.println(
-        name + " setTarget - " + _nativeSetpoint + " ffwd: " + _feedForwardCalculator.ks);
-    if (_auxController != null) {
-      // _auxController.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
-      // _auxController.set(
-      //     ControlMode.MotionMagic,
-      //     _nativeSetpoint,
-      //     DemandType.ArbitraryFeedForward,
-      //     _feedForwardCalculator.ks);
-      _auxController.follow(_controller);
+        ControlMode.MotionMagic, _nativeSetpoint, DemandType.ArbitraryFeedForward, _feedfwd);
+    if (_hasAuxController) {
+      _auxController.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
+      _auxController.set(
+          ControlMode.MotionMagic, _nativeAuxpoint, DemandType.ArbitraryFeedForward, _feedfwd);
     }
     _mode = SetPointMode.Distance;
+    System.out.println(
+        name
+            + " setTarget - "
+            + _nativeSetpoint
+            + " aux: "
+            + _nativeAuxpoint
+            + " ffwd: "
+            + _feedfwd);
   }
 
   public void setTarget(double meters, double _feedfwd) {
-    configureFeedForward(_feedfwd);
-    setTarget(meters);
+    _mode = SetPointMode.None;
+    _setpoint = meters;
+    _nativeSetpoint = convertor.distanceMetersToNativeUnits(_setpoint);
+    _auxpoint = meters;
+    _nativeAuxpoint = convertor.distanceMetersToNativeUnits(_auxpoint);
+
+    _controller.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
+    _controller.set(
+        ControlMode.MotionMagic, _nativeSetpoint, DemandType.ArbitraryFeedForward, _feedfwd);
+    if (_hasAuxController) {
+      _auxController.follow(_controller);
+    }
+    _mode = SetPointMode.DistanceFollow;
+    System.out.println(name + " setTarget - " + _nativeSetpoint + " ffwd: " + _feedfwd);
+  }
+
+  public void setTarget(double meters) {
+    setTarget(meters, 0.0);
   }
 
   public void setTargetAndAngle(double meters, double angle) {
@@ -468,13 +462,13 @@ public class SmartMotorController {
     _controller.set(ControlMode.MotionMagic, _nativeSetpoint, DemandType.AuxPID, _nativeAuxpoint);
     System.out.println(
         name + " setTargetAndAngle - " + _nativeSetpoint + " ffwd: " + _feedForwardCalculator.ks);
-    if (_auxController != null) {
+    if (_hasAuxController) {
       _auxController.follow(_controller, FollowerType.AuxOutput1);
     }
     _mode = SetPointMode.DistanceAux;
   }
 
-  public void setVelocityUPS(final double velocity) {
+  public void setVelocity(final double velocity) {
     _mode = SetPointMode.None;
     _setpoint = velocity;
     _nativeSetpoint = convertor.velocityToNativeUnits(_setpoint);
@@ -484,36 +478,38 @@ public class SmartMotorController {
     _controller.selectProfileSlot(kSlot_Velocit, PID_PRIMARY);
     _controller.set(
         ControlMode.Velocity, _nativeSetpoint, DemandType.ArbitraryFeedForward, _nativeAuxpoint);
+
+    if (_hasAuxController) _auxController.follow(_controller);
     _mode = SetPointMode.Velocity;
   }
 
-  public boolean isPrimaryFwdLimitSwitchClosed() {
+  public boolean isFwdLimitSwitchClosed() {
     return _controller.isFwdLimitSwitchClosed() == 1;
   }
 
-  public boolean isPrimaryRevLimitSwitchClosed() {
+  public boolean isRevLimitSwitchClosed() {
     return _controller.isRevLimitSwitchClosed() == 1;
   }
 
   public boolean isAuxFwdLimitSwitchClosed() {
-    return (_auxController != null)
+    return (_hasAuxController)
         ? _auxController.isFwdLimitSwitchClosed() == 1
-        : isPrimaryFwdLimitSwitchClosed();
+        : isFwdLimitSwitchClosed();
   }
 
   public boolean isAuxRevLimitSwitchClosed() {
-    return (_auxController != null)
+    return (_hasAuxController)
         ? _auxController.isRevLimitSwitchClosed() == 1
-        : isPrimaryRevLimitSwitchClosed();
+        : isRevLimitSwitchClosed();
   }
 
   /** Resets the position of the Talon to 0. */
   public void resetPosition() {
-    resetPrimaryPosition();
-    resetAuxPosition();
+    resetSensorPosition();
+    resetAuxSensorPosition();
   }
 
-  public void resetPrimaryPosition() {
+  public void resetSensorPosition() {
     if (_controllerType == kTalonFX) {
       ((WPI_TalonFX) _controller).getSensorCollection().setIntegratedSensorPosition(0, kTimeoutMs);
     } else if (_controllerType == kTalonSRX) {
@@ -523,8 +519,8 @@ public class SmartMotorController {
     }
   }
 
-  public void resetAuxPosition() {
-    if (_auxController != null) {
+  public void resetAuxSensorPosition() {
+    if (_hasAuxController) {
       if (_controllerType == kTalonFX) {
         ((WPI_TalonFX) _auxController)
             .getSensorCollection()
@@ -539,25 +535,9 @@ public class SmartMotorController {
 
   public void enableBrakes(boolean enabled) {
     _controller.setNeutralMode(enabled ? NeutralMode.Brake : NeutralMode.Coast);
-    if (_auxController != null) {
+    if (_hasAuxController) {
       _auxController.setNeutralMode(enabled ? NeutralMode.Brake : NeutralMode.Coast);
     }
-  }
-
-  public double getClosedLoopTarget() {
-    return _controller.getClosedLoopTarget();
-  }
-
-  public double getClosedLoopError() {
-    return _controller.getClosedLoopError();
-  }
-
-  public double getActiveTrajectoryPosition() {
-    return _controller.getActiveTrajectoryPosition();
-  }
-
-  public double getActiveTrajectoryVelocity() {
-    return _controller.getActiveTrajectoryVelocity();
   }
 
   public boolean isTargetFinished() {
@@ -569,21 +549,37 @@ public class SmartMotorController {
     switch (_mode) {
       case Distance:
         {
-          _currentTrajPos = getActiveTrajectoryPosition();
-          if (Math.abs(_currentTrajPos - _nativeSetpoint) < 10) _mode = SetPointMode.Finished;
+          // _currentTrajPos = _controller.getActiveTrajectoryPosition();
+          // if (Math.abs(_currentTrajPos - _nativeSetpoint) < 10) {
+          //   if (_hasAuxController) {
+          //     _currentAuxTrajPos = _auxController.getActiveTrajectoryPosition();
+          //     if (Math.abs(_currentAuxTrajPos - _nativeAuxpoint) < 10)
+          //       _mode = SetPointMode.Finished;
+          //   } else _mode = SetPointMode.Finished;
+          _currentTrajPos = _controller.getSelectedSensorPosition();
+          _currentAuxTrajPos = _hasAuxController ? _auxController.getSelectedSensorPosition() : _nativeAuxpoint;
+  
+          if ((Math.abs(_currentTrajPos - _nativeSetpoint) < 400) &&
+              (Math.abs(_currentAuxTrajPos - _nativeAuxpoint) < 400)) {
+                _mode = SetPointMode.Finished;
+          }
           break;
         }
+      case DistanceFollow:
       case DistanceAux:
         {
-          _currentTrajPos = getActiveTrajectoryPosition();
-          if (Math.abs(_currentTrajPos - _nativeSetpoint) < 10) _mode = SetPointMode.Finished;
+          _currentTrajPos = _controller.getActiveTrajectoryPosition();
+          if (Math.abs(_currentTrajPos - _nativeSetpoint) < 10) {
+            _mode = SetPointMode.Finished;
+          }
           break;
         }
       case Velocity:
         {
-          _currentTrajPos = getActiveTrajectoryVelocity();
-          if (Math.abs(_currentTrajPos - _nativeSetpoint) < 10) _mode = SetPointMode.Finished;
-
+          _currentTrajPos = _controller.getActiveTrajectoryVelocity();
+          if (Math.abs(_currentTrajPos - _nativeSetpoint) < 10) {
+            _mode = SetPointMode.Finished;
+          }
           _controller.getFaults(_faults);
           if (_faults.SensorOutOfPhase) {
             System.out.println(
@@ -599,19 +595,29 @@ public class SmartMotorController {
   public void logPeriodic() {
     SmartDashboard.putString(name + "- Mode", _mode.toString());
     SmartDashboard.putNumber(name + "- SetPoint", _nativeSetpoint);
-    SmartDashboard.putNumber(name + "- AuxPoint", _nativeAuxpoint);
     SmartDashboard.putNumber(name + "- ActiveTrajectory", _currentTrajPos);
     SmartDashboard.putNumber(name + "- Position", getPosition());
     SmartDashboard.putNumber(name + "- Distance", getDistance());
     SmartDashboard.putNumber(name + "- FwdLimit", _controller.isFwdLimitSwitchClosed());
     SmartDashboard.putNumber(name + "- RevLimit", _controller.isRevLimitSwitchClosed());
     SmartDashboard.putString(name + "- ControlMode", _controller.getControlMode().toString());
-    if (_auxController != null) {
-      SmartDashboard.putNumber(name + "- AuxPosition", _auxController.getSelectedSensorPosition());
+    if (_controller.getControlMode() == ControlMode.MotionMagic) {
+      SmartDashboard.putNumber(name + "- ClosedLoopError", _controller.getClosedLoopError());
+      SmartDashboard.putNumber(name + "- ClosedLoopTgt", _controller.getClosedLoopTarget());
+    }
+    if (_hasAuxController) {
+      SmartDashboard.putNumber(name + "- ActiveAuxTrajectory", _currentAuxTrajPos);
+      SmartDashboard.putNumber(name + "- AuxPoint", _nativeAuxpoint);
+      SmartDashboard.putNumber(name + "- AuxPosition", getAuxPosition());
+      SmartDashboard.putNumber(name + "- AuxDistance", getAuxDistance());
       SmartDashboard.putNumber(name + "- AuxFwdLimit", _auxController.isFwdLimitSwitchClosed());
       SmartDashboard.putNumber(name + "- AuxRevLimit", _auxController.isRevLimitSwitchClosed());
       SmartDashboard.putString(
           name + "- AuxControlMode", _auxController.getControlMode().toString());
+      if (_auxController.getControlMode() == ControlMode.MotionMagic) {
+        SmartDashboard.putNumber(name + "- AuxClosedLoopError", _auxController.getClosedLoopError());
+        SmartDashboard.putNumber(name + "- AuxClosedLoopTgt", _auxController.getClosedLoopTarget());
+      }
     }
   }
 }

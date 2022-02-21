@@ -49,6 +49,8 @@ public class Constants {
       new GearRatios(100.0, Convertor.kWheelRadiusForDegrees, 1.0);
   public static final Gains kPivotLinkGains_Distance = new Gains(0.2, 0.0, 0.0, 0.2, 0, 0.3);
   public static final Gains kPivotLinkGains_Turn = new Gains(0.1, 0.0, 0.0, 0.1, 0, 0.3);
+  public static final double kPivotLinkMass = 3.0; // Kilograms
+  public static final double kPivotLinkLength = 0.76; // meters
 
   // These characterization values MUST be determined either experimentally or theoretically
   // for *your* robot's drive.

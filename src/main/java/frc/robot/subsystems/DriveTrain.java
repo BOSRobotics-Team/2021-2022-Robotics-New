@@ -145,19 +145,19 @@ public class DriveTrain extends SubsystemBase {
     return smartController.getVelocity();
   }
 
-  public Double getPosition() {
+  public Double getDistance() {
     return smartController.getDistance();
   }
 
-  public Double getNativePosition() {
+  public Double getPosition() {
     return smartController.getPosition();
   }
 
-  public Double getTurnPosition() {
+  public Double getTurnDistance() {
     return smartController.getTurnDistance();
   }
 
-  public Double getTurnNativePosition() {
+  public Double getTurnPosition() {
     return smartController.getTurnPosition();
   }
 
@@ -166,8 +166,8 @@ public class DriveTrain extends SubsystemBase {
    *
    * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
    */
-  public Double getLeftVel() {
-    return smartController.getAuxVelocity();
+  public Double getLeftVelocity() {
+    return smartController.getVelocity();
   }
 
   /**
@@ -175,8 +175,8 @@ public class DriveTrain extends SubsystemBase {
    *
    * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
    */
-  public Double getRightVel() {
-    return smartController.getPrimaryVelocity();
+  public Double getRightVelocity() {
+    return smartController.getAuxVelocity();
   }
 
   /**
@@ -185,7 +185,7 @@ public class DriveTrain extends SubsystemBase {
    * @return The signed position in feet, or null if the drive doesn't have encoders.
    */
   public Double getLeftDistance() {
-    return smartController.getAuxDistance();
+    return smartController.getDistance();
   }
 
   /**
@@ -194,19 +194,19 @@ public class DriveTrain extends SubsystemBase {
    * @return The signed position in feet, or null if the drive doesn't have encoders.
    */
   public Double getRightDistance() {
-    return smartController.getPrimaryDistance();
+    return smartController.getAuxDistance();
   }
 
   /** Completely stop the robot by setting the voltage to each side to be 0. */
   public void fullStop() {
-    setPercentVoltage(0, 0);
+    this.setPercentVoltage(0, 0);
     _lastLSmoothing = _lastRSmoothing = 0.0;
   }
 
   /** Reset odometry tracker to current robot pose */
   public void resetOdometry(final Pose2d pose) {
-    resetPosition();
-    setHeadingDegrees(pose.getRotation().getDegrees());
+    this.resetPosition();
+    this.setHeadingDegrees(pose.getRotation().getDegrees());
     driveOdometry.resetPosition(pose, getHeading());
     //        driveOdometry.resetPosition(pose, ahrs.getRotation2d());
   }
@@ -222,8 +222,9 @@ public class DriveTrain extends SubsystemBase {
         getLeftDistance(),
         getRightDistance());
     m_field.setRobotPose(driveOdometry.getPoseMeters());
-    SmartDashboard.putString("Heading", driveOdometry.getPoseMeters().getRotation().toString());
+
     SmartDashboard.putData("Field2d", m_field);
+    SmartDashboard.putString("Heading", driveOdometry.getPoseMeters().getRotation().toString());
   }
 
   /** @return Current estimated pose based on odometry tracker data */
@@ -235,7 +236,7 @@ public class DriveTrain extends SubsystemBase {
 
   /** @return Current wheel speeds based on encoder readings for future pose correction */
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-    return new DifferentialDriveWheelSpeeds(getLeftVel(), getRightVel());
+    return new DifferentialDriveWheelSpeeds(getLeftVelocity(), getRightVelocity());
   }
 
   /** @return Kinematics processor for wheel speeds */
@@ -250,7 +251,8 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public void setPercentVoltage(double leftPctVolts, double rightPctVolts) {
-    smartController.set(leftPctVolts, rightPctVolts);
+    leftMaster.set(ControlMode.PercentOutput, leftPctVolts);
+    rightMaster.set(ControlMode.PercentOutput, rightPctVolts);
   }
 
   /** Resets the position of the Talon to 0. */
@@ -260,17 +262,17 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public void logPeriodic() {
-
     gyro.logPeriodic();
-    // smartController.logPeriodic();
+    smartController.logPeriodic();
   }
 
   public void enableDriveTrain(boolean enable) {
     differentialDrive.setSafetyEnabled(enable);
-    smartController.set(0.0, 0.0);
+
+    this.setPercentVoltage(0.0, 0.0);
     if (!enable) {
-      leftMaster.set(ControlMode.Disabled, 0.0);
-      rightMaster.set(ControlMode.Disabled, 0.0);
+      leftMaster.neutralOutput();
+      rightMaster.neutralOutput();
     }
   }
 
