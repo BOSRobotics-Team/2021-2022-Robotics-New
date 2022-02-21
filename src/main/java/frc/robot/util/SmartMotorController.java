@@ -3,6 +3,8 @@ package frc.robot.util;
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 
@@ -419,14 +421,9 @@ public class SmartMotorController {
           ControlMode.MotionMagic, _nativeAuxpoint, DemandType.ArbitraryFeedForward, _feedfwd);
     }
     _mode = SetPointMode.Distance;
-    System.out.println(
-        name
-            + " setTarget - "
-            + _nativeSetpoint
-            + " aux: "
-            + _nativeAuxpoint
-            + " ffwd: "
-            + _feedfwd);
+    Shuffleboard.addEventMarker("setTarget", name, EventImportance.kHigh);
+    // System.out.println(name + " setTarget - " + _nativeSetpoint + " aux: " + _nativeAuxpoint + "
+    // ffwd: " + _feedfwd);
   }
 
   public void setTarget(double meters, double _feedfwd) {
@@ -443,7 +440,8 @@ public class SmartMotorController {
       _auxController.follow(_controller);
     }
     _mode = SetPointMode.DistanceFollow;
-    System.out.println(name + " setTarget - " + _nativeSetpoint + " ffwd: " + _feedfwd);
+    Shuffleboard.addEventMarker("setTarget", name, EventImportance.kHigh);
+    // System.out.println(name + " setTarget - " + _nativeSetpoint + " ffwd: " + _feedfwd);
   }
 
   public void setTarget(double meters) {
@@ -460,12 +458,12 @@ public class SmartMotorController {
     _controller.selectProfileSlot(kSlot_Distanc, PID_PRIMARY);
     _controller.selectProfileSlot(kSlot_Turning, PID_TURN);
     _controller.set(ControlMode.MotionMagic, _nativeSetpoint, DemandType.AuxPID, _nativeAuxpoint);
-    System.out.println(
-        name + " setTargetAndAngle - " + _nativeSetpoint + " ffwd: " + _feedForwardCalculator.ks);
     if (_hasAuxController) {
       _auxController.follow(_controller, FollowerType.AuxOutput1);
     }
     _mode = SetPointMode.DistanceAux;
+    Shuffleboard.addEventMarker("setTargetAndAngle", name, EventImportance.kHigh);
+    // System.out.println(name + " setTargetAndAngle - " + _nativeSetpoint);
   }
 
   public void setVelocity(final double velocity) {
@@ -481,6 +479,7 @@ public class SmartMotorController {
 
     if (_hasAuxController) _auxController.follow(_controller);
     _mode = SetPointMode.Velocity;
+    Shuffleboard.addEventMarker("setVelocity", name, EventImportance.kHigh);
   }
 
   public boolean isFwdLimitSwitchClosed() {
@@ -557,11 +556,12 @@ public class SmartMotorController {
           //       _mode = SetPointMode.Finished;
           //   } else _mode = SetPointMode.Finished;
           _currentTrajPos = _controller.getSelectedSensorPosition();
-          _currentAuxTrajPos = _hasAuxController ? _auxController.getSelectedSensorPosition() : _nativeAuxpoint;
-  
-          if ((Math.abs(_currentTrajPos - _nativeSetpoint) < 400) &&
-              (Math.abs(_currentAuxTrajPos - _nativeAuxpoint) < 400)) {
-                _mode = SetPointMode.Finished;
+          _currentAuxTrajPos =
+              _hasAuxController ? _auxController.getSelectedSensorPosition() : _nativeAuxpoint;
+
+          if ((Math.abs(_currentTrajPos - _nativeSetpoint) < 400)
+              && (Math.abs(_currentAuxTrajPos - _nativeAuxpoint) < 400)) {
+            _mode = SetPointMode.Finished;
           }
           break;
         }
@@ -582,8 +582,9 @@ public class SmartMotorController {
           }
           _controller.getFaults(_faults);
           if (_faults.SensorOutOfPhase) {
-            System.out.println(
-                "sensor is out of phase: " + _controller.getSelectedSensorVelocity(0));
+            Shuffleboard.addEventMarker("sensor is out of phase: ", name, EventImportance.kHigh);
+            // System.out.println(
+            //     "sensor is out of phase: " + _controller.getSelectedSensorVelocity(0));
           }
           break;
         }
@@ -594,28 +595,34 @@ public class SmartMotorController {
 
   public void logPeriodic() {
     SmartDashboard.putString(name + "- Mode", _mode.toString());
+
     SmartDashboard.putNumber(name + "- SetPoint", _nativeSetpoint);
-    SmartDashboard.putNumber(name + "- ActiveTrajectory", _currentTrajPos);
+    SmartDashboard.putNumber(name + "- SetPointDistance", _setpoint);
     SmartDashboard.putNumber(name + "- Position", getPosition());
     SmartDashboard.putNumber(name + "- Distance", getDistance());
-    SmartDashboard.putNumber(name + "- FwdLimit", _controller.isFwdLimitSwitchClosed());
-    SmartDashboard.putNumber(name + "- RevLimit", _controller.isRevLimitSwitchClosed());
+    SmartDashboard.putNumber(name + "- ActiveTrajectory", _currentTrajPos);
+    SmartDashboard.putBoolean(name + "- FwdLimit", isFwdLimitSwitchClosed());
+    SmartDashboard.putBoolean(name + "- RevLimit", isRevLimitSwitchClosed());
+
     SmartDashboard.putString(name + "- ControlMode", _controller.getControlMode().toString());
     if (_controller.getControlMode() == ControlMode.MotionMagic) {
       SmartDashboard.putNumber(name + "- ClosedLoopError", _controller.getClosedLoopError());
       SmartDashboard.putNumber(name + "- ClosedLoopTgt", _controller.getClosedLoopTarget());
     }
     if (_hasAuxController) {
-      SmartDashboard.putNumber(name + "- ActiveAuxTrajectory", _currentAuxTrajPos);
       SmartDashboard.putNumber(name + "- AuxPoint", _nativeAuxpoint);
+      SmartDashboard.putNumber(name + "- AuxPointDistance", _auxpoint);
       SmartDashboard.putNumber(name + "- AuxPosition", getAuxPosition());
       SmartDashboard.putNumber(name + "- AuxDistance", getAuxDistance());
-      SmartDashboard.putNumber(name + "- AuxFwdLimit", _auxController.isFwdLimitSwitchClosed());
-      SmartDashboard.putNumber(name + "- AuxRevLimit", _auxController.isRevLimitSwitchClosed());
+      SmartDashboard.putNumber(name + "- ActiveAuxTrajectory", _currentAuxTrajPos);
+      SmartDashboard.putBoolean(name + "- AuxFwdLimit", isAuxFwdLimitSwitchClosed());
+      SmartDashboard.putBoolean(name + "- AuxRevLimit", isAuxRevLimitSwitchClosed());
+
       SmartDashboard.putString(
           name + "- AuxControlMode", _auxController.getControlMode().toString());
       if (_auxController.getControlMode() == ControlMode.MotionMagic) {
-        SmartDashboard.putNumber(name + "- AuxClosedLoopError", _auxController.getClosedLoopError());
+        SmartDashboard.putNumber(
+            name + "- AuxClosedLoopError", _auxController.getClosedLoopError());
         SmartDashboard.putNumber(name + "- AuxClosedLoopTgt", _auxController.getClosedLoopTarget());
       }
     }

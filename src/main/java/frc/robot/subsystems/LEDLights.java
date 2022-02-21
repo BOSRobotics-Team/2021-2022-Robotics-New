@@ -11,6 +11,8 @@ import com.ctre.phoenix.led.ColorFlowAnimation.Direction;
 import com.ctre.phoenix.led.LarsonAnimation.BounceMode;
 import com.ctre.phoenix.led.TwinkleAnimation.TwinklePercent;
 import com.ctre.phoenix.led.TwinkleOffAnimation.TwinkleOffPercent;
+import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -275,7 +277,9 @@ public class LEDLights extends SubsystemBase {
         m_toAnimate = null;
         break;
     }
-    System.out.println("Changed to " + m_currentAnimation.toString());
+    Shuffleboard.addEventMarker(
+        "LEDAnimation changed to: ", m_currentAnimation.toString(), EventImportance.kHigh);
+    // System.out.println("Changed to " + m_currentAnimation.toString());
   }
 
   @Override

@@ -29,7 +29,7 @@ public class ClimberExtendTiltCommand extends CommandBase {
   public void initialize() {
     Shuffleboard.addEventMarker(
         "ClimberExtendTiltCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-    m_climber.setClimberHeightPct(m_height);
+    m_climber.setClimberHeightPct(m_height, 0.0);
     m_climber.setPivotLinkAnglePct(m_tilt);
 
     System.out.println(

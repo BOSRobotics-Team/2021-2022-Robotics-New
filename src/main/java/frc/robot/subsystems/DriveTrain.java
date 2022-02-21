@@ -10,6 +10,8 @@ import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.*;
@@ -116,13 +118,15 @@ public class DriveTrain extends SubsystemBase {
   public void setTarget(double distance) {
     smartController.setTarget(distance);
     differentialDrive.feed();
-    System.out.println("target (meters) = " + distance);
+    Shuffleboard.addEventMarker("setTarget (meters)", "DriveTrain", EventImportance.kHigh);
+    // System.out.println("target (meters) = " + distance);
   }
 
   public void setTargetAndAngle(double distance, double angle) {
     smartController.setTargetAndAngle(distance, angle);
     differentialDrive.feed();
-    System.out.println("target (meters) = " + distance + " angle: " + angle);
+    Shuffleboard.addEventMarker("setTargetAndAngle", "DriveTrain", EventImportance.kHigh);
+    // System.out.println("target (meters) = " + distance + " angle: " + angle);
   }
 
   public Boolean isTargetReached() {

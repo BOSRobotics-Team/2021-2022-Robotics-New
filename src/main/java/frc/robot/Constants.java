@@ -44,6 +44,7 @@ public class Constants {
   public static final GearRatios kClimberGearRatio = new GearRatios(20.0, 0.5, 1.0);
   public static final Gains kClimberGains_Distance = new Gains(0.2, 0.0, 0.0, 0., 0, 1.0);
   public static final Gains kClimberGains_Turn = new Gains(0.1, 0.0, 0.0, 0., 0, 1.0);
+  public static final double kClimberFeedFwd = 0.25;
 
   public static final GearRatios kPivotLinkGearRatio =
       new GearRatios(100.0, Convertor.kWheelRadiusForDegrees, 1.0);
