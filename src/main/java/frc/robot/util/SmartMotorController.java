@@ -312,7 +312,7 @@ public class SmartMotorController {
    *
    * @return The signed position in units, or null if the drive doesn't have encoders.
    */
-  public Double getAuxPosition() {
+  public Double getTurnPosition() {
     return _controller.getSelectedSensorPosition(PID_TURN);
   }
 
@@ -321,7 +321,7 @@ public class SmartMotorController {
    *
    * @return The signed position in meters, or null if the drive doesn't have encoders.
    */
-  public Double getAuxDistance() {
+  public Double getTurnDistance() {
     return convertor.nativeUnitsToDistanceMeters(getAuxPosition());
   }
 
@@ -348,7 +348,7 @@ public class SmartMotorController {
    *
    * @return The signed velocity in units per second, or null if the drive doesn't have encoders.
    */
-  public Double getAuxVelocityUPS() {
+  public Double getTurnVelocityUPS() {
     return _controller.getSelectedSensorVelocity(PID_TURN);
   }
 
@@ -357,43 +357,43 @@ public class SmartMotorController {
    *
    * @return The signed velocity in meters per second, or null if the drive doesn't have encoders.
    */
-  public Double getAuxVelocity() {
-    return convertor.nativeUnitsToVelocity(getAuxVelocityUPS());
+  public Double getTurnVelocity() {
+    return convertor.nativeUnitsToVelocity(getTurnVelocityUPS());
   }
 
-  public Double getLeftPosition() {
+  public Double getAuxPosition() {
     return (_auxController != null)
         ? _auxController.getSelectedSensorPosition(PID_PRIMARY)
         : getPosition();
   }
 
-  public Double getLeftDistance() {
-    return convertor.nativeUnitsToDistanceMeters(getLeftPosition());
+  public Double getAuxDistance() {
+    return convertor.nativeUnitsToDistanceMeters(getAuxPosition());
   }
 
-  public Double getLeftVelocityUPS() {
+  public Double getAuxVelocityUPS() {
     return (_auxController != null)
         ? _auxController.getSelectedSensorVelocity(PID_PRIMARY)
         : getVelocityUPS();
   }
 
-  public Double getLeftVelocity() {
-    return convertor.nativeUnitsToDistanceMeters(getLeftVelocityUPS());
+  public Double getAuxVelocity() {
+    return convertor.nativeUnitsToDistanceMeters(getAuxVelocityUPS());
   }
 
-  public Double getRightPosition() {
+  public Double getPrimaryPosition() {
     return getPosition();
   }
 
-  public Double getRightDistance() {
+  public Double getPrimaryDistance() {
     return getDistance();
   }
 
-  public Double getRightVelocityUPS() {
+  public Double getPrimaryVelocityUPS() {
     return getVelocityUPS();
   }
 
-  public Double getRightVelocity() {
+  public Double getPrimaryVelocity() {
     return getVelocity();
   }
 
@@ -487,33 +487,33 @@ public class SmartMotorController {
     _mode = SetPointMode.Velocity;
   }
 
-  public boolean isLeftFwdLimitSwitchClosed() {
+  public boolean isPrimaryFwdLimitSwitchClosed() {
     return _controller.isFwdLimitSwitchClosed() == 1;
   }
 
-  public boolean isLeftRevLimitSwitchClosed() {
+  public boolean isPrimaryRevLimitSwitchClosed() {
     return _controller.isRevLimitSwitchClosed() == 1;
   }
 
-  public boolean isRightFwdLimitSwitchClosed() {
+  public boolean isAuxFwdLimitSwitchClosed() {
     return (_auxController != null)
         ? _auxController.isFwdLimitSwitchClosed() == 1
-        : isLeftFwdLimitSwitchClosed();
+        : isPrimaryFwdLimitSwitchClosed();
   }
 
-  public boolean isRightRevLimitSwitchClosed() {
+  public boolean isAuxRevLimitSwitchClosed() {
     return (_auxController != null)
         ? _auxController.isRevLimitSwitchClosed() == 1
-        : isLeftRevLimitSwitchClosed();
+        : isPrimaryRevLimitSwitchClosed();
   }
 
   /** Resets the position of the Talon to 0. */
   public void resetPosition() {
-    resetLeftPosition();
-    resetRightPosition();
+    resetPrimaryPosition();
+    resetAuxPosition();
   }
 
-  public void resetLeftPosition() {
+  public void resetPrimaryPosition() {
     if (_controllerType == kTalonFX) {
       ((WPI_TalonFX) _controller).getSensorCollection().setIntegratedSensorPosition(0, kTimeoutMs);
     } else if (_controllerType == kTalonSRX) {
@@ -523,7 +523,7 @@ public class SmartMotorController {
     }
   }
 
-  public void resetRightPosition() {
+  public void resetAuxPosition() {
     if (_auxController != null) {
       if (_controllerType == kTalonFX) {
         ((WPI_TalonFX) _auxController)
@@ -603,7 +603,15 @@ public class SmartMotorController {
     SmartDashboard.putNumber(name + "- ActiveTrajectory", _currentTrajPos);
     SmartDashboard.putNumber(name + "- Position", getPosition());
     SmartDashboard.putNumber(name + "- Distance", getDistance());
-    if (_auxController != null)
+    SmartDashboard.putNumber(name + "- FwdLimit", _controller.isFwdLimitSwitchClosed());
+    SmartDashboard.putNumber(name + "- RevLimit", _controller.isRevLimitSwitchClosed());
+    SmartDashboard.putString(name + "- ControlMode", _controller.getControlMode().toString());
+    if (_auxController != null) {
       SmartDashboard.putNumber(name + "- AuxPosition", _auxController.getSelectedSensorPosition());
+      SmartDashboard.putNumber(name + "- AuxFwdLimit", _auxController.isFwdLimitSwitchClosed());
+      SmartDashboard.putNumber(name + "- AuxRevLimit", _auxController.isRevLimitSwitchClosed());
+      SmartDashboard.putString(
+          name + "- AuxControlMode", _auxController.getControlMode().toString());
+    }
   }
 }

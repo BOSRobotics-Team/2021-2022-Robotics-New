@@ -153,12 +153,12 @@ public class DriveTrain extends SubsystemBase {
     return smartController.getPosition();
   }
 
-  public Double getAuxPosition() {
-    return smartController.getAuxDistance();
+  public Double getTurnPosition() {
+    return smartController.getTurnDistance();
   }
 
-  public Double getAuxNativePosition() {
-    return smartController.getAuxPosition();
+  public Double getTurnNativePosition() {
+    return smartController.getTurnPosition();
   }
 
   /**
@@ -167,7 +167,7 @@ public class DriveTrain extends SubsystemBase {
    * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
    */
   public Double getLeftVel() {
-    return smartController.getLeftVelocity();
+    return smartController.getAuxVelocity();
   }
 
   /**
@@ -176,7 +176,7 @@ public class DriveTrain extends SubsystemBase {
    * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
    */
   public Double getRightVel() {
-    return smartController.getRightVelocity();
+    return smartController.getPrimaryVelocity();
   }
 
   /**
@@ -185,7 +185,7 @@ public class DriveTrain extends SubsystemBase {
    * @return The signed position in feet, or null if the drive doesn't have encoders.
    */
   public Double getLeftDistance() {
-    return smartController.getLeftDistance();
+    return smartController.getAuxDistance();
   }
 
   /**
@@ -194,7 +194,7 @@ public class DriveTrain extends SubsystemBase {
    * @return The signed position in feet, or null if the drive doesn't have encoders.
    */
   public Double getRightDistance() {
-    return smartController.getRightDistance();
+    return smartController.getPrimaryDistance();
   }
 
   /** Completely stop the robot by setting the voltage to each side to be 0. */

@@ -112,16 +112,16 @@ public class CommandClimber extends CommandBase {
         .whenPressed(() -> m_climber.tripPivotRevLimitSwitches_test(true))
         .whenReleased(() -> m_climber.tripPivotRevLimitSwitches_test(false));
     m_operatorPOVs[0] = new POVButton(m_operatorController, 0);
-    m_operatorPOVs[0].whileHeld(() -> m_climber.setClimberHeightInc(0.01));
+    m_operatorPOVs[0].whileHeld(() -> m_climber.setClimberHeightInc(0.001));
 
     m_operatorPOVs[1] = new POVButton(m_operatorController, 180);
-    m_operatorPOVs[1].whileHeld(() -> m_climber.setClimberHeightInc(-0.01));
+    m_operatorPOVs[1].whileHeld(() -> m_climber.setClimberHeightInc(-0.001));
 
     m_operatorPOVs[2] = new POVButton(m_operatorController, 270);
-    m_operatorPOVs[2].whileHeld(() -> m_climber.setPivotLinkAngleInc(0.1));
+    m_operatorPOVs[2].whileHeld(() -> m_climber.setPivotLinkAngleInc(0.2));
 
     m_operatorPOVs[3] = new POVButton(m_operatorController, 90);
-    m_operatorPOVs[3].whileHeld(() -> m_climber.setPivotLinkAngleInc(-0.1));
+    m_operatorPOVs[3].whileHeld(() -> m_climber.setPivotLinkAngleInc(-0.2));
   }
 
   // Called just before this Command runs the first time
