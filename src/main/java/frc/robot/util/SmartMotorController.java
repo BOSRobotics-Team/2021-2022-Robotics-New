@@ -548,19 +548,14 @@ public class SmartMotorController {
     switch (_mode) {
       case Distance:
         {
-          // _currentTrajPos = _controller.getActiveTrajectoryPosition();
-          // if (Math.abs(_currentTrajPos - _nativeSetpoint) < 10) {
-          //   if (_hasAuxController) {
-          //     _currentAuxTrajPos = _auxController.getActiveTrajectoryPosition();
-          //     if (Math.abs(_currentAuxTrajPos - _nativeAuxpoint) < 10)
-          //       _mode = SetPointMode.Finished;
-          //   } else _mode = SetPointMode.Finished;
-          _currentTrajPos = _controller.getSelectedSensorPosition();
+          _currentTrajPos = _controller.getActiveTrajectoryPosition();
+          // _currentTrajPos = _controller.getSelectedSensorPosition();
           _currentAuxTrajPos =
-              _hasAuxController ? _auxController.getSelectedSensorPosition() : _nativeAuxpoint;
+              _hasAuxController ? _auxController.getActiveTrajectoryPosition() : _nativeAuxpoint;
+          // _hasAuxController ? _auxController.getSelectedSensorPosition() : _nativeAuxpoint;
 
-          if ((Math.abs(_currentTrajPos - _nativeSetpoint) < 400)
-              && (Math.abs(_currentAuxTrajPos - _nativeAuxpoint) < 400)) {
+          if ((Math.abs(_currentTrajPos - _nativeSetpoint) < 100)
+              && (Math.abs(_currentAuxTrajPos - _nativeAuxpoint) < 100)) {
             _mode = SetPointMode.Finished;
           }
           break;

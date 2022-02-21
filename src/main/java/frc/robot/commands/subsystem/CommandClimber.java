@@ -119,10 +119,10 @@ public class CommandClimber extends CommandBase {
 
     m_operatorButtons[Button.kA.value] = new JoystickButton(m_operatorController, Button.kA.value);
     m_operatorButtons[Button.kA.value].whenPressed(
-        () -> m_climber.setClimberHeightPct(0.0, Constants.kClimberFeedFwd));
+        () -> m_climber.setClimberHeight(-0.025, Constants.kClimberFeedFwd));
 
     m_operatorButtons[Button.kB.value] = new JoystickButton(m_operatorController, Button.kB.value);
-    m_operatorButtons[Button.kB.value].whenPressed(() -> m_climber.setPivotLinkAngle(90.0));
+    m_operatorButtons[Button.kB.value].whenPressed(() -> m_climber.setPivotLinkAngle(95.0));
 
     m_operatorButtons[Button.kX.value] = new JoystickButton(m_operatorController, Button.kX.value);
     m_operatorButtons[Button.kX.value].whenPressed(() -> m_climber.setPivotLinkAngle(70.0));
@@ -167,10 +167,10 @@ public class CommandClimber extends CommandBase {
           int pov = m_operatorController.getPOV();
           if ((pov == 315) || (pov == 0) || (pov == 45))
             m_climber.setClimberHeightInc(0.001, _climbFF);
-          if ((pov == 45) || (pov == 90) || (pov == 135)) m_climber.setPivotLinkAngleInc(-0.1);
+          if ((pov == 45) || (pov == 90) || (pov == 135)) m_climber.setPivotLinkAngleInc(-0.2);
           if ((pov == 135) || (pov == 180) || (pov == 225))
             m_climber.setClimberHeightInc(-0.001, _climbFF);
-          if ((pov == 225) || (pov == 270) || (pov == 315)) m_climber.setPivotLinkAngleInc(0.1);
+          if ((pov == 225) || (pov == 270) || (pov == 315)) m_climber.setPivotLinkAngleInc(0.2);
           break;
         }
       case Manual:

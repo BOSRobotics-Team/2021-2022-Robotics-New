@@ -42,16 +42,20 @@ public class Constants {
       new Gains(1.0, 0.0, 0.0, 1023.0 / 6800.0, 400, 1.00);
 
   public static final GearRatios kClimberGearRatio = new GearRatios(20.0, 0.5, 1.0);
-  public static final Gains kClimberGains_Distance = new Gains(0.2, 0.0, 0.0, 0., 0, 1.0);
+  public static final Gains kClimberGains_Distance =
+      new Gains(0.2, 0.0, 0.0, 0., 0, 1.0, 6000, 15000, 1);
   public static final Gains kClimberGains_Turn = new Gains(0.1, 0.0, 0.0, 0., 0, 1.0);
-  public static final double kClimberFeedFwd = 0.25;
+  public static final double kClimberFeedFwd = -0.4;
+  public static final double kResetClimberSpeed = -0.08;
 
   public static final GearRatios kPivotLinkGearRatio =
       new GearRatios(100.0, Convertor.kWheelRadiusForDegrees, 1.0);
-  public static final Gains kPivotLinkGains_Distance = new Gains(0.2, 0.0, 0.0, 0.2, 0, 0.3);
+  public static final Gains kPivotLinkGains_Distance =
+      new Gains(0.2, 0.0, 0.0, 0.2, 0, 0.2, 2000, 2000, 0);
   public static final Gains kPivotLinkGains_Turn = new Gains(0.1, 0.0, 0.0, 0.1, 0, 0.3);
   public static final double kPivotLinkMass = 3.0; // Kilograms
   public static final double kPivotLinkLength = 0.76; // meters
+  public static final double kResetPivotSpeed = 0.05;
 
   // These characterization values MUST be determined either experimentally or theoretically
   // for *your* robot's drive.
