@@ -33,14 +33,16 @@ public class Climber extends SubsystemBase {
   private boolean _isResetLClimber = false;
   private boolean _isResetRClimber = false;
   private boolean _isClimberLimitSwitchTest = false;
-  private double _targetClimberHeight = 0;
+  private double _targetLClimberHeight = 0;
+  private double _targetRClimberHeight = 0;
   private double _climberMaxHeight = 0.55;
 
   private boolean _isPivoting = false;
   private boolean _isResetLPivoting = false;
   private boolean _isResetRPivoting = false;
   private boolean _isPivotLimitSwitchTest = false;
-  private double _targetPivotAngle = 0;
+  private double _targetLPivotAngle = 0;
+  private double _targetRPivotAngle = 0;
   private double _minPivotLinkAngle = 40.0;
   private double _maxPivotLinkAngle = 100.0;
   private double _pivotLinkAngleRange = _maxPivotLinkAngle - _minPivotLinkAngle;
@@ -194,20 +196,40 @@ public class Climber extends SubsystemBase {
 
   // Put methods for controlling this subsystem
   // here. Call these from Commands.
-  public void setClimberHeight(double height, double arbFF) {
-    _targetClimberHeight = MathUtil.clamp(height, -0.025, _climberMaxHeight + 0.025);
-    smartClimberController.setTarget(_targetClimberHeight, _targetClimberHeight, arbFF);
+  public void setClimberHeight(double lHeight, double rHeight, double arbFF) {
+    _targetLClimberHeight = MathUtil.clamp(lHeight, -0.025, _climberMaxHeight + 0.025);
+    _targetRClimberHeight = MathUtil.clamp(rHeight, -0.025, _climberMaxHeight + 0.025);
+
+    smartClimberController.setTarget(_targetLClimberHeight, _targetRClimberHeight, arbFF);
     _isClimbing = true;
-    System.out.println("setClimberHeight - height: " + height + "  arbFF = " + arbFF);
     Shuffleboard.addEventMarker("setClimberHeight: ", "", EventImportance.kHigh);
+    System.out.println(
+        "setClimberHeight - lHeight: "
+            + _targetLClimberHeight
+            + " rHeight: "
+            + _targetRClimberHeight
+            + " arbFF = "
+            + arbFF);
+  }
+
+  public void setClimberHeight(double height, double arbFF) {
+    this.setClimberHeight(height, height, arbFF);
+  }
+
+  public void setClimberHeightPct(double lPctHeight, double rPctHeight, double arbFF) {
+    setClimberHeight(lPctHeight * _climberMaxHeight, rPctHeight * _climberMaxHeight, arbFF);
   }
 
   public void setClimberHeightPct(double pctHeight, double arbFF) {
     setClimberHeight(pctHeight * _climberMaxHeight, arbFF);
   }
 
+  public void setClimberHeightInc(double lPctInc, double rPctInc, double arbFF) {
+    setClimberHeight(_targetLClimberHeight + lPctInc, _targetRClimberHeight + rPctInc, arbFF);
+  }
+
   public void setClimberHeightInc(double pctInc, double arbFF) {
-    setClimberHeight(_targetClimberHeight + pctInc, arbFF);
+    setClimberHeight(_targetLClimberHeight + pctInc, arbFF);
   }
 
   public double getClimberHeight() {
@@ -247,7 +269,7 @@ public class Climber extends SubsystemBase {
 
   public void resetClimber() {
     _isClimbing = false;
-    _targetClimberHeight = 0.0;
+    _targetLClimberHeight = _targetRClimberHeight = 0.0;
     _isResetLClimber = _isResetRClimber = true;
     smartClimberController.setOutput(
         isLClimberRevLimitSwitchClosed() ? 0.0 : Constants.kResetClimberSpeed, 0.0);
@@ -264,16 +286,29 @@ public class Climber extends SubsystemBase {
     Shuffleboard.addEventMarker("zeroClimberPosition: ", "", EventImportance.kHigh);
   }
 
-  public void setPivotLinkAngle(double angleDegrees) {
+  public void setPivotLinkAngle(double lAngleDegrees, double rAngleDegrees) {
     // because max angle is the zero point, clamp angle degrees to min&max, then subtract max to get
     // zeropoint
-    _targetPivotAngle =
-        MathUtil.clamp(angleDegrees, _minPivotLinkAngle, _maxPivotLinkAngle) - _maxPivotLinkAngle;
-    System.out.println("setPivotLinkAngle: " + angleDegrees + " tgtAngle: " + _targetPivotAngle);
+    _targetLPivotAngle =
+        MathUtil.clamp(lAngleDegrees, _minPivotLinkAngle, _maxPivotLinkAngle) - _maxPivotLinkAngle;
+    _targetRPivotAngle =
+        MathUtil.clamp(rAngleDegrees, _minPivotLinkAngle, _maxPivotLinkAngle) - _maxPivotLinkAngle;
 
-    smartPivotLinkController.setTarget(_targetPivotAngle, _targetPivotAngle, _pivotFeedFwd);
+    smartPivotLinkController.setTarget(_targetLPivotAngle, _targetRPivotAngle, _pivotFeedFwd);
     _isPivoting = true;
     Shuffleboard.addEventMarker("setPivotLinkAngle: ", "", EventImportance.kHigh);
+    System.out.println("setLPivotLinkAngle: " + lAngleDegrees + " tgtAngle: " + _targetLPivotAngle);
+    System.out.println("setRPivotLinkAngle: " + rAngleDegrees + " tgtAngle: " + _targetRPivotAngle);
+  }
+
+  public void setPivotLinkAngle(double angleDegrees) {
+    this.setPivotLinkAngle(angleDegrees, angleDegrees);
+  }
+
+  public void setPivotLinkAnglePct(double lPctAngle, double rPctAngle) {
+    setPivotLinkAngle(
+        (lPctAngle * _pivotLinkAngleRange) + _minPivotLinkAngle,
+        (rPctAngle * _pivotLinkAngleRange) + _minPivotLinkAngle);
   }
 
   public void setPivotLinkAnglePct(double pctAngle) {
@@ -281,8 +316,15 @@ public class Climber extends SubsystemBase {
     setPivotLinkAngle((pctAngle * _pivotLinkAngleRange) + _minPivotLinkAngle);
   }
 
+  public void setPivotLinkAngleInc(double lPctInc, double rPctInc) {
+    // add angle pct (from 0 to angle swing) to minAngle to get angle
+    setPivotLinkAngle(
+        _targetLPivotAngle + _maxPivotLinkAngle + lPctInc,
+        _targetRPivotAngle + _maxPivotLinkAngle + rPctInc);
+  }
+
   public void setPivotLinkAngleInc(double pctInc) {
-    setPivotLinkAngle(_targetPivotAngle + _maxPivotLinkAngle + pctInc);
+    setPivotLinkAngle(_targetLPivotAngle + _maxPivotLinkAngle + pctInc);
   }
 
   public double getPivotLinkAngle() {
@@ -318,7 +360,7 @@ public class Climber extends SubsystemBase {
   public void resetPivotLink() {
     _isPivoting = false;
     _isResetLPivoting = _isResetRPivoting = true;
-    _targetPivotAngle = _pivotLinkAngleRange; // reset point is max range
+    _targetLPivotAngle = _targetRPivotAngle = _pivotLinkAngleRange; // reset point is max range
     smartPivotLinkController.setOutput(
         isLPivotFwdLimitSwitchClosed() ? 0.0 : Constants.kResetPivotSpeed, 0.0);
     smartPivotLinkController.setAuxOutput(

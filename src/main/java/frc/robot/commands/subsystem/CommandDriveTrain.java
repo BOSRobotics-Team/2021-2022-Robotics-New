@@ -40,22 +40,13 @@ public class CommandDriveTrain extends CommandBase {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_driveTrain);
 
-    // m_buttons[Button.kA.value] = new JoystickButton(m_controller, Button.kA.value);
-    // m_buttons[Button.kB.value] = new JoystickButton(m_controller, Button.kB.value);
-    // m_buttons[Button.kX.value] = new JoystickButton(m_controller, Button.kX.value);
-    // m_buttons[Button.kY.value] = new JoystickButton(m_controller, Button.kY.value);
-    // m_buttons[Button.kA.value].whenPressed(m_autoCommand1);
-    // m_buttons[Button.kB.value].whenPressed(m_autoCommand2);
-    // m_buttons[Button.kX.value].whenPressed(m_autoCommand3);
-    // m_buttons[Button.kY.value].whenPressed(m_autoCommand4);
-
     m_buttons[Button.kLeftBumper.value] =
         new JoystickButton(m_controller, Button.kLeftBumper.value);
-    m_buttons[Button.kLeftBumper.value].whenPressed(() -> m_driveTrain.addDriveScaling(-0.1));
+    m_buttons[Button.kLeftBumper.value].whenPressed(() -> m_driveTrain.addDriveScaling(-0.05));
 
     m_buttons[Button.kRightBumper.value] =
         new JoystickButton(m_controller, Button.kRightBumper.value);
-    m_buttons[Button.kRightBumper.value].whenPressed(() -> m_driveTrain.addDriveScaling(0.1));
+    m_buttons[Button.kRightBumper.value].whenPressed(() -> m_driveTrain.addDriveScaling(0.05));
 
     m_buttons[Button.kLeftStick.value] = new JoystickButton(m_controller, Button.kLeftStick.value);
     m_buttons[Button.kLeftStick.value].whenPressed(() -> m_driveTrain.toggleDriveMode());

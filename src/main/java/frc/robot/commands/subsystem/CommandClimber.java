@@ -4,6 +4,7 @@
 
 package frc.robot.commands.subsystem;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.shuffleboard.*;
@@ -29,7 +30,6 @@ public class CommandClimber extends CommandBase {
   public final POVButton m_operatorPOVs[] = new POVButton[4];
 
   public final ClimberStartCommand m_climberStartCommand;
-
   public final ClimberExtendCommand m_climberStep1Command;
   public final PivotLinkAngleCommand m_climberStep2Command;
   public final ClimberExtendCommand m_climberStep3Command;
@@ -107,7 +107,7 @@ public class CommandClimber extends CommandBase {
 
     m_operatorButtons[Button.kStart.value] =
         new JoystickButton(m_operatorController, Button.kStart.value);
-    m_operatorButtons[Button.kStart.value].whenPressed(() -> m_climber.reset());
+    m_operatorButtons[Button.kStart.value].whenPressed(m_climberStartCommand);
 
     m_operatorButtons[Button.kLeftBumper.value] =
         new JoystickButton(m_operatorController, Button.kLeftBumper.value);
@@ -165,10 +165,18 @@ public class CommandClimber extends CommandBase {
       case DefaultMode:
         {
           int pov = m_operatorController.getPOV();
-          if (pov == 0) m_climber.setClimberHeightInc(0.001, _climbFF);
-          if (pov == 90) m_climber.setPivotLinkAngleInc(-0.2);
-          if (pov == 180) m_climber.setClimberHeightInc(-0.001, _climbFF);
-          if (pov == 270) m_climber.setPivotLinkAngleInc(0.2);
+          if (pov == 0) m_climber.setClimberHeightInc(0.002, _climbFF);
+          else if (pov == 90) m_climber.setPivotLinkAngleInc(-0.2);
+          else if (pov == 180) m_climber.setClimberHeightInc(-0.002, _climbFF);
+          else if (pov == 270) m_climber.setPivotLinkAngleInc(0.2);
+
+          _LStickVal[kX] = MathUtil.applyDeadband(m_operatorController.getLeftX(), 0.01);
+          _LStickVal[kY] = -MathUtil.applyDeadband(m_operatorController.getLeftY(), 0.01);
+          _RStickVal[kX] = MathUtil.applyDeadband(m_operatorController.getRightX(), 0.01);
+          _RStickVal[kY] = -MathUtil.applyDeadband(m_operatorController.getRightY(), 0.01);
+
+          if (_LStickVal[kY] != 0.0) m_climber.setClimberHeightInc(_LStickVal[kY] * 0.01, _climbFF);
+          if (_RStickVal[kY] != 0.0) m_climber.setPivotLinkAngleInc(_LStickVal[kY] * 0.1);
           break;
         }
       case Manual:
