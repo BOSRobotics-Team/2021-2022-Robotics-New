@@ -143,7 +143,6 @@ public class CommandClimber extends CommandBase {
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
-    // System.out.println("CommandClimber - initialize");
     Shuffleboard.addEventMarker(
         "CommandClimber init.", this.getClass().getSimpleName(), EventImportance.kNormal);
     _leftTriggerVal[kLast] = _leftTriggerVal[kCurr] = 0;
@@ -202,7 +201,6 @@ public class CommandClimber extends CommandBase {
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    // System.out.println("CommandClimber - end : interrupted = " + interrupted);
     if (interrupted) {
       Shuffleboard.addEventMarker(
           "CommandClimber Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);

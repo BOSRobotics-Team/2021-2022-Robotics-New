@@ -33,7 +33,6 @@ public class CommandLights extends CommandBase {
   // private final LEDStripLightCommand _stripLightOffCommand;
 
   public CommandLights(RobotContainer container) {
-    System.out.println("CommandLights constructor ");
     m_lights = container.lights;
     m_controller = container.getDriverController();
 
@@ -60,7 +59,6 @@ public class CommandLights extends CommandBase {
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
-    System.out.println("CommandLights - initialize");
     Shuffleboard.addEventMarker(
         "CommandLights init.", this.getClass().getSimpleName(), EventImportance.kNormal);
     _currentVal = _lastVal = 0.0;

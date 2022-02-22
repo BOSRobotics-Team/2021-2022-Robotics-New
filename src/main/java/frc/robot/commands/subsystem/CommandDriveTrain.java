@@ -83,8 +83,6 @@ public class CommandDriveTrain extends CommandBase {
 
     m_driveTrain.enableBrakes(true);
     m_driveTrain.enableDriveTrain(true);
-
-    System.out.println("CommandDriveTrain - initialize");
   }
 
   // Called repeatedly when this Command is scheduled to run
@@ -96,7 +94,6 @@ public class CommandDriveTrain extends CommandBase {
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    System.out.println("CommandDriveTrain - end : interrupted = " + interrupted);
     m_driveTrain.fullStop();
     m_driveTrain.enableBrakes(true);
     m_driveTrain.enableDriveTrain(false);
