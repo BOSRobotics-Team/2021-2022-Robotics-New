@@ -9,42 +9,54 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.*;
 import frc.robot.subsystems.*;
 
-public class PivotLinkRetractCommand extends CommandBase {
+public class ClimberExtendPctCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final Climber m_climber;
 
-  public PivotLinkRetractCommand(RobotContainer container) {
+  private final double m_height;
+  private final double m_arbFF;
+
+  public ClimberExtendPctCommand(RobotContainer container, double pctHeight, double arbFF) {
     m_climber = container.climber;
+    m_height = pctHeight;
+    m_arbFF = arbFF;
 
     addRequirements(m_climber);
+  }
+
+  public ClimberExtendPctCommand(RobotContainer container, double pctHeight) {
+    this(container, pctHeight, 0.0);
   }
 
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
     Shuffleboard.addEventMarker(
-        "PivotLinkRetractCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-    m_climber.setPivotLinkAnglePct(0.0);
-    System.out.println("PivotLinkRetractCommand - init : distance = 0.0");
+        "ClimberExtendPctCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    m_climber.setClimberHeightPct(m_height, m_arbFF);
+
+    System.out.println(
+        "ClimberExtendPctCommand - init : height = " + m_height + " arbFF = " + m_arbFF);
   }
 
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    System.out.println("PivotLinkRetractCommand end - interrupted = " + interrupted);
+    System.out.println("ClimberExtendPctCommand - end : interrupted = " + interrupted);
+
     if (interrupted) {
       Shuffleboard.addEventMarker(
-          "PivotLinkRetractCommand Interrupted!",
+          "ClimberExtendPctCommand Interrupted!",
           this.getClass().getSimpleName(),
           EventImportance.kNormal);
     }
     Shuffleboard.addEventMarker(
-        "PivotLinkRetractCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        "ClimberExtendPctCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   public boolean isFinished() {
-    return !m_climber.isPivoting();
+    return !m_climber.isClimbing();
   }
 }

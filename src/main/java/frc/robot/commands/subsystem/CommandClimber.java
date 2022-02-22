@@ -4,21 +4,21 @@
 
 package frc.robot.commands.subsystem;
 
-import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.button.*;
-import frc.robot.Constants;
-import frc.robot.RobotContainer;
+import frc.robot.*;
 import frc.robot.commands.climber.*;
 import frc.robot.subsystems.*;
 
 public class CommandClimber extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   public final Climber m_climber;
+
+  public final LEDLights m_ledLights;
 
   public final XboxController m_driverController;
   public final JoystickButton m_driverButtons[] = new JoystickButton[11];
@@ -28,13 +28,15 @@ public class CommandClimber extends CommandBase {
   public final JoystickButton m_operatorButtons[] = new JoystickButton[11];
   public final POVButton m_operatorPOVs[] = new POVButton[4];
 
-  public final ClimberExtendCommand m_climberExtendCommand;
-  public final ClimberRetrackCommand m_climberRetractCommand;
-  public final ClimberResetCommand m_climberResetCommand;
-  public final PivotLinkExtendCommand m_pivotLinkExtendCommand;
-  public final PivotLinkRetractCommand m_pivotLinkRetractCommand;
-  public final AutoClimberCommand m_autoClimberCommand;
-  public final AutoClimberCommand m_autoClimberInitCommand;
+  public final ClimberStartCommand m_climberStartCommand;
+
+  public final ClimberExtendCommand m_climberStep1Command;
+  public final PivotLinkAngleCommand m_climberStep2Command;
+  public final ClimberExtendCommand m_climberStep3Command;
+  public final ClimberResetCommand m_climberStep4Command;
+  public final PivotLinkAngleCommand m_climberStep5Command;
+  public final ClimberExtendPctCommand m_climberStep6Command;
+  public final PivotLinkAnglePctCommand m_climberStep7Command;
 
   private final int kX = 0;
   private final int kY = 1;
@@ -56,19 +58,22 @@ public class CommandClimber extends CommandBase {
   }
 
   public ClimbingMode climbingMode = ClimbingMode.DefaultMode;
+  public int m_Sequence = -1;
 
   public CommandClimber(RobotContainer container) {
     m_climber = container.climber;
+    m_ledLights = container.getLEDLights();
     m_driverController = container.getDriverController();
     m_operatorController = container.getOperatorController();
 
-    m_climberExtendCommand = new ClimberExtendCommand(container, 0.8, 0.0);
-    m_climberRetractCommand = new ClimberRetrackCommand(container);
-    m_climberResetCommand = new ClimberResetCommand(container);
-    m_pivotLinkExtendCommand = new PivotLinkExtendCommand(container, 0.25);
-    m_pivotLinkRetractCommand = new PivotLinkRetractCommand(container);
-    m_autoClimberCommand = new AutoClimberCommand(container);
-    m_autoClimberInitCommand = new AutoClimberCommand(container, true);
+    m_climberStartCommand = new ClimberStartCommand(container);
+    m_climberStep1Command = new ClimberExtendCommand(container, -0.025, Constants.kClimberFeedFwd);
+    m_climberStep2Command = new PivotLinkAngleCommand(container, 95.0);
+    m_climberStep3Command = new ClimberExtendCommand(container, 0.1);
+    m_climberStep4Command = new ClimberResetCommand(container);
+    m_climberStep5Command = new PivotLinkAngleCommand(container, 65.0);
+    m_climberStep6Command = new ClimberExtendPctCommand(container, 1.0);
+    m_climberStep7Command = new PivotLinkAnglePctCommand(container, 0.0);
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_climber);
@@ -76,9 +81,9 @@ public class CommandClimber extends CommandBase {
     // m_driverButtons[Button.kX.value] = new JoystickButton(m_driverController, Button.kX.value);
     // m_driverButtons[Button.kX.value].whenPressed(m_autoClimberCommand);
 
-    // m_driverButtons[Button.kStart.value] =
-    //     new JoystickButton(m_driverController, Button.kStart.value);
-    // m_driverButtons[Button.kStart.value].whenPressed(m_autoClimberInitCommand);
+    m_driverButtons[Button.kStart.value] =
+        new JoystickButton(m_driverController, Button.kStart.value);
+    m_driverButtons[Button.kStart.value].whenPressed(() -> m_climber.reset());
 
     // m_driverButtons[Button.kBack.value] =
     //     new JoystickButton(m_driverController, Button.kBack.value);
@@ -102,7 +107,15 @@ public class CommandClimber extends CommandBase {
 
     m_operatorButtons[Button.kStart.value] =
         new JoystickButton(m_operatorController, Button.kStart.value);
-    m_operatorButtons[Button.kStart.value].whenPressed(() -> m_climber.resetClimber());
+    m_operatorButtons[Button.kStart.value].whenPressed(() -> m_climber.reset());
+
+    m_operatorButtons[Button.kLeftBumper.value] =
+        new JoystickButton(m_operatorController, Button.kLeftBumper.value);
+    m_operatorButtons[Button.kLeftBumper.value].whenPressed(() -> this.prevClimberSequence());
+
+    m_operatorButtons[Button.kRightBumper.value] =
+        new JoystickButton(m_operatorController, Button.kRightBumper.value);
+    m_operatorButtons[Button.kRightBumper.value].whenPressed(() -> this.nextClimberSequence());
 
     m_operatorButtons[Button.kLeftStick.value] =
         new JoystickButton(m_operatorController, Button.kLeftStick.value);
@@ -126,18 +139,6 @@ public class CommandClimber extends CommandBase {
 
     m_operatorButtons[Button.kX.value] = new JoystickButton(m_operatorController, Button.kX.value);
     m_operatorButtons[Button.kX.value].whenPressed(() -> m_climber.setPivotLinkAngle(70.0));
-
-    // m_operatorButtons[Button.kLeftBumper.value] =
-    //     new JoystickButton(m_operatorController, Button.kLeftBumper.value);
-    // m_operatorButtons[Button.kLeftBumper.value]
-    //     .whenPressed(() -> m_climber.tripClimberRevLimitSwitches_test(true))
-    //     .whenReleased(() -> m_climber.tripClimberRevLimitSwitches_test(false));
-
-    // m_operatorButtons[Button.kRightBumper.value] =
-    //     new JoystickButton(m_operatorController, Button.kRightBumper.value);
-    // m_operatorButtons[Button.kRightBumper.value]
-    //     .whenPressed(() -> m_climber.tripPivotRevLimitSwitches_test(true))
-    //     .whenReleased(() -> m_climber.tripPivotRevLimitSwitches_test(false));
   }
 
   // Called just before this Command runs the first time
@@ -164,12 +165,10 @@ public class CommandClimber extends CommandBase {
       case DefaultMode:
         {
           int pov = m_operatorController.getPOV();
-          if ((pov == 315) || (pov == 0) || (pov == 45))
-            m_climber.setClimberHeightInc(0.001, _climbFF);
-          if ((pov == 45) || (pov == 90) || (pov == 135)) m_climber.setPivotLinkAngleInc(-0.2);
-          if ((pov == 135) || (pov == 180) || (pov == 225))
-            m_climber.setClimberHeightInc(-0.001, _climbFF);
-          if ((pov == 225) || (pov == 270) || (pov == 315)) m_climber.setPivotLinkAngleInc(0.2);
+          if (pov == 0) m_climber.setClimberHeightInc(0.001, _climbFF);
+          if (pov == 90) m_climber.setPivotLinkAngleInc(-0.2);
+          if (pov == 180) m_climber.setClimberHeightInc(-0.001, _climbFF);
+          if (pov == 270) m_climber.setPivotLinkAngleInc(0.2);
           break;
         }
       case Manual:
@@ -215,12 +214,56 @@ public class CommandClimber extends CommandBase {
         climbingMode = ClimbingMode.Manual;
         break;
       case Manual:
-        climbingMode = ClimbingMode.Trigger;
+        climbingMode = ClimbingMode.DefaultMode;
+        // climbingMode = ClimbingMode.Trigger;
         break;
       case Trigger:
         climbingMode = ClimbingMode.DefaultMode;
+        break;
     }
-    m_operatorController.setRumble(RumbleType.kLeftRumble, 1.0);
     SmartDashboard.putString("ClimbingMode", climbingMode.toString());
+  }
+
+  public void nextClimberSequence() {
+    this.doClimbingSequence(m_climber.nextClimbingSequence());
+  }
+
+  public void prevClimberSequence() {
+    this.doClimbingSequence(m_climber.prevClimbingSequence());
+  }
+
+  public void doClimbingSequence(int seq) {
+    if (seq >= 0) {
+      m_ledLights.runLights(255, 255, 0, 255, 0, (seq % 8) + 1);
+      switch (seq) {
+        case 0:
+          m_climberStartCommand.schedule();
+          break;
+        case 1:
+          m_climberStep1Command.schedule();
+          break;
+        case 2:
+          m_climberStep2Command.schedule();
+          break;
+        case 3:
+          m_climberStep3Command.schedule();
+          break;
+        case 4:
+          m_climberStep4Command.schedule();
+          break;
+        case 5:
+          m_climberStep5Command.schedule();
+          break;
+        case 6:
+          m_climberStep6Command.schedule();
+          break;
+        case 7:
+          m_climberStep7Command.schedule();
+          break;
+        default:
+          this.doClimbingSequence((seq % 8) + 1);
+          break;
+      }
+    }
   }
 }

@@ -9,17 +9,15 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.*;
 import frc.robot.subsystems.*;
 
-public class ClimberExtendTiltCommand extends CommandBase {
+public class PivotLinkAngleCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final Climber m_climber;
 
-  private final double m_height;
-  private final double m_tilt;
+  private final double m_angle;
 
-  public ClimberExtendTiltCommand(RobotContainer container, double pctHeight, double pctTilt) {
+  public PivotLinkAngleCommand(RobotContainer container, double angle) {
     m_climber = container.climber;
-    m_height = pctHeight;
-    m_tilt = pctTilt;
+    m_angle = angle;
 
     addRequirements(m_climber);
   }
@@ -28,32 +26,33 @@ public class ClimberExtendTiltCommand extends CommandBase {
   @Override
   public void initialize() {
     Shuffleboard.addEventMarker(
-        "ClimberExtendTiltCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-    m_climber.setClimberHeightPct(m_height, 0.0);
-    m_climber.setPivotLinkAnglePct(m_tilt);
+        "PivotLinkAngleCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    m_climber.setPivotLinkAngle(m_angle);
 
-    System.out.println(
-        "ClimberExtendTiltCommand - init : height = " + m_height + " tilt = " + m_tilt);
+    System.out.println("PivotLinkAngleCommand - init : distance = " + m_angle);
   }
+
+  // Called repeatedly when this Command is scheduled to run
+  @Override
+  public void execute() {}
 
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    System.out.println("ClimberExtendTiltCommand - end : interrupted = " + interrupted);
-
+    System.out.println("PivotLinkAngleCommand end - interrupted = " + interrupted);
     if (interrupted) {
       Shuffleboard.addEventMarker(
-          "ClimberExtendTiltCommand Interrupted!",
+          "PivotLinkAngleCommand Interrupted!",
           this.getClass().getSimpleName(),
           EventImportance.kNormal);
     }
     Shuffleboard.addEventMarker(
-        "ClimberExtendTiltCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        "PivotLinkAngleCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   public boolean isFinished() {
-    return !m_climber.isClimbing() && !m_climber.isPivoting();
+    return !m_climber.isPivoting();
   }
 }

@@ -9,15 +9,12 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.*;
 import frc.robot.subsystems.*;
 
-public class PivotLinkExtendCommand extends CommandBase {
+public class PivotLinkResetCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final Climber m_climber;
 
-  private final double m_distance;
-
-  public PivotLinkExtendCommand(RobotContainer container, double pctDistance) {
+  public PivotLinkResetCommand(RobotContainer container) {
     m_climber = container.climber;
-    m_distance = pctDistance;
 
     addRequirements(m_climber);
   }
@@ -26,33 +23,29 @@ public class PivotLinkExtendCommand extends CommandBase {
   @Override
   public void initialize() {
     Shuffleboard.addEventMarker(
-        "PivotLinkExtendCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-    m_climber.setPivotLinkAnglePct(m_distance);
-
-    System.out.println("PivotLinkExtendCommand - init : distance = " + m_distance);
+        "PivotLinkResetCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    m_climber.resetPivotLink();
+    System.out.println("PivotLinkResetCommand - init");
   }
-
-  // Called repeatedly when this Command is scheduled to run
-  @Override
-  public void execute() {}
 
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    System.out.println("PivotLinkExtendCommand end - interrupted = " + interrupted);
+    System.out.println("PivotLinkResetCommand - end : interrupted = " + interrupted);
+
     if (interrupted) {
       Shuffleboard.addEventMarker(
-          "PivotLinkExtendCommand Interrupted!",
+          "PivotLinkResetCommand Interrupted!",
           this.getClass().getSimpleName(),
           EventImportance.kNormal);
     }
     Shuffleboard.addEventMarker(
-        "PivotLinkExtendCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        "PivotLinkResetCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   public boolean isFinished() {
-    return !m_climber.isPivoting();
+    return !m_climber.isResettingPivot();
   }
 }

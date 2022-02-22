@@ -9,53 +9,65 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.*;
 import frc.robot.subsystems.*;
 
-public class ClimberExtendCommand extends CommandBase {
+public class ClimberExtendPctTiltPctCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final Climber m_climber;
 
   private final double m_height;
+  private final double m_tilt;
   private final double m_arbFF;
 
-  public ClimberExtendCommand(RobotContainer container, double height, double arbFF) {
+  public ClimberExtendPctTiltPctCommand(
+      RobotContainer container, double pctHeight, double pctTilt, double arbFF) {
     m_climber = container.climber;
-    m_height = height;
+    m_height = pctHeight;
+    m_tilt = pctTilt;
     m_arbFF = arbFF;
 
     addRequirements(m_climber);
   }
 
-  public ClimberExtendCommand(RobotContainer container, double height) {
-    this(container, height, 0.0);
+  public ClimberExtendPctTiltPctCommand(
+      RobotContainer container, double pctHeight, double pctTilt) {
+    this(container, pctHeight, pctTilt, 0.0);
   }
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
     Shuffleboard.addEventMarker(
-        "ClimberExtendCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-    m_climber.setClimberHeight(m_height, m_arbFF);
+        "ClimberExtendPctTiltPctCommand init.",
+        this.getClass().getSimpleName(),
+        EventImportance.kNormal);
+    m_climber.setClimberHeightPct(m_height, m_arbFF);
+    m_climber.setPivotLinkAnglePct(m_tilt);
 
     System.out.println(
-        "ClimberExtendCommand - init : height = " + m_height + " arbFF = " + m_arbFF);
+        "ClimberExtendPctTiltPctCommand - init : heightPct = "
+            + m_height
+            + " tiltPct = "
+            + m_tilt
+            + " arbFF = "
+            + m_arbFF);
   }
 
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    System.out.println("ClimberExtendCommand - end : interrupted = " + interrupted);
-
     if (interrupted) {
       Shuffleboard.addEventMarker(
-          "ClimberExtendCommand Interrupted!",
+          "ClimberExtendPctTiltPctCommand Interrupted!",
           this.getClass().getSimpleName(),
           EventImportance.kNormal);
     }
     Shuffleboard.addEventMarker(
-        "ClimberExtendCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        "ClimberExtendPctTiltPctCommand end.",
+        this.getClass().getSimpleName(),
+        EventImportance.kNormal);
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   public boolean isFinished() {
-    return !m_climber.isClimbing();
+    return !m_climber.isClimbing() && !m_climber.isPivoting();
   }
 }

@@ -301,6 +301,10 @@ public class LEDLights extends SubsystemBase {
 
   // Put methods for controlling this subsystem
   // here. Call these from Commands.
+  public void runLights(int red, int green, int blue, int white, int start, int count) {
+    if (m_candle != null) m_candle.setLEDs(red, green, blue, white, start, count);
+  }
+
   public void runLights(int red, int green, int blue) {
     if (m_candle != null) m_candle.setLEDs(red, green, blue);
   }

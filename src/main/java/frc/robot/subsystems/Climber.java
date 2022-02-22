@@ -10,6 +10,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.sim.ClimberSim;
@@ -25,6 +26,8 @@ public class Climber extends SubsystemBase {
       new SmartMotorController(_leftClimberController, _rightClimberController, "Climber");
   private final SmartMotorController smartPivotLinkController =
       new SmartMotorController(_leftPivotLinkController, _rightPivotLinkController, "Pivot");
+
+  private int _climbingSeq = -1;
 
   private boolean _isClimbing = false;
   private boolean _isResetLClimber = false;
@@ -47,12 +50,7 @@ public class Climber extends SubsystemBase {
 
   public Climber() {
     Preferences.initDouble("ClimberMaxHeight", 0.55);
-    // Preferences.initDouble("ClimberFeedForward", 0.0);
-    // Preferences.initDouble("PivotFeedForward", 0.0);
-
     _climberMaxHeight = Preferences.getDouble("ClimberMaxHeight", 0.55);
-    // _climberFeedFwd = Preferences.getDouble("ClimberFeedForward", 0.0);
-    // _pivotFeedFwd = Preferences.getDouble("PivotFeedForward", 0.0);
 
     _leftClimberController.setInverted(InvertType.None);
     _rightClimberController.setInverted(InvertType.InvertMotorOutput);
@@ -96,32 +94,40 @@ public class Climber extends SubsystemBase {
     boolean rPivotLimit = isRPivotFwdLimitSwitchClosed();
 
     if (lClimbLimit) {
-        smartClimberController.setOutput(0.0, 0.0);
-        smartClimberController.resetSensorPosition();
+      if (_isResetLClimber) {
         _isResetLClimber = false;
+        smartClimberController.setOutput(0.0, 0.0);
         Shuffleboard.addEventMarker("isResetLClimber - done: ", "", EventImportance.kHigh);
         System.out.println("isResetLClimber - done");
+      }
+      smartClimberController.resetSensorPosition();
     }
     if (rClimbLimit) {
-        smartClimberController.setAuxOutput(0.0, 0.0);
-        smartClimberController.resetAuxSensorPosition();
+      if (_isResetRClimber) {
         _isResetRClimber = false;
+        smartClimberController.setAuxOutput(0.0, 0.0);
         Shuffleboard.addEventMarker("isResetRClimber - done: ", "", EventImportance.kHigh);
         System.out.println("isResetRClimber - done");
+      }
+      smartClimberController.resetAuxSensorPosition();
     }
     if (lPivotLimit) {
-        smartPivotLinkController.setOutput(0.0, 0.0);
-        smartPivotLinkController.resetSensorPosition();
+      if (_isResetLPivoting) {
         _isResetLPivoting = false;
+        smartPivotLinkController.setOutput(0.0, 0.0);
         Shuffleboard.addEventMarker("isResetLPivot - done: ", "", EventImportance.kHigh);
         System.out.println("isResetLPivot - done");
+      }
+      smartPivotLinkController.resetSensorPosition();
     }
     if (rPivotLimit) {
-        smartPivotLinkController.setAuxOutput(0.0, 0.0);
-        smartPivotLinkController.resetAuxSensorPosition();
+      if (_isResetRPivoting) {
         _isResetRPivoting = false;
+        smartPivotLinkController.setAuxOutput(0.0, 0.0);
         Shuffleboard.addEventMarker("isResetRPivot - done: ", "", EventImportance.kHigh);
         System.out.println("isResetRPivot - done");
+      }
+      smartPivotLinkController.resetAuxSensorPosition();
     }
     if (_isClimbing) {
       // System.out.println(
@@ -169,11 +175,21 @@ public class Climber extends SubsystemBase {
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
     _climberSim.run();
+
+    if (isResettingClimber()) tripClimberLimitSwitches_test(true);
+    if (isResettingPivot()) tripPivotLimitSwitches_test(true);
+    if (isClimbing()) tripClimberLimitSwitches_test(false);
+    if (isPivoting()) tripPivotLimitSwitches_test(false);
   }
 
   public void logPeriodic() {
     smartClimberController.logPeriodic();
     smartPivotLinkController.logPeriodic();
+    SmartDashboard.putNumber("ClimbingSequence", _climbingSeq);
+    SmartDashboard.putBoolean("isResettingClimber", isResettingClimber());
+    SmartDashboard.putBoolean("isResettingPivot", isResettingPivot());
+    SmartDashboard.putBoolean("isClimbing", isClimbing());
+    SmartDashboard.putBoolean("isPivoting", isPivoting());
   }
 
   // Put methods for controlling this subsystem
@@ -223,6 +239,12 @@ public class Climber extends SubsystemBase {
     this.setClimberSpeed(speedL, speedR, 0.0);
   }
 
+  public void reset() {
+    _climbingSeq = 0;
+    this.resetClimber();
+    this.resetPivotLink();
+  }
+
   public void resetClimber() {
     _isClimbing = false;
     _targetClimberHeight = 0.0;
@@ -233,7 +255,6 @@ public class Climber extends SubsystemBase {
         isRClimberRevLimitSwitchClosed() ? 0.0 : Constants.kResetClimberSpeed, 0.0);
     Shuffleboard.addEventMarker("resetClimber: ", "", EventImportance.kHigh);
     System.out.println("resetClimber - start");
-    this.resetPivotLink();
   }
 
   public void zeroClimberPosition() {
@@ -342,11 +363,25 @@ public class Climber extends SubsystemBase {
     return smartPivotLinkController.isAuxFwdLimitSwitchClosed() || _isPivotLimitSwitchTest;
   }
 
-  public void tripClimberRevLimitSwitches_test(boolean trip) {
+  public void tripClimberLimitSwitches_test(boolean trip) {
     _isClimberLimitSwitchTest = trip;
   }
 
-  public void tripPivotRevLimitSwitches_test(boolean trip) {
+  public void tripPivotLimitSwitches_test(boolean trip) {
     _isPivotLimitSwitchTest = trip;
+  }
+
+  public int nextClimbingSequence() {
+    if (_climbingSeq >= 0) {
+      _climbingSeq = _climbingSeq + 1;
+    }
+    return _climbingSeq;
+  }
+
+  public int prevClimbingSequence() {
+    if (_climbingSeq > 0) {
+      _climbingSeq = _climbingSeq - 1;
+    }
+    return _climbingSeq;
   }
 }

@@ -8,6 +8,7 @@ import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,7 +30,7 @@ public class RobotContainer {
   public final DriveTrain driveTrain = new DriveTrain();
   // public final Intake intake = new Intake();
   public final Climber climber = new Climber();
-  public final LEDLights lights = new LEDLights(false);
+  public final LEDLights lights = new LEDLights(RobotBase.isSimulation());
 
   // //Driver Controller
   public final XboxController driverController = new XboxController(0);

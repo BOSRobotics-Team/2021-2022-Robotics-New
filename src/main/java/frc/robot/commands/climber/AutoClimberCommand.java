@@ -72,13 +72,14 @@ public class AutoClimberCommand extends SequentialCommandGroup {
           new LEDAnimationCommand(container, AnimationTypes.Strobe, led1),
           new LEDOnboardLightCommand(container, climberLEDs[0]),
           new PrintCommand("Climber Extend and Tilt initial position"),
-          new ClimberExtendTiltCommand(container, climberPairs[0][0], climberPairs[0][1]));
+          new ClimberExtendPctTiltPctCommand(container, climberPairs[0][0], climberPairs[0][1]));
     } else {
       for (Integer step = 1; step < kClimberSteps; ++step) {
         addCommands(
             new LEDOnboardLightCommand(container, climberLEDs[step]),
             new PrintCommand("Climber Extend and Tilt step " + step.toString()),
-            new ClimberExtendTiltCommand(container, climberPairs[step][0], climberPairs[step][1]));
+            new ClimberExtendPctTiltPctCommand(
+                container, climberPairs[step][0], climberPairs[step][1]));
       }
     }
   }
