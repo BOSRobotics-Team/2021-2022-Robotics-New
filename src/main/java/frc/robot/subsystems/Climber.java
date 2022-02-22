@@ -195,7 +195,7 @@ public class Climber extends SubsystemBase {
   // Put methods for controlling this subsystem
   // here. Call these from Commands.
   public void setClimberHeight(double height, double arbFF) {
-    _targetClimberHeight = MathUtil.clamp(height, -0.025, _climberMaxHeight);
+    _targetClimberHeight = MathUtil.clamp(height, -0.025, _climberMaxHeight + 0.025);
     smartClimberController.setTarget(_targetClimberHeight, _targetClimberHeight, arbFF);
     _isClimbing = true;
     System.out.println("setClimberHeight - height: " + height + "  arbFF = " + arbFF);
