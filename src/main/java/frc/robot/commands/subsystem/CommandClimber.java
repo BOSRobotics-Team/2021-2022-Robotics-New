@@ -79,26 +79,37 @@ public class CommandClimber extends CommandBase {
     // m_driverButtons[Button.kX.value] = new JoystickButton(m_driverController, Button.kX.value);
     // m_driverButtons[Button.kX.value].whenPressed(m_autoClimberCommand);
 
+    m_driverButtons[Button.kBack.value] =
+        new JoystickButton(m_driverController, Button.kBack.value);
+    m_driverButtons[Button.kBack.value].whenPressed(() -> m_climber.reset());
+
     m_driverButtons[Button.kStart.value] =
         new JoystickButton(m_driverController, Button.kStart.value);
-    m_driverButtons[Button.kStart.value].whenPressed(() -> m_climber.reset());
+    m_driverButtons[Button.kStart.value].whenPressed(m_climberSteps.get(0));
 
-    // m_driverButtons[Button.kBack.value] =
-    //     new JoystickButton(m_driverController, Button.kBack.value);
-    // m_driverButtons[Button.kBack.value].whenPressed(m_climberResetCommand);
+    m_driverPOVs[0] = new POVButton(m_driverController, 0);
+    m_driverPOVs[0].whileHeld(() -> m_climber.setClimberHeightInc(0.002, _climbFF));
 
-    // m_driverPOVs[0] = new POVButton(m_driverController, 0);
-    // m_driverPOVs[0].whenPressed(m_climberExtendCommand);
+    m_driverPOVs[1] = new POVButton(m_driverController, 90);
+    m_driverPOVs[1].whenPressed(() -> m_climber.setPivotLinkAngleInc(-0.2));
 
-    // m_driverPOVs[1] = new POVButton(m_driverController, 90);
-    // m_driverPOVs[1].whenPressed(m_climberRetractCommand);
+    m_driverPOVs[2] = new POVButton(m_driverController, 180);
+    m_driverPOVs[2].whenPressed(() -> m_climber.setClimberHeightInc(-0.002, _climbFF));
 
-    // m_driverPOVs[2] = new POVButton(m_driverController, 180);
-    // m_driverPOVs[2].whenPressed(m_pivotLinkExtendCommand);
+    m_driverPOVs[3] = new POVButton(m_driverController, 270);
+    m_driverPOVs[3].whenPressed(() -> m_climber.setPivotLinkAngleInc(0.2));
 
-    // m_driverPOVs[3] = new POVButton(m_driverController, 270);
-    // m_driverPOVs[3].whenPressed(m_pivotLinkRetractCommand);
+    m_driverButtons[Button.kA.value] = new JoystickButton(m_driverController, Button.kA.value);
+    m_driverButtons[Button.kA.value].whenPressed(() -> this.nextClimberSequence());
 
+    m_driverButtons[Button.kB.value] = new JoystickButton(m_driverController, Button.kB.value);
+    m_driverButtons[Button.kB.value].whenPressed(() -> this.prevClimberSequence());
+
+    // m_driverButtons[Button.kX.value] = new JoystickButton(m_driverController, Button.kX.value);
+    // m_driverButtons[Button.kX.value].whenPressed(() -> m_climber.setPivotLinkAngle(70.0));
+    // m_driverButtons[Button.kY.value] = new JoystickButton(m_driverController, Button.kY.value);
+    // m_driverButtons[Button.kY.value].whenPressed(() -> m_climber.setClimberHeightPct(1.0, 0.0));
+    // --------------------------------------------------------------
     m_operatorButtons[Button.kBack.value] =
         new JoystickButton(m_operatorController, Button.kBack.value);
     m_operatorButtons[Button.kBack.value].whenPressed(() -> m_climber.zeroClimberPosition());
@@ -125,18 +136,23 @@ public class CommandClimber extends CommandBase {
         .whenPressed(() -> _climbFF = Constants.kClimberFeedFwd)
         .whenReleased(() -> _climbFF = 0.0);
 
-    m_operatorButtons[Button.kY.value] = new JoystickButton(m_operatorController, Button.kY.value);
-    m_operatorButtons[Button.kY.value].whenPressed(() -> m_climber.setClimberHeightPct(1.0, 0.0));
+    // m_operatorButtons[Button.kY.value] = new JoystickButton(m_operatorController,
+    // Button.kY.value);
+    // m_operatorButtons[Button.kY.value].whenPressed(() -> m_climber.setClimberHeightPct(1.0,
+    // 0.0));
 
-    m_operatorButtons[Button.kA.value] = new JoystickButton(m_operatorController, Button.kA.value);
-    m_operatorButtons[Button.kA.value].whenPressed(
-        () -> m_climber.setClimberHeight(-0.025, Constants.kClimberFeedFwd));
+    // m_operatorButtons[Button.kA.value] = new JoystickButton(m_operatorController,
+    // Button.kA.value);
+    // m_operatorButtons[Button.kA.value].whenPressed(
+    //     () -> m_climber.setClimberHeight(-0.025, Constants.kClimberFeedFwd));
 
-    m_operatorButtons[Button.kB.value] = new JoystickButton(m_operatorController, Button.kB.value);
-    m_operatorButtons[Button.kB.value].whenPressed(() -> m_climber.setPivotLinkAngle(95.0));
+    // m_operatorButtons[Button.kB.value] = new JoystickButton(m_operatorController,
+    // Button.kB.value);
+    // m_operatorButtons[Button.kB.value].whenPressed(() -> m_climber.setPivotLinkAngle(110.0));
 
-    m_operatorButtons[Button.kX.value] = new JoystickButton(m_operatorController, Button.kX.value);
-    m_operatorButtons[Button.kX.value].whenPressed(() -> m_climber.setPivotLinkAngle(70.0));
+    // m_operatorButtons[Button.kX.value] = new JoystickButton(m_operatorController,
+    // Button.kX.value);
+    // m_operatorButtons[Button.kX.value].whenPressed(() -> m_climber.setPivotLinkAngle(70.0));
   }
 
   // Called just before this Command runs the first time
