@@ -14,11 +14,13 @@ public class ClimberStartCommand extends SequentialCommandGroup {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   public ClimberStartCommand(RobotContainer container) {
     LEDColor led1 = new LEDColor(255, 255, 0, 0, 0, 1);
+    LEDColor led2 = new LEDColor(0, 0, 0, 0, 1, 7);
     addCommands(
-        new LEDAnimationCommand(container, AnimationTypes.Strobe, led1),
+        // new LEDAnimationCommand(container, AnimationTypes.Strobe, led1),
         new LEDOnboardLightCommand(container, led1),
+        new LEDOnboardLightCommand(container, led2),
         new PrintCommand("Climber Extend and Tilt initial position"),
-        new ClimberResetCommand(container),
+        new ClimberResetCommand(container, true),
         new ClimberExtendPctTiltPctCommand(container, 1.0, 0.25),
         new PrintCommand("Climber Extend and Tilt initial - complete"));
   }

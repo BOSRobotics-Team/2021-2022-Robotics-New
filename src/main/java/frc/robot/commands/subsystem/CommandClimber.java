@@ -33,10 +33,14 @@ public class CommandClimber extends CommandBase {
   public final ClimberExtendCommand m_climberStep1Command;
   public final PivotLinkAngleCommand m_climberStep2Command;
   public final ClimberExtendCommand m_climberStep3Command;
-  public final ClimberResetCommand m_climberStep4Command;
-  public final PivotLinkAngleCommand m_climberStep5Command;
-  public final ClimberExtendPctCommand m_climberStep6Command;
-  public final PivotLinkAnglePctCommand m_climberStep7Command;
+  public final PivotLinkResetCommand m_climberStep4Command;
+  public final ClimberResetCommand m_climberStep5Command;
+  public final PivotLinkAngleCommand m_climberStep6Command;
+  public final ClimberExtendPctCommand m_climberStep7Command;
+  public final PivotLinkAngleCommand m_climberStep8Command;
+  public final ClimberExtendCommand m_climberStep9Command;
+  public final ClimberExtendCommand m_climberStep10Command;
+  public final PivotLinkAngleCommand m_climberStep11Command;
 
   private final int kX = 0;
   private final int kY = 1;
@@ -68,12 +72,16 @@ public class CommandClimber extends CommandBase {
 
     m_climberStartCommand = new ClimberStartCommand(container);
     m_climberStep1Command = new ClimberExtendCommand(container, -0.025, Constants.kClimberFeedFwd);
-    m_climberStep2Command = new PivotLinkAngleCommand(container, 95.0);
-    m_climberStep3Command = new ClimberExtendCommand(container, 0.1);
-    m_climberStep4Command = new ClimberResetCommand(container);
-    m_climberStep5Command = new PivotLinkAngleCommand(container, 65.0);
-    m_climberStep6Command = new ClimberExtendPctCommand(container, 1.0);
-    m_climberStep7Command = new PivotLinkAnglePctCommand(container, 0.0);
+    m_climberStep2Command = new PivotLinkAngleCommand(container, 110.0);
+    m_climberStep3Command = new ClimberExtendCommand(container, 0.125);
+    m_climberStep4Command = new PivotLinkResetCommand(container);
+    m_climberStep5Command = new ClimberResetCommand(container, false);
+    m_climberStep6Command = new PivotLinkAngleCommand(container, 75.0);
+    m_climberStep7Command = new ClimberExtendPctCommand(container, 1.025);
+    m_climberStep8Command = new PivotLinkAngleCommand(container, 40);
+    m_climberStep9Command = new ClimberExtendCommand(container, -0.025, Constants.kClimberFeedFwd);
+    m_climberStep10Command = new ClimberExtendCommand(container, 0.4, Constants.kClimberFeedFwd);
+    m_climberStep11Command = new PivotLinkAngleCommand(container, 75.0);
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_climber);
@@ -170,13 +178,14 @@ public class CommandClimber extends CommandBase {
           else if (pov == 180) m_climber.setClimberHeightInc(-0.002, _climbFF);
           else if (pov == 270) m_climber.setPivotLinkAngleInc(0.2);
 
-          _LStickVal[kX] = MathUtil.applyDeadband(m_operatorController.getLeftX(), 0.01);
-          _LStickVal[kY] = -MathUtil.applyDeadband(m_operatorController.getLeftY(), 0.01);
-          _RStickVal[kX] = MathUtil.applyDeadband(m_operatorController.getRightX(), 0.01);
-          _RStickVal[kY] = -MathUtil.applyDeadband(m_operatorController.getRightY(), 0.01);
+          _LStickVal[kX] = MathUtil.applyDeadband(m_operatorController.getLeftX(), 0.1);
+          _LStickVal[kY] = -MathUtil.applyDeadband(m_operatorController.getLeftY(), 0.1);
+          _RStickVal[kX] = MathUtil.applyDeadband(m_operatorController.getRightX(), 0.1);
+          _RStickVal[kY] = -MathUtil.applyDeadband(m_operatorController.getRightY(), 0.1);
 
-          if (_LStickVal[kY] != 0.0) m_climber.setClimberHeightInc(_LStickVal[kY] * 0.01, _climbFF);
-          if (_RStickVal[kY] != 0.0) m_climber.setPivotLinkAngleInc(_LStickVal[kY] * 0.1);
+          if (_LStickVal[kY] != 0.0)
+            m_climber.setClimberHeightInc(_LStickVal[kY] * 0.004, _climbFF);
+          if (_RStickVal[kY] != 0.0) m_climber.setPivotLinkAngleInc(_RStickVal[kY] * 0.2);
           break;
         }
       case Manual:
@@ -242,6 +251,7 @@ public class CommandClimber extends CommandBase {
 
   public void doClimbingSequence(int seq) {
     if (seq >= 0) {
+      m_ledLights.runLights(0, 0, 0, 0, 0, 8);
       m_ledLights.runLights(255, 255, 0, 255, 0, (seq % 8) + 1);
       switch (seq) {
         case 0:
@@ -268,8 +278,20 @@ public class CommandClimber extends CommandBase {
         case 7:
           m_climberStep7Command.schedule();
           break;
+        case 8:
+          m_climberStep8Command.schedule();
+          break;
+        case 9:
+          m_climberStep9Command.schedule();
+          break;
+        case 10:
+          m_climberStep10Command.schedule();
+          break;
+        case 11:
+          m_climberStep11Command.schedule();
+          break;
         default:
-          this.doClimbingSequence((seq % 8) + 1);
+          this.doClimbingSequence((seq % 12) + 1);
           break;
       }
     }

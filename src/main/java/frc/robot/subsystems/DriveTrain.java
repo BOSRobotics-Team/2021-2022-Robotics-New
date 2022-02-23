@@ -397,7 +397,7 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public void setDriveScaling(double scaling) {
-    m_DriveScaling = Math.max(Math.min(scaling, 1.0), 0.1);
+    m_DriveScaling = Math.max(Math.min(scaling, 1.0), 0.01);
     this.setMaxOutput(m_UseDriveScaling ? m_DriveScaling : 1.0);
     SmartDashboard.putNumber("DriveScaling", m_DriveScaling);
   }

@@ -13,8 +13,11 @@ public class ClimberResetCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final Climber m_climber;
 
-  public ClimberResetCommand(RobotContainer container) {
+  private final boolean m_resetAll;
+
+  public ClimberResetCommand(RobotContainer container, boolean all) {
     m_climber = container.climber;
+    m_resetAll = all;
 
     addRequirements(m_climber);
   }
@@ -24,7 +27,8 @@ public class ClimberResetCommand extends CommandBase {
   public void initialize() {
     Shuffleboard.addEventMarker(
         "ClimberResetCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-    m_climber.resetClimber();
+    if (m_resetAll) m_climber.reset();
+    else m_climber.resetClimber();
     System.out.println("ClimberResetCommand - init");
   }
 
@@ -46,6 +50,6 @@ public class ClimberResetCommand extends CommandBase {
   // Make this return true when this Command no longer needs to run execute()
   @Override
   public boolean isFinished() {
-    return !m_climber.isResettingClimber();
+    return m_resetAll ? !m_climber.isResetting() : !m_climber.isResettingClimber();
   }
 }
