@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.button.*;
 import frc.robot.*;
 import frc.robot.commands.climber.*;
 import frc.robot.subsystems.*;
+import java.util.ArrayList;
 
 public class CommandClimber extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
@@ -29,18 +30,7 @@ public class CommandClimber extends CommandBase {
   public final JoystickButton m_operatorButtons[] = new JoystickButton[11];
   public final POVButton m_operatorPOVs[] = new POVButton[4];
 
-  public final ClimberStartCommand m_climberStartCommand;
-  public final ClimberExtendCommand m_climberStep1Command;
-  public final PivotLinkAngleCommand m_climberStep2Command;
-  public final ClimberExtendCommand m_climberStep3Command;
-  public final PivotLinkResetCommand m_climberStep4Command;
-  public final ClimberResetCommand m_climberStep5Command;
-  public final PivotLinkAngleCommand m_climberStep6Command;
-  public final ClimberExtendPctCommand m_climberStep7Command;
-  public final PivotLinkAngleCommand m_climberStep8Command;
-  public final ClimberExtendCommand m_climberStep9Command;
-  public final ClimberExtendCommand m_climberStep10Command;
-  public final PivotLinkAngleCommand m_climberStep11Command;
+  public final ArrayList<CommandBase> m_climberSteps = new ArrayList<CommandBase>();
 
   private final int kX = 0;
   private final int kY = 1;
@@ -70,18 +60,18 @@ public class CommandClimber extends CommandBase {
     m_driverController = container.getDriverController();
     m_operatorController = container.getOperatorController();
 
-    m_climberStartCommand = new ClimberStartCommand(container);
-    m_climberStep1Command = new ClimberExtendCommand(container, -0.025, Constants.kClimberFeedFwd);
-    m_climberStep2Command = new PivotLinkAngleCommand(container, 110.0);
-    m_climberStep3Command = new ClimberExtendCommand(container, 0.125);
-    m_climberStep4Command = new PivotLinkResetCommand(container);
-    m_climberStep5Command = new ClimberResetCommand(container, false);
-    m_climberStep6Command = new PivotLinkAngleCommand(container, 75.0);
-    m_climberStep7Command = new ClimberExtendPctCommand(container, 1.025);
-    m_climberStep8Command = new PivotLinkAngleCommand(container, 40);
-    m_climberStep9Command = new ClimberExtendCommand(container, -0.025, Constants.kClimberFeedFwd);
-    m_climberStep10Command = new ClimberExtendCommand(container, 0.4, Constants.kClimberFeedFwd);
-    m_climberStep11Command = new PivotLinkAngleCommand(container, 75.0);
+    m_climberSteps.add(new ClimberStartCommand(container));
+    m_climberSteps.add(new ClimberExtendCommand(container, -0.025, Constants.kClimberFeedFwd));
+    m_climberSteps.add(new PivotLinkAngleCommand(container, 110.0));
+    m_climberSteps.add(new ClimberExtendCommand(container, 0.125));
+    m_climberSteps.add(new PivotLinkResetCommand(container, Constants.kResetPivotSpeed * 2));
+    m_climberSteps.add(new ClimberResetCommand(container, Constants.kResetClimberSpeed * 2));
+    m_climberSteps.add(new PivotLinkAngleCommand(container, 75.0));
+    m_climberSteps.add(new ClimberExtendPctCommand(container, 1.025));
+    m_climberSteps.add(new PivotLinkAngleCommand(container, 40));
+    m_climberSteps.add(new ClimberExtendCommand(container, -0.025, Constants.kClimberFeedFwd));
+    m_climberSteps.add(new ClimberExtendCommand(container, 0.4, Constants.kClimberFeedFwd));
+    m_climberSteps.add(new PivotLinkAngleCommand(container, 75.0));
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_climber);
@@ -115,7 +105,7 @@ public class CommandClimber extends CommandBase {
 
     m_operatorButtons[Button.kStart.value] =
         new JoystickButton(m_operatorController, Button.kStart.value);
-    m_operatorButtons[Button.kStart.value].whenPressed(m_climberStartCommand);
+    m_operatorButtons[Button.kStart.value].whenPressed(m_climberSteps.get(0));
 
     m_operatorButtons[Button.kLeftBumper.value] =
         new JoystickButton(m_operatorController, Button.kLeftBumper.value);
@@ -178,14 +168,14 @@ public class CommandClimber extends CommandBase {
           else if (pov == 180) m_climber.setClimberHeightInc(-0.002, _climbFF);
           else if (pov == 270) m_climber.setPivotLinkAngleInc(0.2);
 
-          _LStickVal[kX] = MathUtil.applyDeadband(m_operatorController.getLeftX(), 0.1);
+          // _LStickVal[kX] = MathUtil.applyDeadband(m_operatorController.getLeftX(), 0.1);
           _LStickVal[kY] = -MathUtil.applyDeadband(m_operatorController.getLeftY(), 0.1);
-          _RStickVal[kX] = MathUtil.applyDeadband(m_operatorController.getRightX(), 0.1);
+          // _RStickVal[kX] = MathUtil.applyDeadband(m_operatorController.getRightX(), 0.1);
           _RStickVal[kY] = -MathUtil.applyDeadband(m_operatorController.getRightY(), 0.1);
 
           if (_LStickVal[kY] != 0.0)
             m_climber.setClimberHeightInc(_LStickVal[kY] * 0.004, _climbFF);
-          if (_RStickVal[kY] != 0.0) m_climber.setPivotLinkAngleInc(_RStickVal[kY] * 0.2);
+          if (_RStickVal[kY] != 0.0) m_climber.setPivotLinkAngleInc(_RStickVal[kY] * 0.4);
           break;
         }
       case Manual:
@@ -253,47 +243,11 @@ public class CommandClimber extends CommandBase {
     if (seq >= 0) {
       m_ledLights.runLights(0, 0, 0, 0, 0, 8);
       m_ledLights.runLights(255, 255, 0, 255, 0, (seq % 8) + 1);
-      switch (seq) {
-        case 0:
-          m_climberStartCommand.schedule();
-          break;
-        case 1:
-          m_climberStep1Command.schedule();
-          break;
-        case 2:
-          m_climberStep2Command.schedule();
-          break;
-        case 3:
-          m_climberStep3Command.schedule();
-          break;
-        case 4:
-          m_climberStep4Command.schedule();
-          break;
-        case 5:
-          m_climberStep5Command.schedule();
-          break;
-        case 6:
-          m_climberStep6Command.schedule();
-          break;
-        case 7:
-          m_climberStep7Command.schedule();
-          break;
-        case 8:
-          m_climberStep8Command.schedule();
-          break;
-        case 9:
-          m_climberStep9Command.schedule();
-          break;
-        case 10:
-          m_climberStep10Command.schedule();
-          break;
-        case 11:
-          m_climberStep11Command.schedule();
-          break;
-        default:
-          this.doClimbingSequence((seq % 12) + 1);
-          break;
+
+      if (seq > 11) {
+        seq = (seq % 12) + 1; // wrap around to step 1
       }
+      m_climberSteps.get(seq).schedule();
     }
   }
 }

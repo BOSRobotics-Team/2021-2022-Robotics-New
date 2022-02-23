@@ -13,9 +13,11 @@ public class PivotLinkResetCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final Climber m_climber;
 
-  public PivotLinkResetCommand(RobotContainer container) {
-    m_climber = container.climber;
+  private final double m_speed;
 
+  public PivotLinkResetCommand(RobotContainer container, double speed) {
+    m_climber = container.climber;
+    m_speed = speed;
     addRequirements(m_climber);
   }
 
@@ -24,7 +26,7 @@ public class PivotLinkResetCommand extends CommandBase {
   public void initialize() {
     Shuffleboard.addEventMarker(
         "PivotLinkResetCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-    m_climber.resetPivotLink();
+    m_climber.resetPivotLink(m_speed);
     System.out.println("PivotLinkResetCommand - init");
   }
 

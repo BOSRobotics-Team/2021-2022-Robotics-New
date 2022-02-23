@@ -9,15 +9,12 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.*;
 import frc.robot.subsystems.*;
 
-public class ClimberResetCommand extends CommandBase {
+public class ClimberResetAllCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final Climber m_climber;
 
-  private final double m_speed;
-
-  public ClimberResetCommand(RobotContainer container, double speed) {
+  public ClimberResetAllCommand(RobotContainer container) {
     m_climber = container.climber;
-    m_speed = speed;
     addRequirements(m_climber);
   }
 
@@ -25,29 +22,29 @@ public class ClimberResetCommand extends CommandBase {
   @Override
   public void initialize() {
     Shuffleboard.addEventMarker(
-        "ClimberResetCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-    m_climber.resetClimber(m_speed);
-    System.out.println("ClimberResetCommand - init");
+        "ClimberResetAllCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    m_climber.reset();
+    System.out.println("ClimberResetAllCommand - init");
   }
 
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    System.out.println("ClimberResetCommand - end : interrupted = " + interrupted);
+    System.out.println("ClimberResetAllCommand - end : interrupted = " + interrupted);
 
     if (interrupted) {
       Shuffleboard.addEventMarker(
-          "ClimberResetCommand Interrupted!",
+          "ClimberResetAllCommand Interrupted!",
           this.getClass().getSimpleName(),
           EventImportance.kNormal);
     }
     Shuffleboard.addEventMarker(
-        "ClimberResetCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+        "ClimberResetAllCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
   }
 
   // Make this return true when this Command no longer needs to run execute()
   @Override
   public boolean isFinished() {
-    return !m_climber.isResettingClimber();
+    return !m_climber.isResetting();
   }
 }

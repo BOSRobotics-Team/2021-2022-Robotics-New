@@ -8,9 +8,9 @@ import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.*;
 import frc.robot.commands.drivetrain.*;
-import frc.robot.commands.ledlights.*;
+// import frc.robot.commands.ledlights.*;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.LEDLights.LEDColor;
+// import frc.robot.subsystems.LEDLights.LEDColor;
 
 public class AutonomousCommand extends SequentialCommandGroup {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
@@ -28,8 +28,9 @@ public class AutonomousCommand extends SequentialCommandGroup {
 
     double distance1 = Preferences.getDouble("AutonomousDistance1", -2.0);
     addCommands(
-        new LEDOnboardLightCommand(container, LEDColor.kYellow),
-        new AutoDriveStraightCommand(container, distance1),
-        new LEDOnboardLightCommand(container, LEDColor.kOff));
+        // new LEDOnboardLightCommand(container, LEDColor.kYellow),
+        new AutoDriveStraightCommand(container, distance1)
+        // new LEDOnboardLightCommand(container, LEDColor.kOff)
+        );
   }
 }

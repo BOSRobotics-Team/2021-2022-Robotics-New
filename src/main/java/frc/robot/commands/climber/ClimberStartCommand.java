@@ -20,7 +20,7 @@ public class ClimberStartCommand extends SequentialCommandGroup {
         new LEDOnboardLightCommand(container, led1),
         new LEDOnboardLightCommand(container, led2),
         new PrintCommand("Climber Extend and Tilt initial position"),
-        new ClimberResetCommand(container, true),
+        new ClimberResetAllCommand(container),
         new ClimberExtendPctTiltPctCommand(container, 1.0, 0.25),
         new PrintCommand("Climber Extend and Tilt initial - complete"));
   }

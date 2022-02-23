@@ -90,11 +90,6 @@ public class Climber extends SubsystemBase {
             _maxPivotLinkAngle);
 
     this.zeroClimberPosition();
-
-    _wasLClimberRevLimitSwitchClosed = isLClimberRevLimitSwitchClosed();
-    _wasRClimberRevLimitSwitchClosed = isRClimberRevLimitSwitchClosed();
-    _wasLPivotFwdLimitSwitchClosed = isLPivotFwdLimitSwitchClosed();
-    _wasRPivotFwdLimitSwitchClosed = isRPivotFwdLimitSwitchClosed();
   }
 
   @Override
@@ -281,16 +276,18 @@ public class Climber extends SubsystemBase {
     this.resetPivotLink();
   }
 
-  public void resetClimber() {
+  public void resetClimber(double speed) {
     _isClimbing = false;
     _targetLClimberHeight = _targetRClimberHeight = 0.0;
     _isResetLClimber = _isResetRClimber = true;
-    smartClimberController.setOutput(
-        isLClimberRevLimitSwitchClosed() ? 0.0 : Constants.kResetClimberSpeed, 0.0);
-    smartClimberController.setAuxOutput(
-        isRClimberRevLimitSwitchClosed() ? 0.0 : Constants.kResetClimberSpeed, 0.0);
+    smartClimberController.setOutput(isLClimberRevLimitSwitchClosed() ? 0.0 : speed, 0.0);
+    smartClimberController.setAuxOutput(isRClimberRevLimitSwitchClosed() ? 0.0 : speed, 0.0);
     Shuffleboard.addEventMarker("resetClimber: ", "", EventImportance.kHigh);
     System.out.println("resetClimber - start");
+  }
+
+  public void resetClimber() {
+    this.resetClimber(Constants.kResetClimberSpeed);
   }
 
   public void zeroClimberPosition() {
@@ -376,16 +373,18 @@ public class Climber extends SubsystemBase {
     Shuffleboard.addEventMarker("setPivotLinkSpeed: ", "", EventImportance.kHigh);
   }
 
-  public void resetPivotLink() {
+  public void resetPivotLink(double speed) {
     _isPivoting = false;
     _isResetLPivoting = _isResetRPivoting = true;
     _targetLPivotAngle = _targetRPivotAngle = _pivotLinkAngleRange; // reset point is max range
-    smartPivotLinkController.setOutput(
-        isLPivotFwdLimitSwitchClosed() ? 0.0 : Constants.kResetPivotSpeed, 0.0);
-    smartPivotLinkController.setAuxOutput(
-        isRPivotFwdLimitSwitchClosed() ? 0.0 : Constants.kResetPivotSpeed, 0.0);
+    smartPivotLinkController.setOutput(isLPivotFwdLimitSwitchClosed() ? 0.0 : speed, 0.0);
+    smartPivotLinkController.setAuxOutput(isRPivotFwdLimitSwitchClosed() ? 0.0 : speed, 0.0);
     Shuffleboard.addEventMarker("resetPivotLink: ", "", EventImportance.kHigh);
     System.out.println("resetPivotLink - start");
+  }
+
+  public void resetPivotLink() {
+    this.resetPivotLink(Constants.kResetPivotSpeed);
   }
 
   public boolean isResetting() {
