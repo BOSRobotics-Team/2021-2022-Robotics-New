@@ -27,11 +27,11 @@ package frc.robot.unused;
 //   @Override
 //   public void initialize() {
 //     Shuffleboard.addEventMarker(
-//         "IntakeUnjamCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+//         "IntakeUnjamCommand", EventImportance.kNormal);
 //     _counter = 100;
 //     m_intake.runIntake(Constants.kUnjamIntakeSpeed);
 
-//     System.out.println("IntakeOnCommand - init");
+//     System.out.println("IntakeOnCommand");
 //   }
 
 //   // Called repeatedly when this Command is scheduled to run
@@ -48,11 +48,11 @@ package frc.robot.unused;
 //     if (interrupted) {
 //       Shuffleboard.addEventMarker(
 //           "IntakeUnjamCommand Interrupted!",
-//           this.getClass().getSimpleName(),
+//
 //           EventImportance.kNormal);
 //     }
 //     Shuffleboard.addEventMarker(
-//         "IntakeUnjamCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+//         "IntakeUnjamCommand end", EventImportance.kNormal);
 //   }
 
 //   // Make this return true when this Command no longer needs to run execute()

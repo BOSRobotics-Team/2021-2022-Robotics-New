@@ -118,14 +118,14 @@ public class DriveTrain extends SubsystemBase {
   public void setTarget(double distance) {
     smartController.setTarget(distance);
     differentialDrive.feed();
-    Shuffleboard.addEventMarker("setTarget (meters)", "DriveTrain", EventImportance.kHigh);
+    Shuffleboard.addEventMarker("DriveTrain - setTarget (meters)", EventImportance.kHigh);
     // System.out.println("target (meters) = " + distance);
   }
 
   public void setTargetAndAngle(double distance, double angle) {
     smartController.setTargetAndAngle(distance, angle);
     differentialDrive.feed();
-    Shuffleboard.addEventMarker("setTargetAndAngle", "DriveTrain", EventImportance.kHigh);
+    Shuffleboard.addEventMarker("DriveTrain - setTargetAndAngle", EventImportance.kHigh);
     // System.out.println("target (meters) = " + distance + " angle: " + angle);
   }
 

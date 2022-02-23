@@ -39,7 +39,7 @@
 //   public void initialize() {
 //     System.out.println("CommandShooter - initialize");
 //     Shuffleboard.addEventMarker(
-//         "CommandShooter init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+//         "CommandShooter init", EventImportance.kNormal);
 //   }
 
 //   // Called repeatedly when this Command is scheduled to run
@@ -52,10 +52,10 @@
 //     System.out.println("CommandShooter end - interrupted = " + interrupted);
 //     if (interrupted) {
 //       Shuffleboard.addEventMarker(
-//           "CommandShooter Interrupted!", this.getClass().getSimpleName(),
+//           "CommandShooter Interrupted!",
 // EventImportance.kNormal);
 //     }
 //     Shuffleboard.addEventMarker(
-//         "CommandShooter end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+//         "CommandShooter end", EventImportance.kNormal);
 //   }
 // }

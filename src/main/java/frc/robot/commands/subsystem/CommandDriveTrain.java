@@ -69,8 +69,7 @@ public class CommandDriveTrain extends CommandBase {
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
-    Shuffleboard.addEventMarker(
-        "CommandDriveTrain init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    Shuffleboard.addEventMarker("CommandDriveTrain init", EventImportance.kNormal);
 
     m_driveTrain.enableBrakes(true);
     m_driveTrain.enableDriveTrain(true);
@@ -90,12 +89,8 @@ public class CommandDriveTrain extends CommandBase {
     m_driveTrain.enableDriveTrain(false);
 
     if (interrupted) {
-      Shuffleboard.addEventMarker(
-          "CommandDriveTrain Interrupted!",
-          this.getClass().getSimpleName(),
-          EventImportance.kNormal);
+      Shuffleboard.addEventMarker("CommandDriveTrain Interrupted!", EventImportance.kNormal);
     }
-    Shuffleboard.addEventMarker(
-        "CommandDriveTrain end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    Shuffleboard.addEventMarker("CommandDriveTrain end", EventImportance.kNormal);
   }
 }

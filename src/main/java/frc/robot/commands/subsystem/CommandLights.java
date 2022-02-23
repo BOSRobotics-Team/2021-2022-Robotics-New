@@ -59,8 +59,7 @@ public class CommandLights extends CommandBase {
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
-    Shuffleboard.addEventMarker(
-        "CommandLights init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    Shuffleboard.addEventMarker("CommandLights", EventImportance.kNormal);
     _currentVal = _lastVal = 0.0;
   }
 
@@ -80,13 +79,10 @@ public class CommandLights extends CommandBase {
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    System.out.println("CommandLights end - interrupted = " + interrupted);
     if (interrupted) {
-      Shuffleboard.addEventMarker(
-          "CommandLights Interrupted!", this.getClass().getSimpleName(), EventImportance.kNormal);
+      Shuffleboard.addEventMarker("CommandLights Interrupted!", EventImportance.kNormal);
     }
-    Shuffleboard.addEventMarker(
-        "CommandLights end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    Shuffleboard.addEventMarker("CommandLights end", EventImportance.kNormal);
   }
 
   // Make this return true when this Command no longer needs to run execute()

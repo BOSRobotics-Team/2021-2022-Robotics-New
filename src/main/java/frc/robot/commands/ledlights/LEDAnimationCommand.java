@@ -32,9 +32,8 @@ public class LEDAnimationCommand extends InstantCommand {
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
-    Shuffleboard.addEventMarker(
-        "LEDAnimationCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-    System.out.println("LEDAnimationCommand - init : animationType = " + m_type);
+    Shuffleboard.addEventMarker("LEDAnimationCommand", EventImportance.kNormal);
+    System.out.println("LEDAnimationCommand : animationType = " + m_type);
   }
 
   // Called repeatedly when this Command is scheduled to run
@@ -46,14 +45,9 @@ public class LEDAnimationCommand extends InstantCommand {
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    System.out.println("LEDAnimationCommand - end : interrupted = " + interrupted);
     if (interrupted) {
-      Shuffleboard.addEventMarker(
-          "LEDAnimationCommand Interrupted!",
-          this.getClass().getSimpleName(),
-          EventImportance.kNormal);
+      Shuffleboard.addEventMarker("LEDAnimationCommand Interrupted!", EventImportance.kNormal);
     }
-    Shuffleboard.addEventMarker(
-        "LEDAnimationCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    Shuffleboard.addEventMarker("LEDAnimationCommand end", EventImportance.kNormal);
   }
 }

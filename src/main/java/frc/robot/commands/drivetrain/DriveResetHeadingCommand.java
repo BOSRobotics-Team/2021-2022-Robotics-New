@@ -24,11 +24,10 @@ public class DriveResetHeadingCommand extends CommandBase {
   /** Log when this command is initialized */
   @Override
   public void initialize() {
-    Shuffleboard.addEventMarker(
-        "DriveResetHeadingCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-    System.out.println("DriveResetHeadingCommand - init");
+    Shuffleboard.addEventMarker("DriveResetHeadingCommand", EventImportance.kNormal);
     _counter = 10;
     m_driveTrain.zeroHeading();
+    System.out.println("DriveResetHeadingCommand");
   }
 
   /** Do the state change. */
@@ -40,15 +39,10 @@ public class DriveResetHeadingCommand extends CommandBase {
   /** Log when this command ends */
   @Override
   public void end(boolean interrupted) {
-    System.out.println("DriveResetHeadingCommand - end : interrupted = " + interrupted);
     if (interrupted) {
-      Shuffleboard.addEventMarker(
-          "DriveResetHeadingCommand Interrupted!",
-          this.getClass().getSimpleName(),
-          EventImportance.kNormal);
+      Shuffleboard.addEventMarker("DriveResetHeadingCommand Interrupted!", EventImportance.kNormal);
     }
-    Shuffleboard.addEventMarker(
-        "DriveResetHeadingCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    Shuffleboard.addEventMarker("DriveResetHeadingCommand end", EventImportance.kNormal);
   }
   // Make this return true when this Command no longer needs to run execute()
   @Override

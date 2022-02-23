@@ -40,8 +40,7 @@ public class AutoDriveTurnCommand extends CommandBase {
 
   @Override
   public void initialize() {
-    Shuffleboard.addEventMarker(
-        "AutoDriveTurnCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    Shuffleboard.addEventMarker("AutoDriveTurnCommand", EventImportance.kNormal);
 
     m_driveTrain.enableDriveTrain(false);
     m_driveTrain.enableBrakes(false);
@@ -51,50 +50,45 @@ public class AutoDriveTurnCommand extends CommandBase {
     m_driveTrain.setTargetAndAngle(_targetDistance, _targetAngle);
 
     System.out.println(
-        "AutoDriveTurnCommand init : targetDistance = "
+        "AutoDriveTurnCommand : targetDistance = "
             + _targetDistance
             + " targetAngle = "
             + _targetAngle);
   }
 
   // Called repeatedly when this Command is scheduled to run
-  @Override
-  public void execute() {
-    // if (m_controller.getStartButtonPressed()) {
-    // 	_gotoEnd = !_gotoEnd;
-    // 	_targetDistance = _gotoEnd ? 5.0 : 0.0;
-    // 	_targetAngle = _gotoEnd ? -175 : 175;       //-900.0 : 900.0; //-360000 * (90.0 / 360.0) :
-    // 0.0;
-    // }
-    // if (m_controller.getLeftBumperPressed()) {
-    // 	if (--_smoothing < 0) _smoothing = 0; // Cap smoothing
-    // 	m_driveTrain.configMotionSCurveStrength(_smoothing);
-    // }
-    // if (m_controller.getRightBumperPressed()) {
-    // 	if (++_smoothing > 8) _smoothing = 8; // Cap smoothing
-    // 	m_driveTrain.configMotionSCurveStrength(_smoothing);
-    // }
+  // @Override
+  // public void execute() {
+  // if (m_controller.getStartButtonPressed()) {
+  // 	_gotoEnd = !_gotoEnd;
+  // 	_targetDistance = _gotoEnd ? 5.0 : 0.0;
+  // 	_targetAngle = _gotoEnd ? -175 : 175;       //-900.0 : 900.0; //-360000 * (90.0 / 360.0) :
+  // 0.0;
+  // }
+  // if (m_controller.getLeftBumperPressed()) {
+  // 	if (--_smoothing < 0) _smoothing = 0; // Cap smoothing
+  // 	m_driveTrain.configMotionSCurveStrength(_smoothing);
+  // }
+  // if (m_controller.getRightBumperPressed()) {
+  // 	if (++_smoothing > 8) _smoothing = 8; // Cap smoothing
+  // 	m_driveTrain.configMotionSCurveStrength(_smoothing);
+  // }
 
-    // SmartDashboard.putNumber("PoseX", m_driveTrain.getCurrentPose().getTranslation().getX());
-    // SmartDashboard.putNumber("PoseY", m_driveTrain.getCurrentPose().getTranslation().getY());
-    // SmartDashboard.putNumber("Pose Rot",
-    // m_driveTrain.getCurrentPose().getRotation().getDegrees());
-  }
+  // SmartDashboard.putNumber("PoseX", m_driveTrain.getCurrentPose().getTranslation().getX());
+  // SmartDashboard.putNumber("PoseY", m_driveTrain.getCurrentPose().getTranslation().getY());
+  // SmartDashboard.putNumber("Pose Rot",
+  // m_driveTrain.getCurrentPose().getRotation().getDegrees());
+  // }
 
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    System.out.println("AutoDriveTurnCommand - end : interrupted = " + interrupted);
     m_driveTrain.enableDriveTrain(false);
 
     if (interrupted) {
-      Shuffleboard.addEventMarker(
-          "AutoDriveTurnCommand Interrupted!",
-          this.getClass().getSimpleName(),
-          EventImportance.kNormal);
+      Shuffleboard.addEventMarker("AutoDriveTurnCommand Interrupted!", EventImportance.kNormal);
     }
-    Shuffleboard.addEventMarker(
-        "AutoDriveTurnCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    Shuffleboard.addEventMarker("AutoDriveTurnCommand end", EventImportance.kNormal);
   }
 
   // Make this return true when this Command no longer needs to run execute()

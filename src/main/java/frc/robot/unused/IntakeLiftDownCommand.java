@@ -24,9 +24,9 @@ package frc.robot.unused;
 //   @Override
 //   public void initialize() {
 //     Shuffleboard.addEventMarker(
-//         "IntakeLiftDownCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+//         "IntakeLiftDownCommand", EventImportance.kNormal);
 //     m_intake.runLift(0.0);
-//     System.out.println("IntakeLiftDownCommand - init");
+//     System.out.println("IntakeLiftDownCommand");
 //   }
 
 //   // Called repeatedly when this Command is scheduled to run
@@ -40,11 +40,11 @@ package frc.robot.unused;
 //     if (interrupted) {
 //       Shuffleboard.addEventMarker(
 //           "IntakeLiftDownCommand Interrupted!",
-//           this.getClass().getSimpleName(),
+//
 //           EventImportance.kNormal);
 //     }
 //     Shuffleboard.addEventMarker(
-//         "IntakeLiftDownCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+//         "IntakeLiftDownCommand end", EventImportance.kNormal);
 //   }
 
 //   // Make this return true when this Command no longer needs to run execute()

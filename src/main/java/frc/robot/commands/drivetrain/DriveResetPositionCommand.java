@@ -24,13 +24,10 @@ public class DriveResetPositionCommand extends CommandBase {
   /** Log when this command is initialized */
   @Override
   public void initialize() {
-    Shuffleboard.addEventMarker(
-        "DriveResetPositionCommand init.",
-        this.getClass().getSimpleName(),
-        EventImportance.kNormal);
-    System.out.println("DriveResetPositionCommand - init");
+    Shuffleboard.addEventMarker("DriveResetPositionCommand", EventImportance.kNormal);
     _counter = 10;
     m_driveTrain.resetPosition();
+    System.out.println("DriveResetPositionCommand");
   }
 
   /** Do the state change. */
@@ -42,15 +39,11 @@ public class DriveResetPositionCommand extends CommandBase {
   /** Log when this command ends */
   @Override
   public void end(boolean interrupted) {
-    System.out.println("DriveResetPositionCommand - end : interrupted = " + interrupted);
     if (interrupted) {
       Shuffleboard.addEventMarker(
-          "DriveResetPositionCommand Interrupted!",
-          this.getClass().getSimpleName(),
-          EventImportance.kNormal);
+          "DriveResetPositionCommand Interrupted!", EventImportance.kNormal);
     }
-    Shuffleboard.addEventMarker(
-        "DriveResetPositionCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    Shuffleboard.addEventMarker("DriveResetPositionCommand end", EventImportance.kNormal);
   }
 
   // Make this return true when this Command no longer needs to run execute()

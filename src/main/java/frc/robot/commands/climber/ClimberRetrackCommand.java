@@ -22,26 +22,19 @@ public class ClimberRetrackCommand extends CommandBase {
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
-    Shuffleboard.addEventMarker(
-        "ClimberRetrackCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    Shuffleboard.addEventMarker("ClimberRetrackCommand", EventImportance.kNormal);
     m_climber.setClimberHeight(0.0, 0.0);
 
-    System.out.println("ClimberRetrackCommand - init : height = 0.0");
+    System.out.println("ClimberRetrackCommand : height = 0.0");
   }
 
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    System.out.println("ClimberRetrackCommand - end : interrupted = " + interrupted);
-
     if (interrupted) {
-      Shuffleboard.addEventMarker(
-          "ClimberRetrackCommand Interrupted!",
-          this.getClass().getSimpleName(),
-          EventImportance.kNormal);
+      Shuffleboard.addEventMarker("ClimberRetrackCommand Interrupted!", EventImportance.kNormal);
     }
-    Shuffleboard.addEventMarker(
-        "ClimberRetrackCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    Shuffleboard.addEventMarker("ClimberRetrackCommand end", EventImportance.kNormal);
   }
 
   // Make this return true when this Command no longer needs to run execute()

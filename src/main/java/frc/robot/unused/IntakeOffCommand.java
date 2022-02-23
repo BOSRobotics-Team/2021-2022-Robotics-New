@@ -24,8 +24,8 @@ package frc.robot.unused;
 //   @Override
 //   public void initialize() {
 //     Shuffleboard.addEventMarker(
-//         "IntakeOffCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-//     System.out.println("IntakeOffCommand - init");
+//         "IntakeOffCommand", EventImportance.kNormal);
+//     System.out.println("IntakeOffCommand");
 //   }
 
 //   // Called repeatedly when this Command is scheduled to run
@@ -41,10 +41,10 @@ package frc.robot.unused;
 //     if (interrupted) {
 //       Shuffleboard.addEventMarker(
 //           "IntakeOffCommand Interrupted!",
-//           this.getClass().getSimpleName(),
+//
 //           EventImportance.kNormal);
 //     }
 //     Shuffleboard.addEventMarker(
-//         "IntakeOffCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+//         "IntakeOffCommand end", EventImportance.kNormal);
 //   }
 // }

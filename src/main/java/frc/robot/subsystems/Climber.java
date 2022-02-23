@@ -104,7 +104,7 @@ public class Climber extends SubsystemBase {
       if (_isResetLClimber) {
         _isResetLClimber = false;
         smartClimberController.setOutput(0.0, 0.0);
-        Shuffleboard.addEventMarker("isResetLClimber - done: ", "", EventImportance.kHigh);
+        Shuffleboard.addEventMarker("isResetLClimber - done: ", EventImportance.kHigh);
         System.out.println("isResetLClimber - done");
       }
       if (!_wasLClimberRevLimitSwitchClosed) smartClimberController.resetSensorPosition();
@@ -113,7 +113,7 @@ public class Climber extends SubsystemBase {
       if (_isResetRClimber) {
         _isResetRClimber = false;
         smartClimberController.setAuxOutput(0.0, 0.0);
-        Shuffleboard.addEventMarker("isResetRClimber - done: ", "", EventImportance.kHigh);
+        Shuffleboard.addEventMarker("isResetRClimber - done: ", EventImportance.kHigh);
         System.out.println("isResetRClimber - done");
       }
       if (!_wasRClimberRevLimitSwitchClosed) smartClimberController.resetAuxSensorPosition();
@@ -122,7 +122,7 @@ public class Climber extends SubsystemBase {
       if (_isResetLPivoting) {
         _isResetLPivoting = false;
         smartPivotLinkController.setOutput(0.0, 0.0);
-        Shuffleboard.addEventMarker("isResetLPivot - done: ", "", EventImportance.kHigh);
+        Shuffleboard.addEventMarker("isResetLPivot - done: ", EventImportance.kHigh);
         System.out.println("isResetLPivot - done");
       }
       if (!_wasLPivotFwdLimitSwitchClosed) smartPivotLinkController.resetSensorPosition();
@@ -131,7 +131,7 @@ public class Climber extends SubsystemBase {
       if (_isResetRPivoting) {
         _isResetRPivoting = false;
         smartPivotLinkController.setAuxOutput(0.0, 0.0);
-        Shuffleboard.addEventMarker("isResetRPivot - done: ", "", EventImportance.kHigh);
+        Shuffleboard.addEventMarker("isResetRPivot - done: ", EventImportance.kHigh);
         System.out.println("isResetRPivot - done");
       }
       if (!_wasRPivotFwdLimitSwitchClosed) smartPivotLinkController.resetAuxSensorPosition();
@@ -147,11 +147,11 @@ public class Climber extends SubsystemBase {
       //         + smartClimberController.getAuxDistance()
       //         + " pos = "
       //         + smartClimberController.getAuxPosition());
-      Shuffleboard.addEventMarker("isClimbingLeft: ", "", EventImportance.kNormal);
-      Shuffleboard.addEventMarker("isClimbingRight: ", "", EventImportance.kNormal);
+      Shuffleboard.addEventMarker("isClimbingLeft: ", EventImportance.kNormal);
+      Shuffleboard.addEventMarker("isClimbingRight: ", EventImportance.kNormal);
       if (smartClimberController.isTargetFinished()) {
         _isClimbing = false;
-        Shuffleboard.addEventMarker("isClimbing - done: ", "", EventImportance.kHigh);
+        Shuffleboard.addEventMarker("isClimbing - done: ", EventImportance.kHigh);
         System.out.println("isClimbing - done");
       }
     }
@@ -166,11 +166,11 @@ public class Climber extends SubsystemBase {
       //         + smartPivotLinkController.getAuxDistance()
       //         + " pos = "
       //         + smartPivotLinkController.getAuxPosition());
-      Shuffleboard.addEventMarker("isPivotingLeft: ", "", EventImportance.kNormal);
-      Shuffleboard.addEventMarker("isPivotingRight: ", "", EventImportance.kNormal);
+      Shuffleboard.addEventMarker("isPivotingLeft: ", EventImportance.kNormal);
+      Shuffleboard.addEventMarker("isPivotingRight: ", EventImportance.kNormal);
       if (smartPivotLinkController.isTargetFinished()) {
         _isPivoting = false;
-        Shuffleboard.addEventMarker("isPivoting - done: ", "", EventImportance.kHigh);
+        Shuffleboard.addEventMarker("isPivoting - done: ", EventImportance.kHigh);
         System.out.println("isPivoting - done");
       }
     }
@@ -211,7 +211,7 @@ public class Climber extends SubsystemBase {
 
     smartClimberController.setTarget(_targetLClimberHeight, _targetRClimberHeight, arbFF);
     _isClimbing = true;
-    Shuffleboard.addEventMarker("setClimberHeight: ", "", EventImportance.kHigh);
+    Shuffleboard.addEventMarker("setClimberHeight: ", EventImportance.kHigh);
     System.out.println(
         "setClimberHeight - lHeight: "
             + _targetLClimberHeight
@@ -262,7 +262,7 @@ public class Climber extends SubsystemBase {
     if (!isResettingClimber()) {
       smartClimberController.setOutput(speedL, speedR, arbFF);
       _isClimbing = false;
-      Shuffleboard.addEventMarker("setClimberSpeed: ", "", EventImportance.kHigh);
+      Shuffleboard.addEventMarker("setClimberSpeed: ", EventImportance.kHigh);
     }
   }
 
@@ -282,7 +282,7 @@ public class Climber extends SubsystemBase {
     _isResetLClimber = _isResetRClimber = true;
     smartClimberController.setOutput(isLClimberRevLimitSwitchClosed() ? 0.0 : speed, 0.0);
     smartClimberController.setAuxOutput(isRClimberRevLimitSwitchClosed() ? 0.0 : speed, 0.0);
-    Shuffleboard.addEventMarker("resetClimber: ", "", EventImportance.kHigh);
+    Shuffleboard.addEventMarker("resetClimber: ", EventImportance.kHigh);
     System.out.println("resetClimber - start");
   }
 
@@ -299,7 +299,7 @@ public class Climber extends SubsystemBase {
     smartClimberController.resetPosition();
     smartPivotLinkController.resetPosition();
     System.out.println("zeroClimberPosition - start");
-    Shuffleboard.addEventMarker("zeroClimberPosition: ", "", EventImportance.kHigh);
+    Shuffleboard.addEventMarker("zeroClimberPosition: ", EventImportance.kHigh);
   }
 
   public void setPivotLinkAngle(double lAngleDegrees, double rAngleDegrees) {
@@ -312,7 +312,7 @@ public class Climber extends SubsystemBase {
 
     smartPivotLinkController.setTarget(_targetLPivotAngle, _targetRPivotAngle, _pivotFeedFwd);
     _isPivoting = true;
-    Shuffleboard.addEventMarker("setPivotLinkAngle: ", "", EventImportance.kHigh);
+    Shuffleboard.addEventMarker("setPivotLinkAngle: ", EventImportance.kHigh);
     System.out.println("setLPivotLinkAngle: " + lAngleDegrees + " tgtAngle: " + _targetLPivotAngle);
     System.out.println("setRPivotLinkAngle: " + rAngleDegrees + " tgtAngle: " + _targetRPivotAngle);
   }
@@ -364,13 +364,13 @@ public class Climber extends SubsystemBase {
     if (!isResettingPivot()) {
       smartPivotLinkController.setOutput(speedL, speedR, arbFF);
       _isPivoting = false;
-      Shuffleboard.addEventMarker("setPivotLinkSpeed: ", "", EventImportance.kHigh);
+      Shuffleboard.addEventMarker("setPivotLinkSpeed: ", EventImportance.kHigh);
     }
   }
 
   public void setPivotLinkSpeed(double speedL, double speedR) {
     setPivotLinkSpeed(speedL, speedR, 0.0);
-    Shuffleboard.addEventMarker("setPivotLinkSpeed: ", "", EventImportance.kHigh);
+    Shuffleboard.addEventMarker("setPivotLinkSpeed: ", EventImportance.kHigh);
   }
 
   public void resetPivotLink(double speed) {
@@ -379,7 +379,7 @@ public class Climber extends SubsystemBase {
     _targetLPivotAngle = _targetRPivotAngle = _pivotLinkAngleRange; // reset point is max range
     smartPivotLinkController.setOutput(isLPivotFwdLimitSwitchClosed() ? 0.0 : speed, 0.0);
     smartPivotLinkController.setAuxOutput(isRPivotFwdLimitSwitchClosed() ? 0.0 : speed, 0.0);
-    Shuffleboard.addEventMarker("resetPivotLink: ", "", EventImportance.kHigh);
+    Shuffleboard.addEventMarker("resetPivotLink: ", EventImportance.kHigh);
     System.out.println("resetPivotLink - start");
   }
 

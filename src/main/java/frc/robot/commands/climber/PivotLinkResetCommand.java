@@ -24,25 +24,18 @@ public class PivotLinkResetCommand extends CommandBase {
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
-    Shuffleboard.addEventMarker(
-        "PivotLinkResetCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    Shuffleboard.addEventMarker("PivotLinkResetCommand", EventImportance.kNormal);
     m_climber.resetPivotLink(m_speed);
-    System.out.println("PivotLinkResetCommand - init");
+    System.out.println("PivotLinkResetCommand");
   }
 
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    System.out.println("PivotLinkResetCommand - end : interrupted = " + interrupted);
-
     if (interrupted) {
-      Shuffleboard.addEventMarker(
-          "PivotLinkResetCommand Interrupted!",
-          this.getClass().getSimpleName(),
-          EventImportance.kNormal);
+      Shuffleboard.addEventMarker("PivotLinkResetCommand Interrupted!", EventImportance.kNormal);
     }
-    Shuffleboard.addEventMarker(
-        "PivotLinkResetCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    Shuffleboard.addEventMarker("PivotLinkResetCommand end", EventImportance.kNormal);
   }
 
   // Make this return true when this Command no longer needs to run execute()

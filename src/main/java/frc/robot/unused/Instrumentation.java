@@ -2,10 +2,9 @@
  * Instrumentation Class that handles how telemetry from the Talon FX interacts with Driverstation
  * and Smart Dashboard.
  */
-package frc.robot.util;
+package frc.robot.unused;
 
 import frc.robot.wrappers.DriveGyro;
-import frc.robot.wrappers.SmartMotor;
 
 public class Instrumentation {
   /* Tracking variables for instrumentation */

@@ -60,7 +60,7 @@ package frc.robot.unused;
 //   @Override
 //   public void initialize() {
 //     Shuffleboard.addEventMarker(
-//         "CommandIntake init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+//         "CommandIntake init", EventImportance.kNormal);
 //     _lastTriggerL = _lastTriggerR = false;
 //   }
 
@@ -91,11 +91,11 @@ package frc.robot.unused;
 //   public void end(boolean interrupted) {
 //     if (interrupted) {
 //       Shuffleboard.addEventMarker(
-//           "CommandIntake Interrupted!", this.getClass().getSimpleName(),
+//           "CommandIntake Interrupted!",
 // EventImportance.kNormal);
 //     }
 //     Shuffleboard.addEventMarker(
-//         "CommandIntake end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+//         "CommandIntake end", EventImportance.kNormal);
 //   }
 
 //   // Make this return true when this Command no longer needs to run execute()

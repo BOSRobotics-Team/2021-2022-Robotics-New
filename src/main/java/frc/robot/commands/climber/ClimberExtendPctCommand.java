@@ -31,27 +31,19 @@ public class ClimberExtendPctCommand extends CommandBase {
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
-    Shuffleboard.addEventMarker(
-        "ClimberExtendPctCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    Shuffleboard.addEventMarker("ClimberExtendPctCommand", EventImportance.kNormal);
     m_climber.setClimberHeightPct(m_height, m_arbFF);
 
-    System.out.println(
-        "ClimberExtendPctCommand - init : height = " + m_height + " arbFF = " + m_arbFF);
+    System.out.println("ClimberExtendPctCommand : height = " + m_height + " arbFF = " + m_arbFF);
   }
 
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    System.out.println("ClimberExtendPctCommand - end : interrupted = " + interrupted);
-
     if (interrupted) {
-      Shuffleboard.addEventMarker(
-          "ClimberExtendPctCommand Interrupted!",
-          this.getClass().getSimpleName(),
-          EventImportance.kNormal);
+      Shuffleboard.addEventMarker("ClimberExtendPctCommand Interrupted!", EventImportance.kNormal);
     }
-    Shuffleboard.addEventMarker(
-        "ClimberExtendPctCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    Shuffleboard.addEventMarker("ClimberExtendPctCommand end", EventImportance.kNormal);
   }
 
   // Make this return true when this Command no longer needs to run execute()

@@ -148,7 +148,7 @@
     "Shuffleboard": {
       ".recording": {
         "events": {
-          "CommandDriveTrain init.": {
+          "CommandDriveTrain init": {
             "open": true
           }
         }

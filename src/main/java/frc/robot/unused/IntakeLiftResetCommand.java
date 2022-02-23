@@ -24,10 +24,10 @@ package frc.robot.unused;
 //   @Override
 //   public void initialize() {
 //     Shuffleboard.addEventMarker(
-//         "IntakeLiftResetCommand init.", this.getClass().getSimpleName(),
+//         "IntakeLiftResetCommand",
 // EventImportance.kNormal);
 //     m_intake.resetLift();
-//     System.out.println("IntakeLiftResetCommand - init");
+//     System.out.println("IntakeLiftResetCommand");
 //   }
 
 //   // Called once after isFinished returns true
@@ -37,11 +37,11 @@ package frc.robot.unused;
 //     if (interrupted) {
 //       Shuffleboard.addEventMarker(
 //           "IntakeLiftResetCommand Interrupted!",
-//           this.getClass().getSimpleName(),
+//
 //           EventImportance.kNormal);
 //     }
 //     Shuffleboard.addEventMarker(
-//         "IntakeLiftResetCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+//         "IntakeLiftResetCommand end", EventImportance.kNormal);
 //   }
 
 //   // Make this return true when this Command no longer needs to run execute()

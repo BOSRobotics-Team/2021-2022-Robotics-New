@@ -55,9 +55,7 @@ public class SimpleUnidirectionalDriveCommand extends CommandBase {
   public void end(boolean interrupted) {
     if (interrupted) {
       Shuffleboard.addEventMarker(
-          "SimpleUnidirectionalDrive Interrupted! Stopping the robot.",
-          this.getClass().getSimpleName(),
-          EventImportance.kNormal);
+          "SimpleUnidirectionalDrive Interrupted! Stopping the robot.", EventImportance.kNormal);
     }
     // Brake for safety!
     m_driveTrain.fullStop();

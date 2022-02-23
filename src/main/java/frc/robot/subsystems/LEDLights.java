@@ -278,7 +278,7 @@ public class LEDLights extends SubsystemBase {
         break;
     }
     Shuffleboard.addEventMarker(
-        "LEDAnimation changed to: ", m_currentAnimation.toString(), EventImportance.kHigh);
+        "LEDAnimation changed", m_currentAnimation.toString(), EventImportance.kHigh);
     // System.out.println("Changed to " + m_currentAnimation.toString());
   }
 

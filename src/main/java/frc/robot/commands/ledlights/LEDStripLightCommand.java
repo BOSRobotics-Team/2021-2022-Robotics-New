@@ -30,9 +30,8 @@ public class LEDStripLightCommand extends InstantCommand {
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
-    Shuffleboard.addEventMarker(
-        "LEDStripLightCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-    System.out.println("LEDStripLightCommand init : color = " + m_color);
+    Shuffleboard.addEventMarker("LEDStripLightCommand", EventImportance.kNormal);
+    System.out.println("LEDStripLightCommand : color = " + m_color);
   }
 
   // Called when this Command is scheduled to run
@@ -44,14 +43,9 @@ public class LEDStripLightCommand extends InstantCommand {
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    System.out.println("LEDStripLightCommand end - interrupted = " + interrupted);
     if (interrupted) {
-      Shuffleboard.addEventMarker(
-          "LEDStripLightCommand Interrupted!",
-          this.getClass().getSimpleName(),
-          EventImportance.kNormal);
+      Shuffleboard.addEventMarker("LEDStripLightCommand Interrupted!", EventImportance.kNormal);
     }
-    Shuffleboard.addEventMarker(
-        "LEDStripLightCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    Shuffleboard.addEventMarker("LEDStripLightCommand end", EventImportance.kNormal);
   }
 }

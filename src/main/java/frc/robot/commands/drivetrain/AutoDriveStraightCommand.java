@@ -33,8 +33,7 @@ public class AutoDriveStraightCommand extends CommandBase {
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
-    Shuffleboard.addEventMarker(
-        "AutoDriveStraightCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    Shuffleboard.addEventMarker("AutoDriveStraightCommand", EventImportance.kNormal);
 
     /* Configured for MotionMagic on Integrated Sensors' Sum and Auxiliary PID on Integrated Sensors' Difference */
     m_driveTrain.enableDriveTrain(false);
@@ -45,7 +44,7 @@ public class AutoDriveStraightCommand extends CommandBase {
     m_driveTrain.setTargetAndAngle(_targetDistance, _targetAngle);
 
     System.out.println(
-        "AutoDriveStraightCommand init : targetDistance = "
+        "AutoDriveStraightCommand : targetDistance = "
             + _targetDistance
             + " targetAngle = "
             + _targetAngle);
@@ -63,17 +62,12 @@ public class AutoDriveStraightCommand extends CommandBase {
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    System.out.println("AutoDriveStraightCommand - end : interrupted = " + interrupted);
     m_driveTrain.enableDriveTrain(false);
 
     if (interrupted) {
-      Shuffleboard.addEventMarker(
-          "AutoDriveStraightCommand Interrupted!",
-          this.getClass().getSimpleName(),
-          EventImportance.kNormal);
+      Shuffleboard.addEventMarker("AutoDriveStraightCommand Interrupted!", EventImportance.kNormal);
     }
-    Shuffleboard.addEventMarker(
-        "AutoDriveStraightCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    Shuffleboard.addEventMarker("AutoDriveStraightCommand end", EventImportance.kNormal);
   }
 
   // Make this return true when this Command no longer needs to run execute()

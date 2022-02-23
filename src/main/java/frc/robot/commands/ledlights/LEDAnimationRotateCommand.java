@@ -16,7 +16,6 @@ public class LEDAnimationRotateCommand extends InstantCommand {
   private final boolean m_increment;
 
   public LEDAnimationRotateCommand(RobotContainer container, boolean increment) {
-    System.out.println("LEDAnimationRotateCommand constructor");
     m_lights = container.lights;
     m_increment = increment;
 
@@ -26,17 +25,13 @@ public class LEDAnimationRotateCommand extends InstantCommand {
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
-    Shuffleboard.addEventMarker(
-        "LEDAnimationRotateCommand init.",
-        this.getClass().getSimpleName(),
-        EventImportance.kNormal);
-    System.out.println("LEDAnimationRotateCommand init : increment = " + m_increment);
+    Shuffleboard.addEventMarker("LEDAnimationRotateCommand", EventImportance.kNormal);
+    System.out.println("LEDAnimationRotateCommand : increment = " + m_increment);
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   public void execute() {
-    System.out.println("LEDAnimationRotateCommand - execute");
     if (m_increment) m_lights.incrementAnimation();
     else m_lights.decrementAnimation();
   }
@@ -44,14 +39,10 @@ public class LEDAnimationRotateCommand extends InstantCommand {
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    System.out.println("LEDAnimationRotateCommand end - interrupted = " + interrupted);
     if (interrupted) {
       Shuffleboard.addEventMarker(
-          "LEDAnimationRotateCommand Interrupted!",
-          this.getClass().getSimpleName(),
-          EventImportance.kNormal);
+          "LEDAnimationRotateCommand Interrupted!", EventImportance.kNormal);
     }
-    Shuffleboard.addEventMarker(
-        "LEDAnimationRotateCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    Shuffleboard.addEventMarker("LEDAnimationRotateCommand end", EventImportance.kNormal);
   }
 }

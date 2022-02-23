@@ -25,29 +25,19 @@ public class PivotLinkAngleCommand extends CommandBase {
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
-    Shuffleboard.addEventMarker(
-        "PivotLinkAngleCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    Shuffleboard.addEventMarker("PivotLinkAngleCommand", EventImportance.kNormal);
     m_climber.setPivotLinkAngle(m_angle);
 
-    System.out.println("PivotLinkAngleCommand - init : distance = " + m_angle);
+    System.out.println("PivotLinkAngleCommand : distance = " + m_angle);
   }
-
-  // Called repeatedly when this Command is scheduled to run
-  @Override
-  public void execute() {}
 
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    System.out.println("PivotLinkAngleCommand end - interrupted = " + interrupted);
     if (interrupted) {
-      Shuffleboard.addEventMarker(
-          "PivotLinkAngleCommand Interrupted!",
-          this.getClass().getSimpleName(),
-          EventImportance.kNormal);
+      Shuffleboard.addEventMarker("PivotLinkAngleCommand Interrupted!", EventImportance.kNormal);
     }
-    Shuffleboard.addEventMarker(
-        "PivotLinkAngleCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    Shuffleboard.addEventMarker("PivotLinkAngleCommand end", EventImportance.kNormal);
   }
 
   // Make this return true when this Command no longer needs to run execute()

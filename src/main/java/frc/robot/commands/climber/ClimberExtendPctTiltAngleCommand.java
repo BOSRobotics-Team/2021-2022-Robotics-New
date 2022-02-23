@@ -34,15 +34,12 @@ public class ClimberExtendPctTiltAngleCommand extends CommandBase {
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
-    Shuffleboard.addEventMarker(
-        "ClimberExtendPctTiltAngleCommand init.",
-        this.getClass().getSimpleName(),
-        EventImportance.kNormal);
+    Shuffleboard.addEventMarker("ClimberExtendPctTiltAngleCommand", EventImportance.kNormal);
     m_climber.setClimberHeightPct(m_height, m_arbFF);
     m_climber.setPivotLinkAngle(m_tilt);
 
     System.out.println(
-        "ClimberExtendPctTiltAngleCommand - init : heightPct = "
+        "ClimberExtendPctTiltAngleCommand : heightPct = "
             + m_height
             + " angle = "
             + m_tilt
@@ -55,14 +52,9 @@ public class ClimberExtendPctTiltAngleCommand extends CommandBase {
   public void end(boolean interrupted) {
     if (interrupted) {
       Shuffleboard.addEventMarker(
-          "ClimberExtendPctTiltAngleCommand Interrupted!",
-          this.getClass().getSimpleName(),
-          EventImportance.kNormal);
+          "ClimberExtendPctTiltAngleCommand Interrupted!", EventImportance.kNormal);
     }
-    Shuffleboard.addEventMarker(
-        "ClimberExtendPctTiltAngleCommand end.",
-        this.getClass().getSimpleName(),
-        EventImportance.kNormal);
+    Shuffleboard.addEventMarker("ClimberExtendPctTiltAngleCommand end", EventImportance.kNormal);
   }
 
   // Make this return true when this Command no longer needs to run execute()

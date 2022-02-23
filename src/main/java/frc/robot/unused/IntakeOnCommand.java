@@ -27,8 +27,8 @@ package frc.robot.unused;
 //   @Override
 //   public void initialize() {
 //     Shuffleboard.addEventMarker(
-//         "IntakeOnCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-//     System.out.println("IntakeOnCommand - init : speed = " + m_speed);
+//         "IntakeOnCommand", EventImportance.kNormal);
+//     System.out.println("IntakeOnCommand : speed = " + m_speed);
 //   }
 
 //   // Called repeatedly when this Command is scheduled to run
@@ -43,10 +43,10 @@ package frc.robot.unused;
 //     System.out.println("IntakeOnCommand - end : interrupted = " + interrupted);
 //     if (interrupted) {
 //       Shuffleboard.addEventMarker(
-//           "IntakeOnCommand Interrupted!", this.getClass().getSimpleName(),
+//           "IntakeOnCommand Interrupted!",
 // EventImportance.kNormal);
 //     }
 //     Shuffleboard.addEventMarker(
-//         "IntakeOnCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+//         "IntakeOnCommand end", EventImportance.kNormal);
 //   }
 // }

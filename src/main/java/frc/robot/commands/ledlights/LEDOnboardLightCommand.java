@@ -30,9 +30,8 @@ public class LEDOnboardLightCommand extends InstantCommand {
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
-    Shuffleboard.addEventMarker(
-        "LEDOnboardLightCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
-    System.out.println("LEDOnboardLightCommand init : color = " + m_color);
+    Shuffleboard.addEventMarker("LEDOnboardLightCommand", EventImportance.kNormal);
+    System.out.println("LEDOnboardLightCommand : color = " + m_color);
   }
 
   // Called when this Command is scheduled to run
@@ -44,14 +43,9 @@ public class LEDOnboardLightCommand extends InstantCommand {
   // Called once after isFinished returns true
   @Override
   public void end(boolean interrupted) {
-    System.out.println("LEDOnboardLightCommand end - interrupted = " + interrupted);
     if (interrupted) {
-      Shuffleboard.addEventMarker(
-          "LEDOnboardLightCommand Interrupted!",
-          this.getClass().getSimpleName(),
-          EventImportance.kNormal);
+      Shuffleboard.addEventMarker("LEDOnboardLightCommand Interrupted!", EventImportance.kNormal);
     }
-    Shuffleboard.addEventMarker(
-        "LEDOnboardLightCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+    Shuffleboard.addEventMarker("LEDOnboardLightCommand end", EventImportance.kNormal);
   }
 }

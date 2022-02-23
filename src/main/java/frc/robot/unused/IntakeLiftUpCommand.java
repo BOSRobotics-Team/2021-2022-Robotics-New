@@ -27,9 +27,9 @@ package frc.robot.unused;
 //   @Override
 //   public void initialize() {
 //     Shuffleboard.addEventMarker(
-//         "IntakeLiftUpCommand init.", this.getClass().getSimpleName(), EventImportance.kNormal);
+//         "IntakeLiftUpCommand", EventImportance.kNormal);
 //     m_intake.runLift(m_height);
-//     System.out.println("IntakeLiftUpCommand - init : height = " + m_height);
+//     System.out.println("IntakeLiftUpCommand : height = " + m_height);
 //   }
 
 //   // Called once after isFinished returns true
@@ -39,11 +39,11 @@ package frc.robot.unused;
 //     if (interrupted) {
 //       Shuffleboard.addEventMarker(
 //           "IntakeLiftUpCommand Interrupted!",
-//           this.getClass().getSimpleName(),
+//
 //           EventImportance.kNormal);
 //     }
 //     Shuffleboard.addEventMarker(
-//         "IntakeLiftUpCommand end.", this.getClass().getSimpleName(), EventImportance.kNormal);
+//         "IntakeLiftUpCommand end", EventImportance.kNormal);
 //   }
 
 //   // Make this return true when this Command no longer needs to run execute()
