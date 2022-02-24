@@ -38,6 +38,3 @@ double "/Preferences/17: Climber_Height"=0
 double "/Preferences/17: Climber_Tilt"=0
 double "/Preferences/18: Climber_Height"=8
 double "/Preferences/18: Climber_Tilt"=0
-double "/Preferences/ClimberFeedForward"=0.2
-double "/Preferences/ClimberMaxHeight"=0.54
-double "/Preferences/PivotFeedForward"=0

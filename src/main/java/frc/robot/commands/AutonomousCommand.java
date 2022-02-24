@@ -16,15 +16,12 @@ public class AutonomousCommand extends SequentialCommandGroup {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final DriveTrain m_driveTrain;
 
-  private final LEDLights m_lights;
-
   public AutonomousCommand(RobotContainer container) {
     Preferences.initDouble("AutonomousDistance1", -2.0);
 
     m_driveTrain = container.driveTrain;
-    m_lights = container.lights;
 
-    addRequirements(m_driveTrain, m_lights);
+    addRequirements(m_driveTrain);
 
     double distance1 = Preferences.getDouble("AutonomousDistance1", -2.0);
     addCommands(

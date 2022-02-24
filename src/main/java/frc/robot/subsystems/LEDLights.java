@@ -11,12 +11,13 @@ import com.ctre.phoenix.led.ColorFlowAnimation.Direction;
 import com.ctre.phoenix.led.LarsonAnimation.BounceMode;
 import com.ctre.phoenix.led.TwinkleAnimation.TwinklePercent;
 import com.ctre.phoenix.led.TwinkleOffAnimation.TwinkleOffPercent;
-import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
+import java.util.Map;
 
 public class LEDLights extends SubsystemBase {
   public static int LEDCount = 128;
@@ -57,6 +58,15 @@ public class LEDLights extends SubsystemBase {
       brightness = br;
       speed = spd;
     }
+
+    public boolean equals(LEDColor color) {
+      return (color.red == red) && (color.green == green) && (color.blue == blue);
+    }
+
+    public String rgbToHexcode() {
+      int val = ((red & 0xFF) << 16) + ((green & 0xFF) << 8) + (blue & 0xFF);
+      return String.format("#%06x", val);
+    }
   }
 
   public final CANdle m_candle;
@@ -76,7 +86,10 @@ public class LEDLights extends SubsystemBase {
 
   private AnimationTypes m_currentAnimation = AnimationTypes.SetAll;
   private Animation m_toAnimate = null;
-  private final int LedCount = 128;
+
+  private SimpleWidget colorWidget;
+  private NetworkTableEntry colorWidgetEntry;
+  private LEDColor currentColor = LEDColor.kOff;
 
   public LEDLights(boolean sim) {
     m_candle = sim ? null : new CANdle(Constants.kID_CANdle);
@@ -92,10 +105,19 @@ public class LEDLights extends SubsystemBase {
       configAll.vBatOutputMode = VBatOutputMode.Modulated;
       m_candle.configAllSettings(configAll, 100);
     }
+
+    colorWidget =
+        Shuffleboard.getTab("SmartDashboard")
+            .add("LEDColor", false)
+            .withWidget(BuiltInWidgets.kBooleanBox)
+            .withPosition(0, 4)
+            .withProperties(Map.of("colorWhenFalse", LEDColor.kOff.rgbToHexcode()))
+            .withProperties(Map.of("colorWhenTrue", LEDColor.kRed.rgbToHexcode()));
+    colorWidgetEntry = colorWidget.getEntry();
   }
 
   public LEDLights() {
-    this(Robot.isSimulation());
+    this(Robot.isSimulation() || Robot.isReal());
   }
 
   public void incrementAnimation() {
@@ -296,6 +318,12 @@ public class LEDLights extends SubsystemBase {
   }
 
   public void logPeriodic() {
+    // Choose "true" color based on color of wheel required for Position Control
+    if (!currentColor.equals(LEDColor.kOff)) {
+      colorWidget.withProperties(Map.of("colorWhenTrue", currentColor.rgbToHexcode()));
+      colorWidgetEntry.setBoolean(true);
+    } else colorWidgetEntry.setBoolean(false);
+
     SmartDashboard.putString("LEDAnimation", m_currentAnimation.toString());
   }
 
@@ -303,16 +331,19 @@ public class LEDLights extends SubsystemBase {
   // here. Call these from Commands.
   public void runLights(int red, int green, int blue, int white, int start, int count) {
     if (m_candle != null) m_candle.setLEDs(red, green, blue, white, start, count);
+    currentColor = new LEDColor(red, green, blue);
   }
 
   public void runLights(int red, int green, int blue) {
     if (m_candle != null) m_candle.setLEDs(red, green, blue);
+    currentColor = new LEDColor(red, green, blue);
   }
 
   public void runLights(LEDColor color) {
     if (m_candle != null)
       m_candle.setLEDs(
           color.red, color.green, color.blue, color.white, color.startIndex, color.count);
+    currentColor = color;
   }
 
   public void setOnboardLights(LEDColor color) {
@@ -321,14 +352,16 @@ public class LEDLights extends SubsystemBase {
       int count = Math.min(8 - start, color.count);
       m_candle.setLEDs(color.red, color.green, color.blue, color.white, start, count);
     }
+    currentColor = color;
   }
 
   public void setStripLights(LEDColor color) {
     if (m_candle != null) {
       int start = Math.max(8 + color.startIndex, 8);
-      int count = Math.min(LedCount - 8, color.count - 8);
+      int count = Math.min(LEDCount - 8, color.count - 8);
       m_candle.setLEDs(color.red, color.green, color.blue, color.white, start, count);
     }
+    currentColor = color;
   }
 
   public boolean isAnimating() {

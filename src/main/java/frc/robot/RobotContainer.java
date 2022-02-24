@@ -30,7 +30,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   public final DriveTrain driveTrain = new DriveTrain();
   public final Climber climber = new Climber();
-  public final LEDLights lights = new LEDLights(RobotBase.isSimulation());
+  // public final LEDLights lights = new LEDLights(RobotBase.isSimulation());
 
   // //Driver Controller
   public final XboxController driverController = new XboxController(0);
@@ -48,13 +48,11 @@ public class RobotContainer {
 
   public final CommandDriveTrain m_cmdDriveTrainCommand = new CommandDriveTrain(this);
   public final CommandClimber m_cmdClimberCommand = new CommandClimber(this);
-  public final CommandLights m_cmdLightsCommand = new CommandLights(this);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     driveTrain.setDefaultCommand(m_cmdDriveTrainCommand);
     climber.setDefaultCommand(m_cmdClimberCommand);
-    lights.setDefaultCommand(m_cmdLightsCommand);
 
     // Add commands to Autonomous Sendable Chooser
     chooser.setDefaultOption("Autonomous Command", m_autoCommand);
@@ -79,7 +77,6 @@ public class RobotContainer {
   public void logPeriodic() {
     driveTrain.logPeriodic();
     climber.logPeriodic();
-    lights.logPeriodic();
   }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -97,9 +94,5 @@ public class RobotContainer {
 
   public XboxController getOperatorController() {
     return operatorController;
-  }
-
-  public LEDLights getLEDLights() {
-    return lights;
   }
 }

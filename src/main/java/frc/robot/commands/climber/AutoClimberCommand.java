@@ -8,8 +8,6 @@ import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.*;
-import frc.robot.commands.ledlights.*;
-import frc.robot.subsystems.LEDLights.*;
 
 public class AutoClimberCommand extends SequentialCommandGroup {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
@@ -40,7 +38,6 @@ public class AutoClimberCommand extends SequentialCommandGroup {
         {0, 0},
         {8.0, 0}
       };
-  private final LEDColor climberLEDs[] = new LEDColor[kClimberSteps];
 
   public AutoClimberCommand(RobotContainer container, boolean init) {
 
@@ -62,21 +59,14 @@ public class AutoClimberCommand extends SequentialCommandGroup {
               + maxTilt
                   * Preferences.getDouble(String.format(kClimberTilt, step), climberPairs[step][1]);
     }
-    for (Integer step = 0; step < kClimberSteps; ++step) {
-      climberLEDs[step] = new LEDColor(255, 255, step, 0, 0, step % 8);
-    }
 
     if (init) {
-      LEDColor led1 = new LEDColor(255, 255, 0, 0, 8, 120);
       addCommands(
-          new LEDAnimationCommand(container, AnimationTypes.Strobe, led1),
-          new LEDOnboardLightCommand(container, climberLEDs[0]),
           new PrintCommand("Climber Extend and Tilt initial position"),
           new ClimberExtendPctTiltPctCommand(container, climberPairs[0][0], climberPairs[0][1]));
     } else {
       for (Integer step = 1; step < kClimberSteps; ++step) {
         addCommands(
-            new LEDOnboardLightCommand(container, climberLEDs[step]),
             new PrintCommand("Climber Extend and Tilt step " + step.toString()),
             new ClimberExtendPctTiltPctCommand(
                 container, climberPairs[step][0], climberPairs[step][1]));
