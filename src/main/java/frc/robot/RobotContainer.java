@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
@@ -69,10 +70,10 @@ public class RobotContainer {
 
     HAL.report(tResourceType.kResourceType_Framework, tInstances.kFramework_RobotBuilder);
 
-    // if (RobotBase.isReal()) {
-    //   cam0 = CameraServer.startAutomaticCapture(0);
-    //   cam1 = CameraServer.startAutomaticCapture(1);
-    // }
+    if (RobotBase.isReal()) {
+      cam0 = CameraServer.startAutomaticCapture(0);
+      cam1 = CameraServer.startAutomaticCapture(1);
+    }
   }
 
   public void logPeriodic() {

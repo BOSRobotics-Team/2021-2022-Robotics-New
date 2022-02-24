@@ -270,10 +270,14 @@ public class Climber extends SubsystemBase {
     this.setClimberSpeed(speedL, speedR, 0.0);
   }
 
-  public void reset() {
+  public void reset(double speedC, double speedP) {
     _climbingSeq = 0;
-    this.resetClimber();
-    this.resetPivotLink();
+    this.resetClimber(speedC);
+    this.resetPivotLink(speedP);
+  }
+
+  public void reset() {
+    this.reset(Constants.kResetClimberSpeed, Constants.kResetPivotSpeed);
   }
 
   public void resetClimber(double speed) {

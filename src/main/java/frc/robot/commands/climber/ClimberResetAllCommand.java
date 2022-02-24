@@ -13,16 +13,25 @@ public class ClimberResetAllCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final Climber m_climber;
 
-  public ClimberResetAllCommand(RobotContainer container) {
+  private final double m_speedClimber;
+  private final double m_speedPivot;
+
+  public ClimberResetAllCommand(RobotContainer container, double speedC, double speedP) {
     m_climber = container.climber;
+    m_speedClimber = speedC;
+    m_speedPivot = speedP;
     addRequirements(m_climber);
+  }
+
+  public ClimberResetAllCommand(RobotContainer container) {
+    this(container, Constants.kResetClimberSpeed, Constants.kResetPivotSpeed);
   }
 
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
     Shuffleboard.addEventMarker("ClimberResetAllCommand", EventImportance.kNormal);
-    m_climber.reset();
+    m_climber.reset(m_speedClimber, m_speedPivot);
     System.out.println("ClimberResetAllCommand");
   }
 

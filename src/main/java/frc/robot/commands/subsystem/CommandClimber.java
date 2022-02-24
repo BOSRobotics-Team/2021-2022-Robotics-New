@@ -64,14 +64,17 @@ public class CommandClimber extends CommandBase {
     m_climberSteps.add(new ClimberExtendCommand(container, -0.025, Constants.kClimberFeedFwd));
     m_climberSteps.add(new PivotLinkAngleCommand(container, 110.0));
     m_climberSteps.add(new ClimberExtendCommand(container, 0.125));
-    m_climberSteps.add(new PivotLinkResetCommand(container, Constants.kResetPivotSpeed * 2));
-    m_climberSteps.add(new ClimberResetCommand(container, Constants.kResetClimberSpeed * 2));
-    m_climberSteps.add(new PivotLinkAngleCommand(container, 75.0));
+    // m_climberSteps.add(new PivotLinkResetCommand(container, Constants.kResetFastPivotSpeed));
+    m_climberSteps.add(new ClimberResetCommand(container, Constants.kResetFastClimberSpeed));
+    // m_climberSteps.add(
+    //     new ClimberResetAllCommand(
+    //         container, Constants.kResetFastClimberSpeed, Constants.kResetFastPivotSpeed));
+    m_climberSteps.add(new PivotLinkAngleCommand(container, 65.0));
     m_climberSteps.add(new ClimberExtendPctCommand(container, 1.025));
     m_climberSteps.add(new PivotLinkAngleCommand(container, 40));
     m_climberSteps.add(new ClimberExtendCommand(container, -0.025, Constants.kClimberFeedFwd));
     m_climberSteps.add(new ClimberExtendCommand(container, 0.4, Constants.kClimberFeedFwd));
-    m_climberSteps.add(new PivotLinkAngleCommand(container, 75.0));
+    m_climberSteps.add(new PivotLinkAngleCommand(container, 65.0));
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_climber);
@@ -257,8 +260,9 @@ public class CommandClimber extends CommandBase {
       m_ledLights.runLights(0, 0, 0, 0, 0, 8);
       m_ledLights.runLights(255, 255, 0, 255, 0, (seq % 8) + 1);
 
-      if (seq > 11) {
-        seq = (seq % 12) + 1; // wrap around to step 1
+      int maxStep = m_climberSteps.size() - 1;
+      if (seq > maxStep) {
+        seq = ((seq - 1) % maxStep) + 1; // wrap around to step 1
       }
       m_climberSteps.get(seq).schedule();
     }
