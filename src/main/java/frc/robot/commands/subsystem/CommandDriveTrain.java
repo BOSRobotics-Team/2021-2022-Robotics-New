@@ -71,7 +71,7 @@ public class CommandDriveTrain extends CommandBase {
   public void initialize() {
     Shuffleboard.addEventMarker("CommandDriveTrain init", EventImportance.kNormal);
 
-    m_driveTrain.enableBrakes(true);
+    m_driveTrain.enableBrakes(false);
     m_driveTrain.enableDriveTrain(true);
   }
 
@@ -85,7 +85,7 @@ public class CommandDriveTrain extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     m_driveTrain.fullStop();
-    m_driveTrain.enableBrakes(true);
+    m_driveTrain.enableBrakes(false);
     m_driveTrain.enableDriveTrain(false);
 
     if (interrupted) {

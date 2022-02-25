@@ -400,15 +400,18 @@ public class SmartMotorController {
     }
   }
 
-  public void setSeparateOutput(final double pctOutput, final double auxOutput, final double arbFF) {
+  public void setSeparateOutput(
+      final double pctOutput, final double auxOutput, final double arbFF) {
     this.setOutput(pctOutput, arbFF);
     this.setAuxOutput(auxOutput, arbFF);
   }
+
   public void setSeparateOutput(final double pctOutput, final double auxOutput) {
     this.setSeparateOutput(pctOutput, auxOutput, 0.0);
   }
 
-  public void setSeparateTarget(final double meters, final double auxMeters, final double _feedfwd) {
+  public void setSeparateTarget(
+      final double meters, final double auxMeters, final double _feedfwd) {
     _mode = SetPointMode.None;
     _setpoint = meters;
     _nativeSetpoint = convertor.distanceMetersToNativeUnits(_setpoint);

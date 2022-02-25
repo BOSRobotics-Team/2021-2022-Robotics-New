@@ -40,7 +40,7 @@ public class Climber extends SubsystemBase {
   private boolean _isClimberLimitSwitchTest = false;
   private double _targetLClimberHeight = 0;
   private double _targetRClimberHeight = 0;
-  private double _climberMaxHeight = 0.55;
+  private double _climberMaxHeight = Constants.kClimberMaxHeight;
 
   private boolean _isPivoting = false;
   private boolean _isResetLPivoting = false;
@@ -48,10 +48,10 @@ public class Climber extends SubsystemBase {
   private boolean _isPivotLimitSwitchTest = false;
   private double _targetLPivotAngle = 0;
   private double _targetRPivotAngle = 0;
-  private double _minPivotLinkAngle = 40.0;
-  private double _maxPivotLinkAngle = 100.0;
+  private double _minPivotLinkAngle = Constants.kPivotLinkMinAngle;
+  private double _maxPivotLinkAngle = Constants.kPivotLinkMaxAngle;
   private double _pivotLinkAngleRange = _maxPivotLinkAngle - _minPivotLinkAngle;
-  private double _pivotFeedFwd = 0.0;
+  private double _pivotFeedFwd = Constants.kPivotLinkFeedFwd;
 
   private final ClimberSim _climberSim;
 
@@ -321,7 +321,8 @@ public class Climber extends SubsystemBase {
     _targetRPivotAngle =
         MathUtil.clamp(rAngleDegrees, _minPivotLinkAngle, _maxPivotLinkAngle) - _maxPivotLinkAngle;
 
-    smartPivotLinkController.setSeparateTarget(_targetLPivotAngle, _targetRPivotAngle, _pivotFeedFwd);
+    smartPivotLinkController.setSeparateTarget(
+        _targetLPivotAngle, _targetRPivotAngle, _pivotFeedFwd);
     _isPivoting = true;
     Shuffleboard.addEventMarker("setPivotLinkAngle: ", EventImportance.kHigh);
     System.out.println("setLPivotLinkAngle: " + lAngleDegrees + " tgtAngle: " + _targetLPivotAngle);

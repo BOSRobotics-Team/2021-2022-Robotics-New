@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.*;
 import frc.robot.*;
 import frc.robot.commands.climber.*;
@@ -102,7 +103,8 @@ public class CommandClimber extends CommandBase {
 
     // m_operatorButtons[Button.kLeftBumper.value] =
     //     new JoystickButton(m_operatorController, Button.kLeftBumper.value);
-    // m_operatorButtons[Button.kLeftBumper.value].whenPressed(() -> m_climber.zeroClimberPosition());
+    // m_operatorButtons[Button.kLeftBumper.value].whenPressed(() ->
+    // m_climber.zeroClimberPosition());
 
     // m_operatorButtons[Button.kRightBumper.value] =
     //     new JoystickButton(m_operatorController, Button.kRightBumper.value);
@@ -127,9 +129,9 @@ public class CommandClimber extends CommandBase {
     this.doPOV(m_operatorController.getPOV());
 
     _lStickVal[kX] = MathUtil.applyDeadband(m_operatorController.getLeftX(), 0.1);
-    _lStickVal[kY] = -MathUtil.applyDeadband(m_operatorController.getLeftY(), 0.1);
+    _lStickVal[kY] = MathUtil.applyDeadband(m_operatorController.getLeftY(), 0.1);
     _rStickVal[kX] = MathUtil.applyDeadband(m_operatorController.getRightX(), 0.1);
-    _rStickVal[kY] = -MathUtil.applyDeadband(m_operatorController.getRightY(), 0.1);
+    // _rStickVal[kY] = -MathUtil.applyDeadband(m_operatorController.getRightY(), 0.1);
 
     if ((_lStickVal[kX] != 0.0) || (_lStickVal[kY] != 0.0)) {
       m_climber.setClimberSpeed(
@@ -141,18 +143,17 @@ public class CommandClimber extends CommandBase {
     if (_wasLStickActive && (_lStickVal[kX] == 0.0) && (_lStickVal[kY] == 0.0)) {
       m_climber.setClimberSpeed(0.0, 0.0);
       _wasLStickActive = false;
-    }  
+    }
 
     if ((_rStickVal[kX] != 0.0) || (_rStickVal[kY] != 0.0)) {
       m_climber.setPivotLinkSpeed(
-          (_rStickVal[kY] - _rStickVal[kX]) * 0.1, 
-          (_rStickVal[kY] + _rStickVal[kX]) * 0.1);
+          (_rStickVal[kX] - _rStickVal[kY]) * 0.1, (_rStickVal[kX] + _rStickVal[kY]) * 0.1);
       _wasRStickActive = true;
     }
     if (_wasRStickActive && (_rStickVal[kX] == 0.0) && (_rStickVal[kY] == 0.0)) {
-          m_climber.setPivotLinkSpeed(0.0, 0.0);
-          _wasRStickActive = false;
-    }  
+      m_climber.setPivotLinkSpeed(0.0, 0.0);
+      _wasRStickActive = false;
+    }
   }
 
   // Called once after isFinished returns true
@@ -166,9 +167,9 @@ public class CommandClimber extends CommandBase {
 
   public void doPOV(int pov) {
     if (pov == 0) m_climber.setClimberHeightInc(0.002, _climbFF);
-    else if (pov == 90) m_climber.setPivotLinkAngleInc(-0.2);
+    else if (pov == 90) m_climber.setPivotLinkAngleInc(-0.35);
     else if (pov == 180) m_climber.setClimberHeightInc(-0.002, _climbFF);
-    else if (pov == 270) m_climber.setPivotLinkAngleInc(0.2);
+    else if (pov == 270) m_climber.setPivotLinkAngleInc(0.35);
   }
 
   public void nextClimberSequence() {
@@ -177,6 +178,11 @@ public class CommandClimber extends CommandBase {
 
   public void prevClimberSequence() {
     m_climber.prevClimbingSequence();
+  }
+
+  public void stop() {
+    m_climber.stop();
+    CommandScheduler.getInstance().cancelAll();
   }
 
   public void doClimbingSequence(int seq) {
