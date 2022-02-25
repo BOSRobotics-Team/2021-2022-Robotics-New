@@ -209,7 +209,7 @@ public class Climber extends SubsystemBase {
     _targetLClimberHeight = MathUtil.clamp(lHeight, -0.025, _climberMaxHeight + 0.025);
     _targetRClimberHeight = MathUtil.clamp(rHeight, -0.025, _climberMaxHeight + 0.025);
 
-    smartClimberController.setTarget(_targetLClimberHeight, _targetRClimberHeight, arbFF);
+    smartClimberController.setSeparateTarget(_targetLClimberHeight, _targetRClimberHeight, arbFF);
     _isClimbing = true;
     Shuffleboard.addEventMarker("setClimberHeight: ", EventImportance.kHigh);
     System.out.println(
@@ -260,7 +260,7 @@ public class Climber extends SubsystemBase {
 
   public void setClimberSpeed(double speedL, double speedR, double arbFF) {
     if (!isResettingClimber()) {
-      smartClimberController.setOutput(speedL, speedR, arbFF);
+      smartClimberController.setSeparateOutput(speedL, speedR, arbFF);
       _isClimbing = false;
       Shuffleboard.addEventMarker("setClimberSpeed: ", EventImportance.kHigh);
     }
@@ -271,8 +271,8 @@ public class Climber extends SubsystemBase {
   }
 
   public void stop() {
-    smartClimberController.setOutput(0.0, 0.0);
-    smartPivotLinkController.setOutput(0.0, 0.0);
+    smartClimberController.setSeparateOutput(0.0, 0.0);
+    smartPivotLinkController.setSeparateOutput(0.0, 0.0);
     _targetLClimberHeight = _targetRClimberHeight = this.getClimberHeight();
     _targetLPivotAngle = _targetRPivotAngle = this.getPivotLinkAngle();
   }
@@ -321,7 +321,7 @@ public class Climber extends SubsystemBase {
     _targetRPivotAngle =
         MathUtil.clamp(rAngleDegrees, _minPivotLinkAngle, _maxPivotLinkAngle) - _maxPivotLinkAngle;
 
-    smartPivotLinkController.setTarget(_targetLPivotAngle, _targetRPivotAngle, _pivotFeedFwd);
+    smartPivotLinkController.setSeparateTarget(_targetLPivotAngle, _targetRPivotAngle, _pivotFeedFwd);
     _isPivoting = true;
     Shuffleboard.addEventMarker("setPivotLinkAngle: ", EventImportance.kHigh);
     System.out.println("setLPivotLinkAngle: " + lAngleDegrees + " tgtAngle: " + _targetLPivotAngle);
@@ -373,7 +373,7 @@ public class Climber extends SubsystemBase {
 
   public void setPivotLinkSpeed(double speedL, double speedR, double arbFF) {
     if (!isResettingPivot()) {
-      smartPivotLinkController.setOutput(speedL, speedR, arbFF);
+      smartPivotLinkController.setSeparateOutput(speedL, speedR, arbFF);
       _isPivoting = false;
       Shuffleboard.addEventMarker("setPivotLinkSpeed: ", EventImportance.kHigh);
     }

@@ -130,19 +130,19 @@ public class SmartMotorController {
     this.setSeparateDistanceConfigs(SmartMotorController.kDefaultGains_Distanc);
   }
 
-  public void configureRatios(GearRatios gearRatio) {
+  public void configureRatios(final GearRatios gearRatio) {
     convertor.setRatios(gearRatio);
   }
 
-  public void configureFeedForward(double gain, double velGain) {
+  public void configureFeedForward(final double gain, final double velGain) {
     _feedForwardCalculator = new SimpleMotorFeedforward(gain, velGain);
   }
 
-  public void configureFeedForward(double gain) {
+  public void configureFeedForward(final double gain) {
     configureFeedForward(gain, 0);
   }
 
-  private void initController(BaseTalon talon) {
+  private void initController(final BaseTalon talon) {
     /* Configure Sensor Source for Primary PID */
     talon.configSelectedFeedbackSensor(_feedbackDevice, PID_PRIMARY, kTimeoutMs);
 
@@ -163,7 +163,7 @@ public class SmartMotorController {
     }
   }
 
-  private void setClosedLoopGains(BaseTalon talon, int slot, Gains gain) {
+  private void setClosedLoopGains(final BaseTalon talon, final int slot, final Gains gain) {
     talon.config_kP(slot, gain.kP, kTimeoutMs);
     talon.config_kI(slot, gain.kI, kTimeoutMs);
     talon.config_kD(slot, gain.kD, kTimeoutMs);
@@ -174,7 +174,7 @@ public class SmartMotorController {
     talon.configClosedLoopPeriod(slot, 1);
   }
 
-  private void setDistanceConfigs(BaseTalon talon, Gains gains) {
+  private void setDistanceConfigs(final BaseTalon talon, final Gains gains) {
     this.setClosedLoopGains(talon, kSlot_Distanc, gains);
 
     // Set acceleration and vcruise velocity - see documentation
@@ -196,7 +196,7 @@ public class SmartMotorController {
     if (_hasAuxController) this.setDistanceConfigs(_auxController, gains);
   }
 
-  public void setDistanceConfigs(Gains gains) {
+  public void setDistanceConfigs(final Gains gains) {
     this.setDistanceConfigs(_controller, gains);
 
     if (_hasAuxController) {
@@ -221,7 +221,7 @@ public class SmartMotorController {
     }
   }
 
-  public void setDistanceAndTurnConfigs(Gains dgains, Gains tgains) {
+  public void setDistanceAndTurnConfigs(final Gains dgains, final Gains tgains) {
     this.setDistanceConfigs(dgains);
 
     this.setClosedLoopGains(_controller, kSlot_Turning, tgains);
@@ -252,7 +252,7 @@ public class SmartMotorController {
     }
   }
 
-  public void setVelocityConfigs(Gains gains) {
+  public void setVelocityConfigs(final Gains gains) {
     setClosedLoopGains(_controller, kSlot_Velocit, gains);
 
     _controller.selectProfileSlot(kSlot_Velocit, PID_PRIMARY);
@@ -375,7 +375,7 @@ public class SmartMotorController {
     return convertor.nativeUnitsToDistanceMeters(getAuxVelocityUPS());
   }
 
-  public void set(double pctOutput, double arbFF) {
+  public void setWithFF(final double pctOutput, final double arbFF) {
     _mode = SetPointMode.None;
     _controller.set(ControlMode.PercentOutput, pctOutput, DemandType.ArbitraryFeedForward, arbFF);
     if (_hasAuxController) {
@@ -383,16 +383,16 @@ public class SmartMotorController {
     }
   }
 
-  public void set(double pctOutput) {
-    this.set(pctOutput, 0.0);
+  public void set(final double pctOutput) {
+    this.setWithFF(pctOutput, 0.0);
   }
 
-  public void setOutput(double pctOutput, double arbFF) {
+  public void setOutput(final double pctOutput, final double arbFF) {
     _mode = SetPointMode.None;
     _controller.set(ControlMode.PercentOutput, pctOutput);
   }
 
-  public void setAuxOutput(double auxOutput, double arbFF) {
+  public void setAuxOutput(final double auxOutput, final double arbFF) {
     _mode = SetPointMode.None;
     if (_hasAuxController) {
       _auxController.set(
@@ -400,12 +400,15 @@ public class SmartMotorController {
     }
   }
 
-  public void setOutput(double pctOutput, double auxOutput, double arbFF) {
+  public void setSeparateOutput(final double pctOutput, final double auxOutput, final double arbFF) {
     this.setOutput(pctOutput, arbFF);
     this.setAuxOutput(auxOutput, arbFF);
   }
+  public void setSeparateOutput(final double pctOutput, final double auxOutput) {
+    this.setSeparateOutput(pctOutput, auxOutput, 0.0);
+  }
 
-  public void setTarget(double meters, double auxMeters, double _feedfwd) {
+  public void setSeparateTarget(final double meters, final double auxMeters, final double _feedfwd) {
     _mode = SetPointMode.None;
     _setpoint = meters;
     _nativeSetpoint = convertor.distanceMetersToNativeUnits(_setpoint);
@@ -426,7 +429,7 @@ public class SmartMotorController {
     // ffwd: " + _feedfwd);
   }
 
-  public void setTarget(double meters, double _feedfwd) {
+  public void setTargetWithFF(final double meters, final double _feedfwd) {
     _mode = SetPointMode.None;
     _setpoint = meters;
     _nativeSetpoint = convertor.distanceMetersToNativeUnits(_setpoint);
@@ -445,10 +448,10 @@ public class SmartMotorController {
   }
 
   public void setTarget(double meters) {
-    setTarget(meters, 0.0);
+    setTargetWithFF(meters, 0.0);
   }
 
-  public void setTargetAndAngle(double meters, double angle) {
+  public void setTargetAndAngle(final double meters, final double angle) {
     _mode = SetPointMode.None;
     _setpoint = meters;
     _nativeSetpoint = convertor.distanceMetersToNativeUnits(meters);
@@ -532,7 +535,7 @@ public class SmartMotorController {
     }
   }
 
-  public void enableBrakes(boolean enabled) {
+  public void enableBrakes(final boolean enabled) {
     _controller.setNeutralMode(enabled ? NeutralMode.Brake : NeutralMode.Coast);
     if (_hasAuxController) {
       _auxController.setNeutralMode(enabled ? NeutralMode.Brake : NeutralMode.Coast);
