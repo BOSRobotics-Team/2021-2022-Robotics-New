@@ -270,6 +270,13 @@ public class Climber extends SubsystemBase {
     this.setClimberSpeed(speedL, speedR, 0.0);
   }
 
+  public void stop() {
+    smartClimberController.setOutput(0.0, 0.0);
+    smartPivotLinkController.setOutput(0.0, 0.0);
+    _targetLClimberHeight = _targetRClimberHeight = this.getClimberHeight();
+    _targetLPivotAngle = _targetRPivotAngle = this.getPivotLinkAngle();
+  }
+
   public void reset(double speedC, double speedP) {
     _climbingSeq = 0;
     this.resetClimber(speedC);
