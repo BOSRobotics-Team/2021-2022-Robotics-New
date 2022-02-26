@@ -49,7 +49,7 @@ public class CommandClimber extends CommandBase {
 
     m_climberSteps.add(new ClimberStartCommand(container));
     m_climberSteps.add(new ClimberExtendCommand(container, -0.025, Constants.kClimberFeedFwd));
-    m_climberSteps.add(new PivotLinkAngleCommand(container, 110.0));
+    m_climberSteps.add(new PivotLinkAngleCommand(container, 105.0));
     m_climberSteps.add(new ClimberExtendCommand(container, 0.125));
     // m_climberSteps.add(new PivotLinkResetCommand(container, Constants.kResetFastPivotSpeed));
     m_climberSteps.add(new ClimberResetCommand(container, Constants.kResetFastClimberSpeed));
@@ -57,6 +57,7 @@ public class CommandClimber extends CommandBase {
     m_climberSteps.add(new ClimberExtendPctCommand(container, 1.025));
     m_climberSteps.add(new PivotLinkAngleCommand(container, 40));
     m_climberSteps.add(new ClimberExtendCommand(container, -0.025, Constants.kClimberFeedFwd));
+    m_climberSteps.add(new PivotLinkAngleCommand(container, 35.0));
     m_climberSteps.add(new ClimberExtendCommand(container, 0.4, Constants.kClimberFeedFwd));
     m_climberSteps.add(new PivotLinkAngleCommand(container, 65.0));
     _numberOfSteps = m_climberSteps.size() - 1;
@@ -186,7 +187,7 @@ public class CommandClimber extends CommandBase {
   }
 
   public void doClimbingSequence(int seq) {
-    if ((seq >= 0) && (seq <= 23)) {
+    if ((seq >= 0) && (seq <= 25)) {
       if (seq > _numberOfSteps) seq = ((seq - 1) % _numberOfSteps) + 1; // wrap around to step 1
       m_climberSteps.get(seq).schedule();
     }

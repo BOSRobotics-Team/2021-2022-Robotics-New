@@ -40,7 +40,8 @@ public class Climber extends SubsystemBase {
   private boolean _isClimberLimitSwitchTest = false;
   private double _targetLClimberHeight = 0;
   private double _targetRClimberHeight = 0;
-  private double _climberMaxHeight = Constants.kClimberMaxHeight;
+  private double _lClimberMaxHeight = Constants.kLClimberMaxHeight;
+  private double _rClimberMaxHeight = Constants.kRClimberMaxHeight;
 
   private boolean _isPivoting = false;
   private boolean _isResetLPivoting = false;
@@ -57,7 +58,7 @@ public class Climber extends SubsystemBase {
 
   public Climber() {
     Preferences.initDouble("ClimberMaxHeight", 0.55);
-    _climberMaxHeight = Preferences.getDouble("ClimberMaxHeight", 0.55);
+    _lClimberMaxHeight = Preferences.getDouble("ClimberMaxHeight", 0.55);
 
     _leftClimberController.setInverted(InvertType.None);
     _rightClimberController.setInverted(InvertType.InvertMotorOutput);
@@ -80,7 +81,7 @@ public class Climber extends SubsystemBase {
             _rightClimberController,
             smartClimberController.convertor,
             0.1, // Constants.kDriveCarriageMass,
-            _climberMaxHeight,
+            _lClimberMaxHeight,
             _leftPivotLinkController,
             _rightPivotLinkController,
             smartPivotLinkController.convertor,
@@ -206,8 +207,8 @@ public class Climber extends SubsystemBase {
   // Put methods for controlling this subsystem
   // here. Call these from Commands.
   public void setClimberHeight(double lHeight, double rHeight, double arbFF) {
-    _targetLClimberHeight = MathUtil.clamp(lHeight, -0.025, _climberMaxHeight + 0.025);
-    _targetRClimberHeight = MathUtil.clamp(rHeight, -0.025, _climberMaxHeight + 0.025);
+    _targetLClimberHeight = MathUtil.clamp(lHeight, -0.025, _lClimberMaxHeight + 0.025);
+    _targetRClimberHeight = MathUtil.clamp(rHeight, -0.025, _rClimberMaxHeight + 0.025);
 
     smartClimberController.setSeparateTarget(_targetLClimberHeight, _targetRClimberHeight, arbFF);
     _isClimbing = true;
@@ -226,11 +227,11 @@ public class Climber extends SubsystemBase {
   }
 
   public void setClimberHeightPct(double lPctHeight, double rPctHeight, double arbFF) {
-    setClimberHeight(lPctHeight * _climberMaxHeight, rPctHeight * _climberMaxHeight, arbFF);
+    setClimberHeight(lPctHeight * _lClimberMaxHeight, rPctHeight * _rClimberMaxHeight, arbFF);
   }
 
   public void setClimberHeightPct(double pctHeight, double arbFF) {
-    setClimberHeight(pctHeight * _climberMaxHeight, arbFF);
+    setClimberHeight(pctHeight * _lClimberMaxHeight, arbFF);
   }
 
   public void setClimberHeightInc(double lPctInc, double rPctInc, double arbFF) {
@@ -247,7 +248,7 @@ public class Climber extends SubsystemBase {
   }
 
   public double getClimberHeightPct() {
-    return getClimberHeight() / _climberMaxHeight;
+    return getClimberHeight() / _lClimberMaxHeight;
   }
 
   public boolean isClimbing() {
