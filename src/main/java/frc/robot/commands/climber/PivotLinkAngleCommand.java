@@ -28,6 +28,7 @@ public class PivotLinkAngleCommand extends CommandBase {
     Shuffleboard.addEventMarker("PivotLinkAngleCommand", EventImportance.kNormal);
     m_climber.setPivotLinkAngle(m_angle);
 
+    System.out.println(this.getName());
     System.out.println("PivotLinkAngleCommand : distance = " + m_angle);
   }
 

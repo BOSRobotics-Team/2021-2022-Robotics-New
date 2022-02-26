@@ -5,7 +5,6 @@
 package frc.robot.commands.climber;
 
 import edu.wpi.first.wpilibj.Preferences;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.*;
 
@@ -62,14 +61,14 @@ public class AutoClimberCommand extends SequentialCommandGroup {
 
     if (init) {
       addCommands(
-          new PrintCommand("Climber Extend and Tilt initial position"),
-          new ClimberExtendPctTiltPctCommand(container, climberPairs[0][0], climberPairs[0][1]));
+          new ClimberExtendPctTiltPctCommand(container, climberPairs[0][0], climberPairs[0][1])
+              .withName("Climber Extend and Tilt initial position"));
     } else {
       for (Integer step = 1; step < kClimberSteps; ++step) {
         addCommands(
-            new PrintCommand("Climber Extend and Tilt step " + step.toString()),
             new ClimberExtendPctTiltPctCommand(
-                container, climberPairs[step][0], climberPairs[step][1]));
+                    container, climberPairs[step][0], climberPairs[step][1])
+                .withName("Climber Extend and Tilt step " + step.toString()));
       }
     }
   }

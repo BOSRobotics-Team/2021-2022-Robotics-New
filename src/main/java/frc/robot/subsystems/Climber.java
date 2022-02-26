@@ -310,8 +310,8 @@ public class Climber extends SubsystemBase {
 
     smartClimberController.resetPosition();
     smartPivotLinkController.resetPosition();
-    System.out.println("zeroClimberPosition - start");
     Shuffleboard.addEventMarker("zeroClimberPosition: ", EventImportance.kHigh);
+    System.out.println("zeroClimberPosition - start");
   }
 
   public void setPivotLinkAngle(double lAngleDegrees, double rAngleDegrees) {

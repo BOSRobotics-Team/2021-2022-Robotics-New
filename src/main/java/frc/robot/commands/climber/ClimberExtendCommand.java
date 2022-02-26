@@ -30,9 +30,10 @@ public class ClimberExtendCommand extends CommandBase {
   // Called just before this Command runs the first time
   @Override
   public void initialize() {
-    Shuffleboard.addEventMarker("ClimberExtendCommand", EventImportance.kNormal);
+    Shuffleboard.addEventMarker("ClimberExtendCommand", this.getName(), EventImportance.kNormal);
     m_climber.setClimberHeight(m_height, m_arbFF);
 
+    System.out.println(this.getName());
     System.out.println("ClimberExtendCommand : height = " + m_height + " arbFF = " + m_arbFF);
   }
 

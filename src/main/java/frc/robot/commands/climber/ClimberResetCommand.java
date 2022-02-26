@@ -26,6 +26,8 @@ public class ClimberResetCommand extends CommandBase {
   public void initialize() {
     Shuffleboard.addEventMarker("ClimberResetCommand", EventImportance.kNormal);
     m_climber.resetClimber(m_speed);
+
+    System.out.println(this.getName());
     System.out.println("ClimberResetCommand : speed = " + m_speed);
   }
 

@@ -26,6 +26,8 @@ public class PivotLinkResetCommand extends CommandBase {
   public void initialize() {
     Shuffleboard.addEventMarker("PivotLinkResetCommand", EventImportance.kNormal);
     m_climber.resetPivotLink(m_speed);
+
+    System.out.println(this.getName());
     System.out.println("PivotLinkResetCommand");
   }
 

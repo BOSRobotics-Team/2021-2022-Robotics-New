@@ -25,7 +25,8 @@ public class ClimberRetrackCommand extends CommandBase {
     Shuffleboard.addEventMarker("ClimberRetrackCommand", EventImportance.kNormal);
     m_climber.setClimberHeight(0.0, 0.0);
 
-    System.out.println("ClimberRetrackCommand : height = 0.0");
+    System.out.println(this.getName());
+    System.out.println("ClimberRetrackCommand");
   }
 
   // Called once after isFinished returns true

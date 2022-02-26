@@ -8,6 +8,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.shuffleboard.*;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.*;
@@ -47,19 +48,35 @@ public class CommandClimber extends CommandBase {
     m_driverController = container.getDriverController();
     m_operatorController = container.getOperatorController();
 
-    m_climberSteps.add(new ClimberStartCommand(container));
-    m_climberSteps.add(new ClimberExtendCommand(container, -0.025, Constants.kClimberFeedFwd));
-    m_climberSteps.add(new PivotLinkAngleCommand(container, 105.0));
-    m_climberSteps.add(new ClimberExtendCommand(container, 0.125));
-    // m_climberSteps.add(new PivotLinkResetCommand(container, Constants.kResetFastPivotSpeed));
-    m_climberSteps.add(new ClimberResetCommand(container, Constants.kResetFastClimberSpeed));
-    m_climberSteps.add(new PivotLinkAngleCommand(container, 65.0));
-    m_climberSteps.add(new ClimberExtendPctCommand(container, 1.025));
-    m_climberSteps.add(new PivotLinkAngleCommand(container, 40));
-    m_climberSteps.add(new ClimberExtendCommand(container, -0.025, Constants.kClimberFeedFwd));
-    m_climberSteps.add(new PivotLinkAngleCommand(container, 35.0));
-    m_climberSteps.add(new ClimberExtendCommand(container, 0.4, Constants.kClimberFeedFwd));
-    m_climberSteps.add(new PivotLinkAngleCommand(container, 65.0));
+    m_climberSteps.add(
+        new ClimberStartCommand(container).withName("Climber Extend and Tilt initial position"));
+    m_climberSteps.add(
+        new ClimberExtendCommand(container, -0.025, Constants.kClimberFeedFwd)
+            .withName("Pull Robot Up"));
+    m_climberSteps.add(new PivotLinkAngleCommand(container, 105.0).withName("Pivot Arms Over Bar"));
+    m_climberSteps.add(
+        new ClimberExtendCommand(container, 0.125).withName("Raise Climbers 5 inches"));
+    // m_climberSteps.add(new PivotLinkResetCommand(containe,
+    // Constants.kResetFastPivotSpeedr).withName("Reset Pivot Arms"));
+    m_climberSteps.add(
+        new ClimberResetCommand(container, Constants.kResetFastClimberSpeed)
+            .withName("Reset Climbers"));
+    m_climberSteps.add(
+        new PivotLinkAngleCommand(container, 65.0).withName("Tilt Robot Forward (65deg)"));
+    m_climberSteps.add(
+        new ClimberExtendPctCommand(container, 1.025).withName("Fully Extend Climbers"));
+    m_climberSteps.add(
+        new PivotLinkAngleCommand(container, 40).withName("Tilt Robot Fully Forward"));
+    m_climberSteps.add(
+        new ClimberExtendCommand(container, -0.025, Constants.kClimberFeedFwd)
+            .withName("Pull Robot Up"));
+    m_climberSteps.add(
+        new PivotLinkAngleCommand(container, 35.0).withName("Pivot Arms Fully Back"));
+    m_climberSteps.add(
+        new ClimberExtendCommand(container, 0.4, Constants.kClimberFeedFwd)
+            .withName("Lower Robot 6 inches"));
+    m_climberSteps.add(
+        new PivotLinkAngleCommand(container, 65.0).withName("Move Pivot Arms Forward"));
     _numberOfSteps = m_climberSteps.size() - 1;
 
     // Use addRequirements() here to declare subsystem dependencies.
@@ -189,7 +206,14 @@ public class CommandClimber extends CommandBase {
   public void doClimbingSequence(int seq) {
     if ((seq >= 0) && (seq <= 25)) {
       if (seq > _numberOfSteps) seq = ((seq - 1) % _numberOfSteps) + 1; // wrap around to step 1
-      m_climberSteps.get(seq).schedule();
+
+      CommandBase cmd = m_climberSteps.get(seq);
+      cmd.schedule();
+      SmartDashboard.putString("Curr Sequence", cmd.getName());
+
+      seq = seq + 1;
+      if (seq > _numberOfSteps) seq = ((seq - 1) % _numberOfSteps) + 1; // wrap around to step 1
+      SmartDashboard.putString("Next Sequence", m_climberSteps.get(seq).getName());
     }
   }
 }

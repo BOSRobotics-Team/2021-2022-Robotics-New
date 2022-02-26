@@ -34,6 +34,7 @@ public class ClimberExtendPctCommand extends CommandBase {
     Shuffleboard.addEventMarker("ClimberExtendPctCommand", EventImportance.kNormal);
     m_climber.setClimberHeightPct(m_height, m_arbFF);
 
+    System.out.println(this.getName());
     System.out.println("ClimberExtendPctCommand : height = " + m_height + " arbFF = " + m_arbFF);
   }
 

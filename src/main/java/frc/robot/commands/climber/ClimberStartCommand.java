@@ -4,18 +4,15 @@
 
 package frc.robot.commands.climber;
 
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.*;
 
 public class ClimberStartCommand extends SequentialCommandGroup {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   public ClimberStartCommand(RobotContainer container) {
+
     addCommands(
-        // new LEDAnimationCommand(container, AnimationTypes.Strobe, led1),
-        new PrintCommand("Climber Extend and Tilt initial position"),
-        new ClimberResetAllCommand(container),
-        new ClimberExtendPctTiltPctCommand(container, 1.0, 0.25),
-        new PrintCommand("Climber Extend and Tilt initial - complete"));
+        new ClimberResetAllCommand(container).withName("Climber Reset"),
+        new ClimberExtendPctTiltPctCommand(container, 1.0, 0.3).withName(this.getName()));
   }
 }
