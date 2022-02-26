@@ -38,6 +38,7 @@ public class ClimberExtendPctTiltAngleCommand extends CommandBase {
     m_climber.setClimberHeightPct(m_height, m_arbFF);
     m_climber.setPivotLinkAngle(m_tilt);
 
+    System.out.println(this.getName());
     System.out.println(
         "ClimberExtendPctTiltAngleCommand : heightPct = "
             + m_height
