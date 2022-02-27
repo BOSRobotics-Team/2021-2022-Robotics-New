@@ -9,21 +9,21 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.*;
 import frc.robot.subsystems.*;
 
-public class ClimberResetAllCommand extends CommandBase {
+public class ClimbResetAllCommand extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final Climber m_climber;
 
   private final double m_speedClimber;
   private final double m_speedPivot;
 
-  public ClimberResetAllCommand(RobotContainer container, double speedC, double speedP) {
+  public ClimbResetAllCommand(RobotContainer container, double speedC, double speedP) {
     m_climber = container.climber;
     m_speedClimber = speedC;
     m_speedPivot = speedP;
     addRequirements(m_climber);
   }
 
-  public ClimberResetAllCommand(RobotContainer container) {
+  public ClimbResetAllCommand(RobotContainer container) {
     this(container, Constants.kResetClimberSpeed, Constants.kResetPivotSpeed);
   }
 

@@ -7,12 +7,14 @@ package frc.robot.commands.climber;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.*;
 
-public class ClimberStartCommand extends SequentialCommandGroup {
+public class ClimbStartCommand extends SequentialCommandGroup {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  public ClimberStartCommand(RobotContainer container) {
+  public ClimbStartCommand(RobotContainer container) {
+    this.setName("Climber Start Position");
 
     addCommands(
-        new ClimberResetAllCommand(container).withName("Climber Reset"),
-        new ClimberExtendPctTiltAngleCommand(container, 1.0, 75).withName(this.getName()));
+        new ClimbResetAllCommand(container).withName("Climber and Pivot Reset"),
+        new ClimberExtendPctTiltAngleCommand(container, 1.0, 75)
+            .withName("Climber Extend and Tilt initial position"));
   }
 }
