@@ -21,7 +21,7 @@ public class CommandDriveTrain extends CommandBase {
   public final XboxController m_controller;
   public final JoystickButton m_buttons[] = new JoystickButton[11];
 
-  private double _scaling = 0.2;
+  private double _scaling = 0.5;
 
   public final AutoDriveStraightCommand m_autoCommand1;
   public final AutoDriveStraightRelativeCommand m_autoCommand2;

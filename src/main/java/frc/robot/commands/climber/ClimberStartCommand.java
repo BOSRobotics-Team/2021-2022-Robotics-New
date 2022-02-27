@@ -13,6 +13,6 @@ public class ClimberStartCommand extends SequentialCommandGroup {
 
     addCommands(
         new ClimberResetAllCommand(container).withName("Climber Reset"),
-        new ClimberExtendPctTiltPctCommand(container, 1.0, 0.3).withName(this.getName()));
+        new ClimberExtendPctTiltAngleCommand(container, 1.0, 75).withName(this.getName()));
   }
 }
