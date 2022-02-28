@@ -41,7 +41,7 @@ public class Constants {
   public static final Gains kDriveGains_MotProf =
       new Gains(1.0, 0.0, 0.0, 1023.0 / 6800.0, 400, 1.00);
 
-  public static final double kLClimberMaxHeight = 0.55;
+  public static final double kLClimberMaxHeight = 0.56;
   public static final double kRClimberMaxHeight = 0.56;
   public static final GearRatios kClimberGearRatio = new GearRatios(20.0, 0.5, 1.0);
   public static final Gains kClimberGains_Distance =
