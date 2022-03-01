@@ -155,6 +155,11 @@ public class SmartMotorController {
     talon.configPeakOutputForward(1, kTimeoutMs);
     talon.configPeakOutputReverse(-1, kTimeoutMs);
 
+    talon.configClearPositionOnLimitF(false, kTimeoutMs);
+    talon.configClearPositionOnLimitR(false, kTimeoutMs);
+    talon.configForwardSoftLimitEnable(false, kTimeoutMs);
+    talon.configReverseSoftLimitEnable(false, kTimeoutMs);
+
     if (_controllerType == kTalonFX) {
       talon.configForwardLimitSwitchSource(
           LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, kTimeoutMs);
@@ -535,6 +540,55 @@ public class SmartMotorController {
       } else {
         _auxController.setSelectedSensorPosition(0, PID_PRIMARY, kTimeoutMs);
       }
+    }
+  }
+
+  public void configClearPositionOnLimitF(boolean enable) {
+    _controller.configClearPositionOnLimitF(enable, kTimeoutMs);
+    if (_hasAuxController) {
+      _auxController.configClearPositionOnLimitF(enable, kTimeoutMs);
+    }
+  }
+
+  public void configClearPositionOnLimitR(boolean enable) {
+    _controller.configClearPositionOnLimitR(enable, kTimeoutMs);
+    if (_hasAuxController) {
+      _auxController.configClearPositionOnLimitR(enable, kTimeoutMs);
+    }
+  }
+
+  public void configForwardSoftLimitThreshold(double thresh) {
+    _controller.configForwardSoftLimitThreshold(thresh, kTimeoutMs);
+    if (_hasAuxController) {
+      _auxController.configForwardSoftLimitThreshold(thresh, kTimeoutMs);
+    }
+  }
+
+  public void configReverseSoftLimitThreshold(double thresh) {
+    _controller.configReverseSoftLimitThreshold(thresh, kTimeoutMs);
+    if (_hasAuxController) {
+      _auxController.configReverseSoftLimitThreshold(thresh, kTimeoutMs);
+    }
+  }
+
+  public void configForwardSoftLimitEnable(boolean enable) {
+    _controller.configForwardSoftLimitEnable(enable, kTimeoutMs);
+    if (_hasAuxController) {
+      _auxController.configForwardSoftLimitEnable(enable, kTimeoutMs);
+    }
+  }
+
+  public void configReverseSoftLimitEnable(boolean enable) {
+    _controller.configReverseSoftLimitEnable(enable, kTimeoutMs);
+    if (_hasAuxController) {
+      _auxController.configReverseSoftLimitEnable(enable, kTimeoutMs);
+    }
+  }
+
+  public void overrideLimitSwitchesEnable(boolean enable) {
+    _controller.overrideLimitSwitchesEnable(enable);
+    if (_hasAuxController) {
+      _auxController.overrideLimitSwitchesEnable(enable);
     }
   }
 

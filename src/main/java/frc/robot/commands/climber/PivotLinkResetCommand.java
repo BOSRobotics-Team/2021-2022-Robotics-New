@@ -14,11 +14,17 @@ public class PivotLinkResetCommand extends CommandBase {
   private final Climber m_climber;
 
   private final double m_speed;
+  private final boolean m_lock;
 
-  public PivotLinkResetCommand(RobotContainer container, double speed) {
+  public PivotLinkResetCommand(RobotContainer container, double speed, boolean lock) {
     m_climber = container.climber;
     m_speed = speed;
+    m_lock = lock;
     addRequirements(m_climber);
+  }
+
+  public PivotLinkResetCommand(RobotContainer container, double speed) {
+    this(container, speed, false);
   }
 
   // Called just before this Command runs the first time
@@ -43,6 +49,10 @@ public class PivotLinkResetCommand extends CommandBase {
   // Make this return true when this Command no longer needs to run execute()
   @Override
   public boolean isFinished() {
-    return !m_climber.isResettingPivot();
+    if (!m_climber.isResettingPivot()) {
+      m_climber.lockPivotLinksForDriving(m_lock);
+      return true;
+    }
+    return false;
   }
 }

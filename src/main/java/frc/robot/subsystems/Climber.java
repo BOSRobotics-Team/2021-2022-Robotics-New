@@ -62,6 +62,10 @@ public class Climber extends SubsystemBase {
     smartClimberController.configureRatios(Constants.kClimberGearRatio);
     smartClimberController.enableBrakes(true);
     smartClimberController.setSeparateDistanceConfigs(Constants.kClimberGains_Distance);
+    _leftClimberController.configForwardSoftLimitThreshold(
+        smartClimberController.convertor.distanceMetersToNativeUnits(_lClimberMaxHeight + 0.025));
+    _rightClimberController.configForwardSoftLimitThreshold(
+        smartClimberController.convertor.distanceMetersToNativeUnits(_rClimberMaxHeight + 0.025));
 
     _leftPivotLinkController.setInverted(InvertType.None);
     _rightPivotLinkController.setInverted(InvertType.InvertMotorOutput);
@@ -69,6 +73,12 @@ public class Climber extends SubsystemBase {
     smartPivotLinkController.configureRatios(Constants.kPivotLinkGearRatio);
     smartPivotLinkController.enableBrakes(true);
     smartPivotLinkController.setSeparateDistanceConfigs(Constants.kPivotLinkGains_Distance);
+    _leftPivotLinkController.configReverseSoftLimitThreshold(
+        smartPivotLinkController.convertor.distanceMetersToNativeUnits(
+            -(_pivotLinkAngleRange + 5.0)));
+    _rightPivotLinkController.configReverseSoftLimitThreshold(
+        smartPivotLinkController.convertor.distanceMetersToNativeUnits(
+            -(_pivotLinkAngleRange + 5.0)));
 
     if (RobotBase.isSimulation()) this.simulationInit();
 
@@ -81,42 +91,32 @@ public class Climber extends SubsystemBase {
 
     if (_isResetLClimber && isLClimberRevLimitSwitchClosed()) {
       _isResetLClimber = false;
-      _leftClimberController.configClearPositionOnLimitR(false, 0);
       smartClimberController.setOutput(0.0, 0.0);
-      _leftClimberController.configForwardSoftLimitThreshold(
-          smartClimberController.convertor.distanceMetersToNativeUnits(_lClimberMaxHeight * 1.1));
+      _leftClimberController.configClearPositionOnLimitR(false, 0);
       _leftClimberController.configForwardSoftLimitEnable(true);
       Shuffleboard.addEventMarker("isResetLClimber - done: ", EventImportance.kHigh);
       System.out.println("isResetLClimber - done");
     }
     if (_isResetRClimber && isRClimberRevLimitSwitchClosed()) {
       _isResetRClimber = false;
-      _rightClimberController.configClearPositionOnLimitR(false, 0);
       smartClimberController.setAuxOutput(0.0, 0.0);
-      _rightClimberController.configForwardSoftLimitThreshold(
-          smartClimberController.convertor.distanceMetersToNativeUnits(_rClimberMaxHeight * 1.1));
+      _rightClimberController.configClearPositionOnLimitR(false, 0);
       _rightClimberController.configForwardSoftLimitEnable(true);
       Shuffleboard.addEventMarker("isResetRClimber - done: ", EventImportance.kHigh);
       System.out.println("isResetRClimber - done");
     }
     if (_isResetLPivoting && isLPivotFwdLimitSwitchClosed()) {
       _isResetLPivoting = false;
-      _leftPivotLinkController.configClearPositionOnLimitF(false, 0);
       smartPivotLinkController.setOutput(0.0, 0.0);
-      _leftPivotLinkController.configReverseSoftLimitThreshold(
-          smartPivotLinkController.convertor.distanceMetersToNativeUnits(
-              (_minPivotLinkAngle - _maxPivotLinkAngle) * 1.1));
+      _leftPivotLinkController.configClearPositionOnLimitF(false, 0);
       _leftPivotLinkController.configReverseSoftLimitEnable(true);
       Shuffleboard.addEventMarker("isResetLPivot - done: ", EventImportance.kHigh);
       System.out.println("isResetLPivot - done");
     }
     if (_isResetRPivoting && isRPivotFwdLimitSwitchClosed()) {
       _isResetRPivoting = false;
-      _rightPivotLinkController.configClearPositionOnLimitF(false, 0);
       smartPivotLinkController.setAuxOutput(0.0, 0.0);
-      _rightPivotLinkController.configReverseSoftLimitThreshold(
-          smartPivotLinkController.convertor.distanceMetersToNativeUnits(
-              (_minPivotLinkAngle - _maxPivotLinkAngle) * 1.1));
+      _rightPivotLinkController.configClearPositionOnLimitF(false, 0);
       _rightPivotLinkController.configReverseSoftLimitEnable(true);
       Shuffleboard.addEventMarker("isResetRPivot - done: ", EventImportance.kHigh);
       System.out.println("isResetRPivot - done");
@@ -244,14 +244,17 @@ public class Climber extends SubsystemBase {
   }
 
   public void stop() {
-    smartClimberController.setSeparateOutput(0.0, 0.0);
-    smartPivotLinkController.setSeparateOutput(0.0, 0.0);
     _targetLClimberHeight = _targetRClimberHeight = this.getClimberHeight();
     _targetLPivotAngle = _targetRPivotAngle = this.getPivotLinkAngle();
+    _isResetLClimber = _isResetRClimber = false;
+    _isResetLPivoting = _isResetRPivoting = false;
+    _isClimbing = _isPivoting = false;
+    smartClimberController.setSeparateOutput(0.0, 0.0);
+    smartPivotLinkController.setSeparateOutput(0.0, 0.0);
   }
 
   public void reset(double speedC, double speedP) {
-    _climbingSeq = 0;
+    _climbingSeq = -1;
     this.resetClimber(speedC);
     this.resetPivotLink(speedP);
   }
@@ -260,14 +263,20 @@ public class Climber extends SubsystemBase {
     this.reset(Constants.kResetClimberSpeed, Constants.kResetPivotSpeed);
   }
 
+  public void startClimbingSequence() {
+    _climbingSeq = 0;
+  }
+
   public void resetClimber(double speed) {
     _isClimbing = false;
     _targetLClimberHeight = _targetRClimberHeight = 0.0;
     _isResetLClimber = _isResetRClimber = true;
-    _leftClimberController.configClearPositionOnLimitR(true, 0);
-    _rightClimberController.configClearPositionOnLimitR(true, 0);
+
     smartClimberController.setOutput(isLClimberRevLimitSwitchClosed() ? 0.0 : speed, 0.0);
     smartClimberController.setAuxOutput(isRClimberRevLimitSwitchClosed() ? 0.0 : speed, 0.0);
+    smartClimberController.configClearPositionOnLimitR(true);
+    smartClimberController.configForwardSoftLimitEnable(false);
+
     Shuffleboard.addEventMarker("resetClimber: ", EventImportance.kHigh);
     System.out.println("resetClimber - start");
   }
@@ -358,16 +367,26 @@ public class Climber extends SubsystemBase {
     _isPivoting = false;
     _isResetLPivoting = _isResetRPivoting = true;
     _targetLPivotAngle = _targetRPivotAngle = _pivotLinkAngleRange; // reset point is max range
-    _leftPivotLinkController.configClearPositionOnLimitF(true, 0);
-    _rightPivotLinkController.configClearPositionOnLimitF(true, 0);
+    this.lockPivotLinksForDriving(false);
     smartPivotLinkController.setOutput(isLPivotFwdLimitSwitchClosed() ? 0.0 : speed, 0.0);
     smartPivotLinkController.setAuxOutput(isRPivotFwdLimitSwitchClosed() ? 0.0 : speed, 0.0);
+    smartPivotLinkController.configClearPositionOnLimitF(true);
+    smartPivotLinkController.configReverseSoftLimitEnable(false);
+
     Shuffleboard.addEventMarker("resetPivotLink: ", EventImportance.kHigh);
     System.out.println("resetPivotLink - start");
   }
 
   public void resetPivotLink() {
     this.resetPivotLink(Constants.kResetPivotSpeed);
+  }
+
+  public void lockPivotLinksForDriving(boolean lock) {
+    smartPivotLinkController.overrideLimitSwitchesEnable(lock);
+    this.setPivotLinkAngle(_maxPivotLinkAngle);
+
+    Shuffleboard.addEventMarker("lockPivotLinksForDriving: ", EventImportance.kHigh);
+    System.out.println("lockPivotLinksForDriving - " + lock);
   }
 
   public boolean isResetting() {

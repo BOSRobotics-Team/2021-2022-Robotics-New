@@ -98,7 +98,8 @@ public class CommandClimber extends CommandBase {
 
     m_driverButtons[Button.kBack.value] =
         new JoystickButton(m_driverController, Button.kBack.value);
-    m_driverButtons[Button.kBack.value].whenPressed(() -> m_climber.reset());
+    m_driverButtons[Button.kBack.value].whenPressed(
+        new PivotLinkResetCommand(container, Constants.kResetPivotSpeed, true));
 
     m_driverButtons[Button.kStart.value] =
         new JoystickButton(m_driverController, Button.kStart.value);

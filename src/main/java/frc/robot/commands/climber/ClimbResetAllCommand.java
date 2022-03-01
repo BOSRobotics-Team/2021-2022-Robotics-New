@@ -33,7 +33,6 @@ public class ClimbResetAllCommand extends CommandBase {
     Shuffleboard.addEventMarker("ClimberResetAllCommand", EventImportance.kNormal);
     m_climber.reset(m_speedClimber, m_speedPivot);
     System.out.println(this.getName());
-    System.out.println("ClimberResetAllCommand");
   }
 
   // Called once after isFinished returns true
