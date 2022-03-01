@@ -33,7 +33,7 @@ public class SmartMotor extends WPI_TalonFX {
   public static final double kNeutralDeadband = 0.001;
   public static final int kSensorUnitsPerRotation = 2048;
   public static final GearRatios kDefaultGearRatio =
-      new GearRatios(Constants.kDriveGearRatio, Constants.kDriveWheelRadiusInches, 1.0);
+      new GearRatios(Constants.kDriveGearRatio, Constants.kDriveWheelRadiusInches);
   public static final Gains kDefaultGains_Distanc = new Gains(0.1, 0.0, 0.0, 0.0, 100, 0.80);
 
   /**

@@ -15,7 +15,7 @@ public class Constants {
   //   public static final int kID_Shooter = 18; // VictorSPX
   //   public static final int kID_Intake = 5;       //TalonSRX
   //   public static final int kID_IntakeLift = 6;   //TalonSRX
-  //   public static final int kID_CANdle = 0;
+  public static final int kID_CANdle = 0;
 
   public static final double kDriveGearRatio = 10.71;
   public static final double kDriveWheelRadiusInches = 3;
@@ -26,16 +26,9 @@ public class Constants {
   public static final double kDriveMaxSpeedMetersPerSecond = 5;
   public static final double kDriveMaxAccelerationMetersPerSecondSquared = 2;
 
-  /**
-   * PID Gains may have to be adjusted based on the responsiveness of control loop. kF: 1023
-   * represents output value to Talon at 100%, 6800 represents Velocity units at 100% output Not all
-   * set of Gains are used in this project and may be removed as desired.
-   *
-   * <p>kP kI kD kF Iz PeakOut
-   */
   public static final Gains kDriveGains_Distanc = new Gains(0.1, 0.0, 0.0, 0.0, 100, 0.80);
-
   public static final Gains kDriveGains_Turning = new Gains(0.1, 0.0, 0.0, 0.0, 200, 0.75);
+
   public static final Gains kDriveGains_Velocit =
       new Gains(0.1, 0.0, 20.0, 1023.0 / 6800.0, 300, 0.50);
   public static final Gains kDriveGains_MotProf =
@@ -43,7 +36,7 @@ public class Constants {
 
   public static final double kLClimberMaxHeight = 0.56;
   public static final double kRClimberMaxHeight = 0.56;
-  public static final GearRatios kClimberGearRatio = new GearRatios(20.0, 0.5, 1.0);
+  public static final GearRatios kClimberGearRatio = new GearRatios(20.0, 0.5);
   public static final Gains kClimberGains_Distance =
       new Gains(0.2, 0.0, 0.0, 0., 0, 1.0, 10000, 16000, 1);
   public static final Gains kClimberGains_Turn = new Gains(0.1, 0.0, 0.0, 0., 0, 1.0);
@@ -57,10 +50,11 @@ public class Constants {
   public static final double kRPivotLinkMinAngle = 35.0;
 
   public static final GearRatios kPivotLinkGearRatio =
-      new GearRatios(100.0, Convertor.kWheelRadiusForDegrees, 1.0);
+      new GearRatios(100.0, GearRatios.kWheelRadiusForDegrees);
   public static final Gains kPivotLinkGains_Distance =
       new Gains(0.2, 0.0, 0.0, 0.2, 0, 0.2, 2000, 2000, 0);
   public static final Gains kPivotLinkGains_Turn = new Gains(0.1, 0.0, 0.0, 0.1, 0, 0.3);
+
   public static final double kPivotLinkMass = 3.0; // Kilograms
   public static final double kPivotLinkLength = 0.76; // meters
   public static final double kPivotLinkFeedFwd = 0.0;

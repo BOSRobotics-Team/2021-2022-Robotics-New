@@ -12,6 +12,12 @@ public class Gains {
   public final double kMotionCruiseVel;
   public final int kMotionSCurve;
 
+  /**
+   * PID Gains may have to be adjusted based on the responsiveness of control loop.
+   *
+   * <p>_kF: 1023 represents output value to Talon at 100%, 6800 represents Velocity units at 100%
+   * output Not all set of Gains are used in this project and may be removed as desired.
+   */
   public Gains(
       double _kP,
       double _kI,
@@ -33,6 +39,12 @@ public class Gains {
     kMotionSCurve = motS;
   }
 
+  /**
+   * PID Gains may have to be adjusted based on the responsiveness of control loop.
+   *
+   * <p>_kF: 1023 represents output value to Talon at 100%, 6800 represents Velocity units at 100%
+   * output Not all set of Gains are used in this project and may be removed as desired.
+   */
   public Gains(double _kP, double _kI, double _kD, double _kF, int _kIzone, double _kPeakOutput) {
     this(_kP, _kI, _kD, _kF, _kIzone, _kPeakOutput, 6000, 15000, 0);
   }

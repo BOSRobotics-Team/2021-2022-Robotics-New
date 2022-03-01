@@ -5,8 +5,6 @@ import edu.wpi.first.math.util.Units;
 public class Convertor {
   public static final int k100msPerSecond = 10;
   public static final double k2PI = 2.0 * Math.PI;
-  public static final double kWheelRadiusForRadians = Units.metersToInches(1);
-  public static final double kWheelRadiusForDegrees = Units.metersToInches(360.0 / k2PI);
 
   public int unitsPerRevolution = 2048;
   public GearRatios gearRatios;
@@ -15,7 +13,7 @@ public class Convertor {
   public double _velToUnitsFactor = _metersToUnitsFactor / k100msPerSecond;
   public double _unitsToMetersFactor = (2. * Math.PI) / unitsPerRevolution;
   public double _unitsToVelFactor = _unitsToMetersFactor * k100msPerSecond;
-  public double _wheelCircumferenceMeters = Units.inchesToMeters(k2PI * kWheelRadiusForRadians);
+  public double _wheelCircumferenceMeters = k2PI;
 
   public Convertor(int unitsPerRev, GearRatios ratios) {
     unitsPerRevolution = unitsPerRev;
@@ -24,7 +22,7 @@ public class Convertor {
   }
 
   public Convertor(int unitsPerRev) {
-    this(unitsPerRev, new GearRatios(1.0, kWheelRadiusForRadians, 1.0));
+    this(unitsPerRev, new GearRatios(1.0));
   }
 
   public void setRatios(GearRatios ratios) {
