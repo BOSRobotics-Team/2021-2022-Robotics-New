@@ -14,6 +14,7 @@ public class ClimbStartCommand extends SequentialCommandGroup {
 
     addCommands(
         new ClimbResetAllCommand(container).withName("Climber and Pivot Reset"),
+        new ClimbStartSequenceCommand(container).withName("Start Climbing Sequence"),
         new ClimberExtendPctTiltAngleCommand(container, 1.0, 75)
             .withName("Climber Extend and Tilt initial position"));
   }
