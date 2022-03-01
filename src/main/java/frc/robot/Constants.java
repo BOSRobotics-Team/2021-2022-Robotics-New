@@ -51,8 +51,11 @@ public class Constants {
   public static final double kResetClimberSpeed = -0.15;
   public static final double kResetFastClimberSpeed = -0.20;
 
-  public static final double kPivotLinkMaxAngle = 105.0;
-  public static final double kPivotLinkMinAngle = 35.0;
+  public static final double kLPivotLinkMaxAngle = 105.0;
+  public static final double kLPivotLinkMinAngle = 35.0;
+  public static final double kRPivotLinkMaxAngle = 105.0;
+  public static final double kRPivotLinkMinAngle = 35.0;
+
   public static final GearRatios kPivotLinkGearRatio =
       new GearRatios(100.0, Convertor.kWheelRadiusForDegrees, 1.0);
   public static final Gains kPivotLinkGains_Distance =
