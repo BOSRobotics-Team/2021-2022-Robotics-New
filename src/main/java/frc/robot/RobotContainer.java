@@ -9,6 +9,7 @@ import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.*;
@@ -94,5 +95,15 @@ public class RobotContainer {
 
   public XboxController getOperatorController() {
     return operatorController;
+  }
+
+  public void setDriverControllerRumble(double amt) {
+    driverController.setRumble(RumbleType.kLeftRumble, amt);
+    driverController.setRumble(RumbleType.kRightRumble, amt);
+  }
+
+  public void setOperatorControllerRumble(double amt) {
+    operatorController.setRumble(RumbleType.kLeftRumble, amt);
+    operatorController.setRumble(RumbleType.kRightRumble, amt);
   }
 }

@@ -41,8 +41,8 @@ public class Constants {
       new Gains(0.2, 0.0, 0.0, 0., 0, 1.0, 10000, 16000, 1);
   public static final Gains kClimberGains_Turn = new Gains(0.1, 0.0, 0.0, 0., 0, 1.0);
   public static final double kClimberFeedFwd = -0.4;
-  public static final double kResetClimberSpeed = -0.2;
-  public static final double kResetFastClimberSpeed = -0.30;
+  public static final double kResetClimberSpeed = -0.3;
+  public static final double kResetFastClimberSpeed = -0.4;
 
   public static final double kLPivotLinkMaxAngle = 100.0;
   public static final double kLPivotLinkMinAngle = 25.0;

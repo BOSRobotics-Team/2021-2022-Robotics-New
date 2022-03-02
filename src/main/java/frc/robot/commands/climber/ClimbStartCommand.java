@@ -13,8 +13,11 @@ public class ClimbStartCommand extends SequentialCommandGroup {
     this.setName("Climber Start Position");
 
     addCommands(
-        new ClimbResetAllCommand(container).withName("Climber and Pivot Reset"),
+        new ClimbResetAllCommand(
+                container, Constants.kResetFastClimberSpeed, Constants.kResetFastPivotSpeed)
+            .withName("Climber and Pivot Reset"),
         new PivotLinkAngleCommand(container, 80.0).withName("Move Pivot Arms Back"),
+        new PivotLinkResetCommand(container, Constants.kResetFastPivotSpeed),
         new ClimbStartSequenceCommand(container).withName("Start Climbing Sequence"),
         new ClimberExtendPctTiltAngleCommand(container, 1.0, 80)
             .withName("Climber Extend and Tilt initial position"));
