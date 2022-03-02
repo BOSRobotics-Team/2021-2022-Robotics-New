@@ -11,6 +11,6 @@ public class ClimbHookClimbersOverBarCommand extends SequentialCommandGroup {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   public ClimbHookClimbersOverBarCommand(RobotContainer container) {
     this.setName("Hook Climbers Over Bar");
-    addCommands(new PivotLinkAngleCommand(container, 40).withName("Pivot Arms Fully Forward"));
+    addCommands(new PivotLinkAngleCommand(container, 43.0).withName("Pivot Arms Fully Forward"));
   }
 }

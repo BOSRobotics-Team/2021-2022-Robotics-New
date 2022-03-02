@@ -14,6 +14,7 @@ public class ClimbDriveReadyCommand extends SequentialCommandGroup {
 
     addCommands(
         new ClimbResetAllCommand(container).withName("Climber and Pivot Reset"),
+        new PivotLinkAngleCommand(container, 80.0).withName("Move Pivot Arms Back"),
         new PivotLinkResetCommand(container, Constants.kResetPivotSpeed, true)
             .withName("Park Pivot Arms"));
   }

@@ -14,6 +14,6 @@ public class ClimbLowerArmsAndPivotFwdCommand extends SequentialCommandGroup {
     addCommands(
         new ClimberResetCommand(container, Constants.kResetFastClimberSpeed)
             .withName("Reset Climbers"),
-        new PivotLinkAngleCommand(container, 65.0).withName("Tilt Robot Forward (65deg)"));
+        new PivotLinkAngleCommand(container, 60.0).withName("Tilt Robot Forward (60deg)"));
   }
 }

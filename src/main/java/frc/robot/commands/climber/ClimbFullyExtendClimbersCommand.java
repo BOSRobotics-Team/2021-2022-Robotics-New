@@ -11,6 +11,7 @@ public class ClimbFullyExtendClimbersCommand extends SequentialCommandGroup {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   public ClimbFullyExtendClimbersCommand(RobotContainer container) {
     this.setName("Fully Extend Climbers");
-    addCommands(new ClimberExtendCommand(container, 0.56).withName("Extend Climbers to MaxLength"));
+    addCommands(
+        new ClimberExtendPctCommand(container, 1.0).withName("Extend Climbers to MaxLength"));
   }
 }

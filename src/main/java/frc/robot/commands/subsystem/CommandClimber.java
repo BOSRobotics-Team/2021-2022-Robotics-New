@@ -102,7 +102,7 @@ public class CommandClimber extends CommandBase {
 
     m_driverButtons[Button.kStart.value] =
         new JoystickButton(m_driverController, Button.kStart.value);
-    m_driverButtons[Button.kStart.value].whenPressed(m_climberSteps.get(0));
+    m_driverButtons[Button.kStart.value].whenPressed(() -> this.startClimbing());
 
     m_driverButtons[Button.kA.value] = new JoystickButton(m_driverController, Button.kA.value);
     m_driverButtons[Button.kA.value].whenPressed(() -> this.nextClimberSequence());
@@ -111,7 +111,7 @@ public class CommandClimber extends CommandBase {
     m_driverButtons[Button.kB.value].whenPressed(() -> this.prevClimberSequence());
 
     m_driverButtons[Button.kX.value] = new JoystickButton(m_driverController, Button.kX.value);
-    m_driverButtons[Button.kX.value].whenPressed(() -> m_climber.stop());
+    m_driverButtons[Button.kX.value].whenPressed(() -> this.stop());
 
     m_driverButtons[Button.kY.value] = new JoystickButton(m_driverController, Button.kY.value);
     m_driverButtons[Button.kY.value].whenPressed(() -> this.nextNewClimberSequence());
@@ -121,11 +121,11 @@ public class CommandClimber extends CommandBase {
     // --------------------------------------------------------------
     m_operatorButtons[Button.kBack.value] =
         new JoystickButton(m_operatorController, Button.kBack.value);
-    m_operatorButtons[Button.kBack.value].whenPressed(() -> m_climber.reset());
+    m_operatorButtons[Button.kBack.value].whenPressed(() -> this.resetClimbing());
 
     m_operatorButtons[Button.kStart.value] =
         new JoystickButton(m_operatorController, Button.kStart.value);
-    m_operatorButtons[Button.kStart.value].whenPressed(m_climberSteps.get(0));
+    m_operatorButtons[Button.kStart.value].whenPressed(() -> this.startClimbing());
 
     m_operatorButtons[Button.kA.value] = new JoystickButton(m_operatorController, Button.kA.value);
     m_operatorButtons[Button.kA.value].whenPressed(() -> this.nextClimberSequence());
@@ -134,7 +134,7 @@ public class CommandClimber extends CommandBase {
     m_operatorButtons[Button.kB.value].whenPressed(() -> this.prevClimberSequence());
 
     m_operatorButtons[Button.kX.value] = new JoystickButton(m_operatorController, Button.kX.value);
-    m_operatorButtons[Button.kX.value].whenPressed(() -> m_climber.stop());
+    m_operatorButtons[Button.kX.value].whenPressed(() -> this.stop());
 
     // m_operatorButtons[Button.kLeftBumper.value] =
     //     new JoystickButton(m_operatorController, Button.kLeftBumper.value);
@@ -206,6 +206,14 @@ public class CommandClimber extends CommandBase {
     else if (pov == 90) m_climber.setPivotLinkAngleInc(-0.35);
     else if (pov == 180) m_climber.setClimberHeightInc(-0.002, _climbFF);
     else if (pov == 270) m_climber.setPivotLinkAngleInc(0.35);
+  }
+
+  public void resetClimbing() {
+    m_climber.reset();
+  }
+
+  public void startClimbing() {
+    m_climberSteps.get(0).schedule();
   }
 
   public int getStepFromSequence(int seq, int numSteps) {

@@ -11,6 +11,6 @@ public class ClimbMovePivotArmsUnderBarCommand extends SequentialCommandGroup {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   public ClimbMovePivotArmsUnderBarCommand(RobotContainer container) {
     this.setName("Move Pivot Arms Under Bar");
-    addCommands(new PivotLinkAngleCommand(container, 65.0).withName("Rotate Pivot Arms (65 deg))"));
+    addCommands(new PivotLinkAngleCommand(container, 75.0).withName("Rotate Pivot Arms (75 deg))"));
   }
 }

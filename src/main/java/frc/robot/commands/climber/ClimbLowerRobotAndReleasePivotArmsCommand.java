@@ -12,7 +12,7 @@ public class ClimbLowerRobotAndReleasePivotArmsCommand extends SequentialCommand
   public ClimbLowerRobotAndReleasePivotArmsCommand(RobotContainer container) {
     this.setName("Lower Robot And Release Pivot Arms");
     addCommands(
-        new PivotLinkAngleCommand(container, 35.0).withName("Pivot Arms Fully Back"),
+        new PivotLinkAnglePctCommand(container, 0.0).withName("Pivot Arms Fully Back"),
         new ClimberExtendCommand(container, 0.4, Constants.kClimberFeedFwd)
             .withName("Lower Robot 6 inches"));
   }

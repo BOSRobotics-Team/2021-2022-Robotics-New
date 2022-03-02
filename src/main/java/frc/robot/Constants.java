@@ -34,20 +34,20 @@ public class Constants {
   public static final Gains kDriveGains_MotProf =
       new Gains(1.0, 0.0, 0.0, 1023.0 / 6800.0, 400, 1.00);
 
-  public static final double kLClimberMaxHeight = 0.56;
-  public static final double kRClimberMaxHeight = 0.56;
+  public static final double kLClimberMaxHeight = 0.58;
+  public static final double kRClimberMaxHeight = 0.57;
   public static final GearRatios kClimberGearRatio = new GearRatios(20.0, 0.5);
   public static final Gains kClimberGains_Distance =
       new Gains(0.2, 0.0, 0.0, 0., 0, 1.0, 10000, 16000, 1);
   public static final Gains kClimberGains_Turn = new Gains(0.1, 0.0, 0.0, 0., 0, 1.0);
   public static final double kClimberFeedFwd = -0.4;
-  public static final double kResetClimberSpeed = -0.15;
-  public static final double kResetFastClimberSpeed = -0.20;
+  public static final double kResetClimberSpeed = -0.2;
+  public static final double kResetFastClimberSpeed = -0.30;
 
-  public static final double kLPivotLinkMaxAngle = 105.0;
-  public static final double kLPivotLinkMinAngle = 35.0;
-  public static final double kRPivotLinkMaxAngle = 105.0;
-  public static final double kRPivotLinkMinAngle = 35.0;
+  public static final double kLPivotLinkMaxAngle = 100.0;
+  public static final double kLPivotLinkMinAngle = 25.0;
+  public static final double kRPivotLinkMaxAngle = 100.0;
+  public static final double kRPivotLinkMinAngle = 25.0;
 
   public static final GearRatios kPivotLinkGearRatio =
       new GearRatios(100.0, GearRatios.kWheelRadiusForDegrees);
@@ -58,8 +58,8 @@ public class Constants {
   public static final double kPivotLinkMass = 3.0; // Kilograms
   public static final double kPivotLinkLength = 0.76; // meters
   public static final double kPivotLinkFeedFwd = 0.0;
-  public static final double kResetPivotSpeed = 0.05;
-  public static final double kResetFastPivotSpeed = 0.1;
+  public static final double kResetPivotSpeed = 0.1;
+  public static final double kResetFastPivotSpeed = 0.15;
 
   // These characterization values MUST be determined either experimentally or theoretically
   // for *your* robot's drive.
