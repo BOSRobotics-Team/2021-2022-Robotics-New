@@ -32,6 +32,8 @@ public class CommandClimber extends CommandBase {
   public final ArrayList<CommandBase> m_climberSteps = new ArrayList<CommandBase>();
   public final ArrayList<CommandBase> m_newclimberSteps = new ArrayList<CommandBase>();
 
+  private final ClimbDriveReadyCommand climbDriveReadyCommand;
+
   private final int kX = 0;
   private final int kY = 1;
 
@@ -42,20 +44,23 @@ public class CommandClimber extends CommandBase {
 
   private double _climbFF = 0.0;
   private int _numberOfSteps = 0;
+  private int _lastSequence = 25;
   private int _numberOfNewSteps = 0;
+  private int _lastNewSequence = 21;
 
   public CommandClimber(RobotContainer container) {
     m_climber = container.climber;
 
     m_driverController = container.getDriverController();
     m_operatorController = container.getOperatorController();
+    climbDriveReadyCommand = new ClimbDriveReadyCommand(container);
 
     m_climberSteps.add(
         new ClimbStartCommand(container).withName("Climber Extend and Tilt initial position"));
     m_climberSteps.add(
         new ClimberExtendCommand(container, -0.025, Constants.kClimberFeedFwd)
             .withName("Pull Robot Up"));
-    m_climberSteps.add(new PivotLinkAngleCommand(container, 105.0).withName("Pivot Arms Over Bar"));
+    m_climberSteps.add(new PivotLinkAngleCommand(container, 100.0).withName("Pivot Arms Over Bar"));
     m_climberSteps.add(
         new ClimberExtendPctCommand(container, 0.227).withName("Raise Climbers 5 inches"));
     // m_climberSteps.add(new PivotLinkResetCommand(container,
@@ -64,41 +69,62 @@ public class CommandClimber extends CommandBase {
         new ClimberResetCommand(container, Constants.kResetFastClimberSpeed)
             .withName("Reset Climbers"));
     m_climberSteps.add(
-        new PivotLinkAngleCommand(container, 65.0).withName("Tilt Robot Forward (65deg)"));
+        new PivotLinkAngleCommand(container, 60.0).withName("Tilt Robot Forward (60deg)"));
     m_climberSteps.add(
-        new ClimberExtendPctCommand(container, 1.025).withName("Fully Extend Climbers"));
+        new ClimberExtendPctCommand(container, 1.0).withName("Fully Extend Climbers"));
     m_climberSteps.add(
-        new PivotLinkAngleCommand(container, 40).withName("Tilt Robot Fully Forward"));
+        new PivotLinkAngleCommand(container, 43).withName("Tilt Robot Fully Forward"));
     m_climberSteps.add(
         new ClimberExtendCommand(container, -0.025, Constants.kClimberFeedFwd)
             .withName("Pull Robot Up"));
     m_climberSteps.add(
-        new PivotLinkAngleCommand(container, 20.0).withName("Pivot Arms Fully Back"));
+        new PivotLinkAnglePctCommand(container, 0.0).withName("Pivot Arms Fully Back"));
     m_climberSteps.add(
         new ClimberExtendPctCommand(container, 0.727, Constants.kClimberFeedFwd)
             .withName("Lower Robot 6 inches"));
     m_climberSteps.add(
-        new PivotLinkAngleCommand(container, 65.0).withName("Move Pivot Arms Forward"));
+        new PivotLinkAngleCommand(container, 75.0).withName("Move Pivot Arms Forward"));
     _numberOfSteps = m_climberSteps.size() - 1;
 
-    m_newclimberSteps.add(new ClimbStartCommand(container));
-    m_newclimberSteps.add(new ClimbPullRobotUpCommand(container));
-    m_newclimberSteps.add(new ClimbPivotArmsOverBarCommand(container));
-    m_newclimberSteps.add(new ClimbReleaseClimberArmsCommand(container));
-    m_newclimberSteps.add(new ClimbLowerArmsAndPivotFwdCommand(container));
-    m_newclimberSteps.add(new ClimbFullyExtendClimbersCommand(container));
-    m_newclimberSteps.add(new ClimbHookClimbersOverBarCommand(container));
-    m_newclimberSteps.add(new ClimbPullRobotUpCommand(container));
-    m_newclimberSteps.add(new ClimbLowerRobotAndReleasePivotArmsCommand(container));
-    m_newclimberSteps.add(new ClimbMovePivotArmsUnderBarCommand(container));
+    m_newclimberSteps.add(
+        new ClimbDoStepCommand(m_operatorController, new ClimbStartCommand(container)));
+
+    m_newclimberSteps.add(
+        new ClimbDoStepCommand(
+            m_operatorController, new ClimbPullRobotUpAndHookPivotArmsCommand(container)));
+    // m_newclimberSteps.add(new ClimbPullRobotUpCommand(container));
+    // m_newclimberSteps.add(new ClimbPivotArmsOverBarCommand(container));
+
+    m_newclimberSteps.add(
+        new ClimbDoStepCommand(
+            m_operatorController, new ClimbReleaseClimberArmsCommand(container)));
+
+    m_newclimberSteps.add(
+        new ClimbDoStepCommand(
+            m_operatorController, new ClimbLowerArmsAndPivotFwdAndExtendCommand(container)));
+    // m_newclimberSteps.add(new ClimbLowerArmsAndPivotFwdCommand(container));
+    // m_newclimberSteps.add(new ClimbFullyExtendClimbersCommand(container));
+
+    m_newclimberSteps.add(
+        new ClimbDoStepCommand(
+            m_operatorController, new ClimbHookClimbersOverBarCommand(container)));
+
+    m_newclimberSteps.add(
+        new ClimbDoStepCommand(
+            m_operatorController,
+            new ClimbPullRobotUpAndMovePivotArmsUnderneathCommand(container)));
+    // m_newclimberSteps.add(new ClimbPullRobotUpCommand(container));
+    // m_newclimberSteps.add(new ClimbLowerRobotAndReleasePivotArmsCommand(container));
+    // m_newclimberSteps.add(new ClimbMovePivotArmsUnderBarCommand(container));
     _numberOfNewSteps = m_newclimberSteps.size() - 1;
+    _lastNewSequence = 11;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_climber);
 
     m_driverButtons[Button.kBack.value] =
         new JoystickButton(m_driverController, Button.kBack.value);
-    m_driverButtons[Button.kBack.value].whenPressed(new ClimbDriveReadyCommand(container));
+    m_driverButtons[Button.kBack.value].whenPressed(climbDriveReadyCommand);
 
     m_driverButtons[Button.kStart.value] =
         new JoystickButton(m_driverController, Button.kStart.value);
@@ -210,22 +236,48 @@ public class CommandClimber extends CommandBase {
 
   public void resetClimbing() {
     m_climber.reset();
+    SmartDashboard.putString("Curr Sequence", "");
+    SmartDashboard.putString("Next Sequence", m_newclimberSteps.get(0).getName());
   }
 
   public void startClimbing() {
-    m_climberSteps.get(0).schedule();
+    CommandBase cmd = m_newclimberSteps.get(0);
+
+    cmd.schedule();
+    SmartDashboard.putString("Curr Sequence", cmd.getName());
+    SmartDashboard.putString("Next Sequence", m_newclimberSteps.get(1).getName());
   }
 
-  public int getStepFromSequence(int seq, int numSteps) {
-    return (seq <= numSteps) ? seq : ((seq - 1) % numSteps) + 1; // wrap around to step 1
+  public int getStepFromSequence(int seq, int numSteps, int lastStep) {
+    if ((seq >= 0) && (seq <= lastStep)) {
+      return (seq <= numSteps) ? seq : ((seq - 1) % numSteps) + 1; // wrap around to step 1
+    }
+    return -1;
   }
 
   public void nextClimberSequence() {
-    this.doClimbingSequence(m_climber.nextClimbingSequence());
+    int seq = m_climber.nextClimbingSequence();
+    int step = getStepFromSequence(seq, _numberOfSteps, _lastSequence);
+    int nextStep = getStepFromSequence(seq + 1, _numberOfSteps, _lastSequence);
+
+    if ((step >= 0) && (step <= _numberOfSteps)) {
+      m_climberSteps.get(step).schedule();
+    }
+    SmartDashboard.putString(
+        "Curr Sequence", (step >= 0) ? m_climberSteps.get(step).getName() : "");
+    SmartDashboard.putString(
+        "Next Sequence", (nextStep >= 0) ? m_climberSteps.get(nextStep).getName() : "");
   }
 
   public void prevClimberSequence() {
-    m_climber.prevClimbingSequence();
+    int seq = m_climber.prevClimbingSequence();
+    int step = getStepFromSequence(seq, _numberOfSteps, _lastSequence);
+    int nextStep = getStepFromSequence(seq + 1, _numberOfSteps, _lastSequence);
+
+    SmartDashboard.putString(
+        "Curr Sequence", (step >= 0) ? m_climberSteps.get(step).getName() : "");
+    SmartDashboard.putString(
+        "Next Sequence", (nextStep >= 0) ? m_climberSteps.get(nextStep).getName() : "");
   }
 
   public void stop() {
@@ -233,31 +285,17 @@ public class CommandClimber extends CommandBase {
     CommandScheduler.getInstance().cancelAll();
   }
 
-  public void doClimbingSequence(int seq) {
-    if ((seq >= 0) && (seq <= 25)) {
-      CommandBase cmd = m_climberSteps.get(getStepFromSequence(seq, _numberOfSteps));
-      cmd.schedule();
-
-      SmartDashboard.putString("Curr Sequence", cmd.getName());
-      SmartDashboard.putString(
-          "Next Sequence",
-          m_climberSteps.get(getStepFromSequence(seq + 1, _numberOfSteps)).getName());
-    }
-  }
-
   public void nextNewClimberSequence() {
-    this.doNewClimbingSequence(m_climber.nextClimbingSequence());
-  }
+    int seq = m_climber.nextClimbingSequence();
+    int step = getStepFromSequence(seq, _numberOfNewSteps, _lastNewSequence);
+    int nextStep = getStepFromSequence(seq + 1, _numberOfNewSteps, _lastNewSequence);
 
-  public void doNewClimbingSequence(int seq) {
-    if ((seq >= 0) && (seq <= 21)) {
-      CommandBase cmd = m_newclimberSteps.get(getStepFromSequence(seq, _numberOfNewSteps));
-      cmd.schedule();
-
-      SmartDashboard.putString("Curr Sequence", cmd.getName());
-      SmartDashboard.putString(
-          "Next Sequence",
-          m_newclimberSteps.get(getStepFromSequence(seq + 1, _numberOfNewSteps)).getName());
+    if ((step >= 0) && (step <= _numberOfNewSteps)) {
+      m_newclimberSteps.get(step).schedule();
     }
+    SmartDashboard.putString(
+        "Curr Sequence", (step >= 0) ? m_newclimberSteps.get(step).getName() : "");
+    SmartDashboard.putString(
+        "Next Sequence", (nextStep >= 0) ? m_newclimberSteps.get(nextStep).getName() : "");
   }
 }

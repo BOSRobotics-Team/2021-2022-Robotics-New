@@ -199,27 +199,27 @@ public class ClimberSim {
         m_elevatorConvertor.distanceMetersToNativeUnits(m_lElevatorSim.getPositionMeters()));
     _leftClimberSim.setIntegratedSensorVelocity(
         m_elevatorConvertor.velocityToNativeUnits(m_lElevatorSim.getVelocityMetersPerSecond()));
-    _leftClimberSim.setLimitRev(m_lElevatorSim.hasHitLowerLimit());
+    _leftClimberSim.setLimitRev(m_lElevatorSim.getPositionMeters() <= 0.0);
 
     _rightClimberSim.setIntegratedSensorRawPosition(
         -m_elevatorConvertor.distanceMetersToNativeUnits(m_rElevatorSim.getPositionMeters()));
     _rightClimberSim.setIntegratedSensorVelocity(
         m_elevatorConvertor.velocityToNativeUnits(m_rElevatorSim.getVelocityMetersPerSecond()));
-    _rightClimberSim.setLimitRev(m_rElevatorSim.hasHitLowerLimit());
+    _rightClimberSim.setLimitRev(m_rElevatorSim.getPositionMeters() <= 0.0);
 
     _leftPivotSim.setIntegratedSensorRawPosition(
         m_armConvertor.distanceMetersToNativeUnits(
             Units.radiansToDegrees(m_lPivotSim.getAngleRads() - m_lMaxArmAngle)));
     _leftPivotSim.setIntegratedSensorVelocity(
         m_armConvertor.velocityToNativeUnits(m_lPivotSim.getVelocityRadPerSec()));
-    _leftPivotSim.setLimitFwd(m_lPivotSim.hasHitLowerLimit());
+    _leftPivotSim.setLimitFwd(m_lPivotSim.getAngleRads() >= m_lMaxArmAngle);
 
     _rightPivotSim.setIntegratedSensorRawPosition(
         -m_armConvertor.distanceMetersToNativeUnits(
             Units.radiansToDegrees(m_rPivotSim.getAngleRads() - m_rMaxArmAngle)));
     _rightPivotSim.setIntegratedSensorVelocity(
         m_armConvertor.velocityToNativeUnits(m_rPivotSim.getVelocityRadPerSec()));
-    _rightPivotSim.setLimitFwd(m_rPivotSim.hasHitLowerLimit());
+    _rightPivotSim.setLimitFwd(m_rPivotSim.getAngleRads() >= m_rMaxArmAngle);
 
     // SimBattery estimates loaded battery voltages
     RoboRioSim.setVInVoltage(

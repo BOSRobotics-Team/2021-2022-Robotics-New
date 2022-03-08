@@ -401,9 +401,12 @@ public class Climber extends SubsystemBase {
   }
 
   public void lockPivotLinksForDriving(boolean lock) {
-    smartPivotLinkController.overrideLimitSwitchesEnable(lock);
-    this.setPivotLinkAngle(_lPivotLinkMaxAngle, _rPivotLinkMaxAngle);
-
+    // smartPivotLinkController.overrideLimitSwitchesEnable(lock);
+    if (lock) {
+      this.setPivotLinkAnglePct(1.0);
+    } else {
+      smartPivotLinkController.set(0.0);
+    }
     Shuffleboard.addEventMarker("lockPivotLinksForDriving: ", EventImportance.kHigh);
     System.out.println("lockPivotLinksForDriving - " + lock);
   }
