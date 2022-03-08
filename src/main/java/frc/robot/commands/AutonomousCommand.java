@@ -18,7 +18,6 @@ public class AutonomousCommand extends ParallelCommandGroup {
     double distance1 = Preferences.getDouble("AutonomousDistance1", 2.0);
     addCommands(
         new AutoDriveStraightRelativeCommand(container, distance1),
-        new ClimbResetAllCommand(container)
-        );
+        new ClimbResetAllCommand(container));
   }
 }
