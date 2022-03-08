@@ -57,7 +57,7 @@ public class CommandClimber extends CommandBase {
             .withName("Pull Robot Up"));
     m_climberSteps.add(new PivotLinkAngleCommand(container, 105.0).withName("Pivot Arms Over Bar"));
     m_climberSteps.add(
-        new ClimberExtendCommand(container, 0.125).withName("Raise Climbers 5 inches"));
+        new ClimberExtendPctCommand(container, 0.227).withName("Raise Climbers 5 inches"));
     // m_climberSteps.add(new PivotLinkResetCommand(container,
     // Constants.kResetFastPivotSpeed).withName("Reset Pivot Arms"));
     m_climberSteps.add(
@@ -73,9 +73,9 @@ public class CommandClimber extends CommandBase {
         new ClimberExtendCommand(container, -0.025, Constants.kClimberFeedFwd)
             .withName("Pull Robot Up"));
     m_climberSteps.add(
-        new PivotLinkAngleCommand(container, 35.0).withName("Pivot Arms Fully Back"));
+        new PivotLinkAngleCommand(container, 20.0).withName("Pivot Arms Fully Back"));
     m_climberSteps.add(
-        new ClimberExtendCommand(container, 0.4, Constants.kClimberFeedFwd)
+        new ClimberExtendPctCommand(container, 0.727, Constants.kClimberFeedFwd)
             .withName("Lower Robot 6 inches"));
     m_climberSteps.add(
         new PivotLinkAngleCommand(container, 65.0).withName("Move Pivot Arms Forward"));

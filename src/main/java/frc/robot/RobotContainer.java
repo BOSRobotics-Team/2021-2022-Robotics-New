@@ -71,6 +71,9 @@ public class RobotContainer {
     if (RobotBase.isReal()) {
       cam0 = CameraServer.startAutomaticCapture(0);
       cam1 = CameraServer.startAutomaticCapture(1);
+
+      cam0.setConnectVerbose(0);
+      cam1.setConnectVerbose(0);
     }
   }
 
