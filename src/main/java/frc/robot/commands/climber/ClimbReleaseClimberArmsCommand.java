@@ -12,7 +12,7 @@ public class ClimbReleaseClimberArmsCommand extends SequentialCommandGroup {
   public ClimbReleaseClimberArmsCommand(RobotContainer container) {
     this.setName("Release Climbing Arms");
     addCommands(
-        new ClimberExtendCommand(container, 0.125).withName("Raise Climbers 5 inches")
+        new ClimberExtendPctCommand(container, 0.22).withName("Raise Climbers 5 inches")
         //  new PivotLinkResetCommand(container, Constants.kResetFastPivotSpeed).withName("Reset
         // Pivot Arms")
         );

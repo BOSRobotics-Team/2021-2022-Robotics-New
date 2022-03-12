@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.*;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
@@ -26,6 +27,8 @@ public class DriveTrain extends SubsystemBase {
     TANK,
     CURVATURE
   }
+
+  private static final double kMaxDriveSpeed = 0.5;
 
   private final WPI_TalonFX rightMaster = new WPI_TalonFX(Constants.kID_RMasterDrive);
   private final WPI_TalonFX leftMaster = new WPI_TalonFX(Constants.kID_LMasterDrive);
@@ -81,7 +84,7 @@ public class DriveTrain extends SubsystemBase {
     differentialDrive = new DifferentialDrive(leftMaster, rightMaster);
     differentialDrive.setSafetyEnabled(false);
     differentialDrive.setExpiration(0.1);
-    differentialDrive.setMaxOutput(0.75);
+    differentialDrive.setMaxOutput(kMaxDriveSpeed);
     differentialDrive.setDeadband(0.02);
     addChild("Differential Drive", differentialDrive);
 
@@ -137,7 +140,7 @@ public class DriveTrain extends SubsystemBase {
   @Override
   public void periodic() {
     smartController.update();
-    updateOdometry();
+    if (RobotBase.isSimulation()) updateOdometry();
   }
 
   @Override
@@ -388,7 +391,7 @@ public class DriveTrain extends SubsystemBase {
 
   public void setUseDriveScaling(boolean use) {
     m_UseDriveScaling = use;
-    this.setMaxOutput(m_UseDriveScaling ? m_DriveScaling : 1.0);
+    this.setMaxOutput(m_UseDriveScaling ? m_DriveScaling : kMaxDriveSpeed);
     SmartDashboard.putBoolean("UseDriveScaling", m_UseDriveScaling);
   }
 
@@ -398,7 +401,7 @@ public class DriveTrain extends SubsystemBase {
 
   public void setDriveScaling(double scaling) {
     m_DriveScaling = Math.max(Math.min(scaling, 1.0), 0.05);
-    this.setMaxOutput(m_UseDriveScaling ? m_DriveScaling : 1.0);
+    this.setMaxOutput(m_UseDriveScaling ? m_DriveScaling : kMaxDriveSpeed);
     SmartDashboard.putNumber("DriveScaling", m_DriveScaling);
   }
 

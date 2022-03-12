@@ -61,6 +61,8 @@ public class SmartMotorController {
   public static final double kFeedbackCoefficient =
       kTurnTravelUnitsPerRotation / kEncoderUnitsPerRotation;
 
+  private static final boolean kDebugLogging = true;
+
   public final String name;
   public final Convertor convertor;
 
@@ -653,33 +655,37 @@ public class SmartMotorController {
 
     SmartDashboard.putNumber(name + "- SetPoint", _nativeSetpoint);
     SmartDashboard.putNumber(name + "- SetPointDistance", _setpoint);
-    SmartDashboard.putNumber(name + "- Position", getPosition());
-    SmartDashboard.putNumber(name + "- Distance", getDistance());
+    if (kDebugLogging) {
+      SmartDashboard.putNumber(name + "- Position", getPosition());
+      SmartDashboard.putNumber(name + "- Distance", getDistance());
+      SmartDashboard.putString(name + "- ControlMode", _controller.getControlMode().toString());
+      if (_controller.getControlMode() == ControlMode.MotionMagic) {
+        SmartDashboard.putNumber(name + "- ClosedLoopError", _controller.getClosedLoopError());
+        SmartDashboard.putNumber(name + "- ClosedLoopTgt", _controller.getClosedLoopTarget());
+      }
+    }
     SmartDashboard.putNumber(name + "- ActiveTrajectory", _currentTrajPos);
     SmartDashboard.putBoolean(name + "- FwdLimit", isFwdLimitSwitchClosed());
     SmartDashboard.putBoolean(name + "- RevLimit", isRevLimitSwitchClosed());
 
-    SmartDashboard.putString(name + "- ControlMode", _controller.getControlMode().toString());
-    if (_controller.getControlMode() == ControlMode.MotionMagic) {
-      SmartDashboard.putNumber(name + "- ClosedLoopError", _controller.getClosedLoopError());
-      SmartDashboard.putNumber(name + "- ClosedLoopTgt", _controller.getClosedLoopTarget());
-    }
     if (_hasAuxController) {
       SmartDashboard.putNumber(name + "- AuxPoint", _nativeAuxpoint);
       SmartDashboard.putNumber(name + "- AuxPointDistance", _auxpoint);
-      SmartDashboard.putNumber(name + "- AuxPosition", getAuxPosition());
-      SmartDashboard.putNumber(name + "- AuxDistance", getAuxDistance());
+      if (kDebugLogging) {
+        SmartDashboard.putNumber(name + "- AuxPosition", getAuxPosition());
+        SmartDashboard.putNumber(name + "- AuxDistance", getAuxDistance());
+        SmartDashboard.putString(
+            name + "- AuxControlMode", _auxController.getControlMode().toString());
+        if (_auxController.getControlMode() == ControlMode.MotionMagic) {
+          SmartDashboard.putNumber(
+              name + "- AuxClosedLoopError", _auxController.getClosedLoopError());
+          SmartDashboard.putNumber(
+              name + "- AuxClosedLoopTgt", _auxController.getClosedLoopTarget());
+        }
+      }
       SmartDashboard.putNumber(name + "- ActiveAuxTrajectory", _currentAuxTrajPos);
       SmartDashboard.putBoolean(name + "- AuxFwdLimit", isAuxFwdLimitSwitchClosed());
       SmartDashboard.putBoolean(name + "- AuxRevLimit", isAuxRevLimitSwitchClosed());
-
-      SmartDashboard.putString(
-          name + "- AuxControlMode", _auxController.getControlMode().toString());
-      if (_auxController.getControlMode() == ControlMode.MotionMagic) {
-        SmartDashboard.putNumber(
-            name + "- AuxClosedLoopError", _auxController.getClosedLoopError());
-        SmartDashboard.putNumber(name + "- AuxClosedLoopTgt", _auxController.getClosedLoopTarget());
-      }
     }
   }
 }

@@ -67,9 +67,9 @@ public class Climber extends SubsystemBase {
     smartClimberController.enableBrakes(true);
     smartClimberController.setSeparateDistanceConfigs(Constants.kClimberGains_Distance);
     _leftClimberController.configForwardSoftLimitThreshold(
-        smartClimberController.convertor.distanceMetersToNativeUnits(_lClimberMaxHeight + 0.025));
+        smartClimberController.convertor.distanceMetersToNativeUnits(_lClimberMaxHeight));
     _rightClimberController.configForwardSoftLimitThreshold(
-        smartClimberController.convertor.distanceMetersToNativeUnits(_rClimberMaxHeight + 0.025));
+        smartClimberController.convertor.distanceMetersToNativeUnits(_rClimberMaxHeight));
 
     _leftPivotLinkController.setInverted(InvertType.None);
     _rightPivotLinkController.setInverted(InvertType.InvertMotorOutput);
