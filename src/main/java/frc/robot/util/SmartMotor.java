@@ -11,10 +11,28 @@ public class SmartMotor {
   /** ---- Flat constants, you should not need to change these ---- */
 
   /* BaseTalon types */
-  public static final int kTalonNone = 0;
+  public enum ControllerTypes {
+    TalonNone {
+      @Override
+      public int value() {
+        return 0;
+      }
+    },
+    TalonSRX {
+      @Override
+      public int value() {
+        return 1;
+      }
+    },
+    TalonFX {
+      @Override
+      public int value() {
+        return 2;
+      }
+    };
 
-  public static final int kTalonSRX = 1;
-  public static final int kTalonFX = 2;
+    public abstract int value();
+  };
 
   /* We allow either a 0 or 1 when selecting an ordinal for remote devices [You can have up to 2 devices assigned remotely to a talon/victor] */
   public static final int REMOTE_0 = 0;
@@ -66,7 +84,7 @@ public class SmartMotor {
 
   public final Convertor m_convertor;
 
-  private final int m_controllerType;
+  private final ControllerTypes m_controllerType;
   private final BaseTalon m_controller;
   private final Faults m_faults = new Faults();
 
@@ -93,20 +111,20 @@ public class SmartMotor {
 
   public SmartMotor(final BaseTalon talon, final String nm) {
     if (talon.getClass() == WPI_TalonFX.class) {
-      m_controllerType = kTalonFX;
+      m_controllerType = ControllerTypes.TalonFX;
     } else if (talon.getClass() == WPI_TalonSRX.class) {
-      m_controllerType = kTalonSRX;
+      m_controllerType = ControllerTypes.TalonSRX;
     } else {
-      m_controllerType = kTalonNone;
+      m_controllerType = ControllerTypes.TalonNone;
     }
-    m_convertor = new Convertor(kSensorUnitsPerRotation[m_controllerType]);
+    m_convertor = new Convertor(kSensorUnitsPerRotation[m_controllerType.value()]);
     m_convertor.setRatios(kDefaultGearRatio);
 
     m_controller = talon;
     m_controller.configFactoryDefault();
 
     this.setName(nm);
-    this.setFeedbackDevice(kDefaultFeedbackDevice[m_controllerType]);
+    this.setFeedbackDevice(kDefaultFeedbackDevice[m_controllerType.value()]);
   }
 
   public SmartMotor(final BaseTalon talon) {
@@ -136,7 +154,7 @@ public class SmartMotor {
     m_controller.configPeakOutputReverse(-1, kTimeoutMs);
 
     // Set limit switch devices
-    if (m_controllerType == kTalonFX) {
+    if (m_controllerType == ControllerTypes.TalonFX) {
       m_controller.configForwardLimitSwitchSource(
           LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen, kTimeoutMs);
       m_controller.configReverseLimitSwitchSource(
@@ -435,12 +453,24 @@ public class SmartMotor {
   }
 
   public void resetSensorPosition() {
-    if (m_controllerType == kTalonFX) {
-      ((WPI_TalonFX) m_controller).getSensorCollection().setIntegratedSensorPosition(0, kTimeoutMs);
-    } else if (m_controllerType == kTalonSRX) {
-      ((WPI_TalonSRX) m_controller).getSensorCollection().setQuadraturePosition(0, kTimeoutMs);
-    } else {
-      m_controller.setSelectedSensorPosition(0, PID_PRIMARY, kTimeoutMs);
+    switch (m_controllerType) {
+      case TalonFX:
+        {
+          ((WPI_TalonFX) m_controller)
+              .getSensorCollection()
+              .setIntegratedSensorPosition(0, kTimeoutMs);
+          break;
+        }
+      case TalonSRX:
+        {
+          ((WPI_TalonSRX) m_controller).getSensorCollection().setQuadraturePosition(0, kTimeoutMs);
+          break;
+        }
+      default:
+        {
+          m_controller.setSelectedSensorPosition(0, PID_PRIMARY, kTimeoutMs);
+          break;
+        }
     }
   }
 
