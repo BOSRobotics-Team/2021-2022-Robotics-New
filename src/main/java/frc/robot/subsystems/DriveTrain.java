@@ -32,8 +32,8 @@ public class DriveTrain extends SubsystemBase {
 
   private final WPI_TalonFX rightMaster = new WPI_TalonFX(Constants.kID_RMasterDrive);
   private final WPI_TalonFX leftMaster = new WPI_TalonFX(Constants.kID_LMasterDrive);
-  private final WPI_TalonFX rightFollower = new WPI_TalonFX(Constants.kID_RFollowDrive);
-  private final WPI_TalonFX leftFollower = new WPI_TalonFX(Constants.kID_LFollowDrive);
+  // private final WPI_TalonFX rightFollower = new WPI_TalonFX(Constants.kID_RFollowDrive);
+  // private final WPI_TalonFX leftFollower = new WPI_TalonFX(Constants.kID_LFollowDrive);
 
   public final SmartMotorController smartController =
       new SmartMotorController(leftMaster, rightMaster, "DriveTrain");
@@ -73,13 +73,13 @@ public class DriveTrain extends SubsystemBase {
     smartController.configureRatios(SmartMotorController.kDefaultGearRatio);
     smartController.enableBrakes(true);
 
-    leftFollower.configFactoryDefault();
-    leftFollower.follow(leftMaster);
-    leftFollower.setInverted(InvertType.FollowMaster);
+    // leftFollower.configFactoryDefault();
+    // leftFollower.follow(leftMaster);
+    // leftFollower.setInverted(InvertType.FollowMaster);
 
-    rightFollower.configFactoryDefault();
-    rightFollower.follow(rightMaster);
-    rightFollower.setInverted(InvertType.FollowMaster);
+    // rightFollower.configFactoryDefault();
+    // rightFollower.follow(rightMaster);
+    // rightFollower.setInverted(InvertType.FollowMaster);
 
     differentialDrive = new DifferentialDrive(leftMaster, rightMaster);
     differentialDrive.setSafetyEnabled(false);
