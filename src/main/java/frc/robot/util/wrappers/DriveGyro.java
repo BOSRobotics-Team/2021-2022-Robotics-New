@@ -1,4 +1,4 @@
-package frc.robot.wrappers;
+package frc.robot.util.wrappers;
 
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.hal.SimDouble;

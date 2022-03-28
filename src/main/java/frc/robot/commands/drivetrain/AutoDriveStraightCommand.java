@@ -38,7 +38,7 @@ public class AutoDriveStraightCommand extends CommandBase {
     /* Configured for MotionMagic on Integrated Sensors' Sum and Auxiliary PID on Integrated Sensors' Difference */
     m_driveTrain.enableDriveTrain(false);
     m_driveTrain.enableBrakes(false);
-    m_driveTrain.configForPID();
+    m_driveTrain.configDistanceGains(Constants.kDriveGains_Distanc);
     if (_smoothing >= 0) m_driveTrain.configMotionSCurveStrength(_smoothing);
 
     // m_driveTrain.setTargetAndAngle(_targetDistance, _targetAngle);

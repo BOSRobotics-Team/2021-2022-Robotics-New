@@ -1,12 +1,12 @@
-package frc.robot.sim;
+package frc.robot.util.sim;
 
-import static frc.robot.sim.PhysicsSim.*; // random()
+import static frc.robot.util.sim.PhysicsSim.*;
 
 import com.ctre.phoenix.motorcontrol.can.*;
 
-/** Holds information about a simulated TalonFX. */
-class TalonFXSimProfile extends SimProfile {
-  private final TalonFX _falcon;
+/** Holds information about a simulated TalonSRX. */
+class TalonSRXSimProfile extends SimProfile {
+  private final TalonSRX _talon;
   private final double _accelToFullTime;
   private final double _fullVel;
   private final boolean _sensorPhase;
@@ -17,19 +17,19 @@ class TalonFXSimProfile extends SimProfile {
   private double _vel = 0;
 
   /**
-   * Creates a new simulation profile for a TalonFX device.
+   * Creates a new simulation profile for a TalonSRX device.
    *
-   * @param falcon The TalonFX device
+   * @param talon The TalonSRX device
    * @param accelToFullTime The time the motor takes to accelerate from 0 to full, in seconds
    * @param fullVel The maximum motor velocity, in ticks per 100ms
-   * @param sensorPhase The phase of the TalonFX sensors
+   * @param sensorPhase The phase of the TalonSRX sensors
    */
-  public TalonFXSimProfile(
-      final TalonFX falcon,
+  public TalonSRXSimProfile(
+      final TalonSRX talon,
       final double accelToFullTime,
       final double fullVel,
       final boolean sensorPhase) {
-    this._falcon = falcon;
+    this._talon = talon;
     this._accelToFullTime = accelToFullTime;
     this._fullVel = fullVel;
     this._sensorPhase = sensorPhase;
@@ -48,7 +48,7 @@ class TalonFXSimProfile extends SimProfile {
 
     /// DEVICE SPEED SIMULATION
 
-    double outPerc = _falcon.getSimCollection().getMotorOutputLeadVoltage() / 12;
+    double outPerc = _talon.getSimCollection().getMotorOutputLeadVoltage() / 12;
     if (_sensorPhase) {
       outPerc *= -1;
     }
@@ -66,14 +66,14 @@ class TalonFXSimProfile extends SimProfile {
 
     /// SET SIM PHYSICS INPUTS
 
-    _falcon.getSimCollection().addIntegratedSensorPosition((int) (_vel * period / 100));
-    _falcon.getSimCollection().setIntegratedSensorVelocity((int) _vel);
+    _talon.getSimCollection().addQuadraturePosition((int) (_vel * period / 100));
+    _talon.getSimCollection().setQuadratureVelocity((int) _vel);
 
     double supplyCurrent = Math.abs(outPerc) * 30 * random(0.95, 1.05);
     double statorCurrent = outPerc == 0 ? 0 : supplyCurrent / Math.abs(outPerc);
-    _falcon.getSimCollection().setSupplyCurrent(supplyCurrent);
-    _falcon.getSimCollection().setStatorCurrent(statorCurrent);
+    _talon.getSimCollection().setSupplyCurrent(supplyCurrent);
+    _talon.getSimCollection().setStatorCurrent(statorCurrent);
 
-    _falcon.getSimCollection().setBusVoltage(12 - outPerc * outPerc * 3 / 4 * random(0.95, 1.05));
+    _talon.getSimCollection().setBusVoltage(12 - outPerc * outPerc * 3 / 4 * random(0.95, 1.05));
   }
 }

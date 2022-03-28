@@ -12,9 +12,9 @@ public class Constants {
   public static final int kID_RClimber = 10; // TalonFX
   public static final int kID_LPivot = 11; // TalonFX
   public static final int kID_RPivot = 12; // TalonFX
-  //   public static final int kID_Shooter = 18; // VictorSPX
-  //   public static final int kID_Intake = 5;       //TalonSRX
-  //   public static final int kID_IntakeLift = 6;   //TalonSRX
+  public static final int kID_Shooter = 18; // VictorSPX
+  public static final int kID_Intake = 5; // TalonSRX
+  public static final int kID_IntakeLift = 6; // TalonSRX
   public static final int kID_CANdle = 0;
 
   public static final double kDriveGearRatio = 10.71;

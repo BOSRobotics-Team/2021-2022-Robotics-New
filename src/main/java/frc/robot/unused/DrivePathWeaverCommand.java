@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import frc.robot.*;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.DriveTrain.DriveMode;
+import frc.robot.util.drivetrains.DifferentialDriveTrain.DriveMode;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;

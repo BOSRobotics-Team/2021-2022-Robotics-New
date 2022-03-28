@@ -2,7 +2,7 @@ package frc.robot.unused;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.DriveTrain.DriveMode;
+import frc.robot.util.drivetrains.DifferentialDriveTrain.DriveMode;
 
 /** Drives a set distance using a motion profile. */
 public class DriveMotionProfileArcCommand extends CommandBase {

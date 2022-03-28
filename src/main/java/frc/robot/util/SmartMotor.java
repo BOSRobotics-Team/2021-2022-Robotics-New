@@ -139,6 +139,26 @@ public class SmartMotor {
     return m_convertor;
   }
 
+  public int getDeviceID() {
+    return m_controller.getDeviceID();
+  }
+
+  public ControllerTypes getControllerType() {
+    return m_controllerType;
+  }
+
+  public TalonFXSimCollection getFXSimCollection() {
+    return (m_controllerType == ControllerTypes.TalonFX)
+        ? ((TalonFX) m_controller).getSimCollection()
+        : null;
+  }
+
+  public TalonSRXSimCollection getSRXSimCollection() {
+    return (m_controllerType == ControllerTypes.TalonSRX)
+        ? ((TalonSRX) m_controller).getSimCollection()
+        : null;
+  }
+
   public void initController() {
     _mode = SetPointMode.None;
     /* Configure Sensor Source for Primary PID */
@@ -172,6 +192,14 @@ public class SmartMotor {
 
   public void setName(String nm) {
     m_name = nm;
+  }
+
+  public void setInverted(boolean invert) {
+    m_controller.setInverted(invert);
+  }
+
+  public void setInverted(InvertType invertType) {
+    m_controller.setInverted(invertType);
   }
 
   public void setFeedbackDevice(FeedbackDevice fbDev) {
@@ -496,6 +524,16 @@ public class SmartMotor {
 
   public void configReverseSoftLimitThreshold(double thresh) {
     m_controller.configReverseSoftLimitThreshold(thresh, kTimeoutMs);
+  }
+
+  public void configForwardSoftLimitDistance(double meters) {
+    m_controller.configForwardSoftLimitThreshold(
+        m_convertor.distanceMetersToNativeUnits(meters), kTimeoutMs);
+  }
+
+  public void configReverseSoftLimitDistance(double meters) {
+    m_controller.configReverseSoftLimitThreshold(
+        m_convertor.distanceMetersToNativeUnits(meters), kTimeoutMs);
   }
 
   public void configForwardSoftLimitEnable(boolean enable) {

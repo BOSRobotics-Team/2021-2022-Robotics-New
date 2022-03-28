@@ -1,6 +1,6 @@
-package frc.robot.sim;
+package frc.robot.util.sim;
 
-import static frc.robot.sim.PhysicsSim.*; // random()
+import static frc.robot.util.sim.PhysicsSim.*;
 
 import com.ctre.phoenix.motorcontrol.can.*;
 
