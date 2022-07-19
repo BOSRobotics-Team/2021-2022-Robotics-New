@@ -138,7 +138,7 @@ public class PathFollower {
       int lastIndex = m_path.getPoses().length - 1;
 
       // Look for a new pose or keep using the current goal if we have not reached it
-      while (thisDist <= m_lookaheadGain) {  
+      while (thisDist <= m_lookaheadGain) {
 
         // Attempt to incr our search index
         nextIndex = (nextIndex < lastIndex) ? nextIndex + 1 : nextIndex;
