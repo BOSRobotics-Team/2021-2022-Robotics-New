@@ -1,436 +1,178 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.*;
-import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.*;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.*;
-import frc.robot.sim.*;
 import frc.robot.util.*;
-import frc.robot.wrappers.*;
+import frc.robot.util.drivetrains.DifferentialDriveTrain;
+import frc.robot.util.drivetrains.DifferentialDriveTrain.DriveMode;
 
 public class DriveTrain extends SubsystemBase {
 
-  public enum DriveMode {
-    ARCADE,
-    TANK,
-    CURVATURE
-  }
+  public final DifferentialDriveTrain m_differentialDriveTrain;
 
-  private static final double kMaxDriveSpeed = 0.5;
-
-  private final WPI_TalonFX rightMaster = new WPI_TalonFX(Constants.kID_RMasterDrive);
-  private final WPI_TalonFX leftMaster = new WPI_TalonFX(Constants.kID_LMasterDrive);
-  // private final WPI_TalonFX rightFollower = new WPI_TalonFX(Constants.kID_RFollowDrive);
-  // private final WPI_TalonFX leftFollower = new WPI_TalonFX(Constants.kID_LFollowDrive);
-
-  public final SmartMotorController smartController =
-      new SmartMotorController(leftMaster, rightMaster, "DriveTrain");
-
-  public final DifferentialDrive differentialDrive;
-
-  private final Field2d m_field = new Field2d();
-
-  /** The NavX gyro */
-  private final DriveGyro gyro = new DriveGyro(true);
-
-  /** Drivetrain odometry tracker for tracking position */
-  private final DifferentialDriveOdometry driveOdometry;
-
-  /** Drivetrain kinematics processor for measuring individual wheel speeds */
-  private final DifferentialDriveKinematics driveKinematics;
-
-  private final DrivetrainSim m_drivetrainSim;
-
-  // private boolean voltageCompEnabled = false;
-  // private Double maxSpeed;
-
-  private DriveMode m_DriveMode = DriveMode.ARCADE;
-  private boolean m_UseSquares = true;
-  private boolean m_UseDriveScaling = false;
-  private double m_DriveScaling = 0.5;
-  private boolean m_QuickTurn = false;
-
-  private double _lastLSmoothing = 0.0;
-  private double _lastRSmoothing = 0.0;
+  public static final double kMaxDriveSpeed = 0.5;
 
   public DriveTrain() {
-    leftMaster.setInverted(InvertType.None);
-    rightMaster.setInverted(InvertType.InvertMotorOutput);
+    m_differentialDriveTrain =
+        new DifferentialDriveTrain(
+            Constants.kID_LMasterDrive,
+            Constants.kID_RMasterDrive,
+            // Constants.kID_LFollowerDrive,
+            // Constants.kID_RFollowerDrive,
+            Constants.kDriveChassisWidthMeters,
+            Constants.kDriveCarriageMass);
+    m_differentialDriveTrain.setMaxDriveScaling(kMaxDriveSpeed);
 
-    smartController.initController();
-    smartController.configureRatios(SmartMotorController.kDefaultGearRatio);
-    smartController.enableBrakes(true);
-
-    // leftFollower.configFactoryDefault();
-    // leftFollower.follow(leftMaster);
-    // leftFollower.setInverted(InvertType.FollowMaster);
-
-    // rightFollower.configFactoryDefault();
-    // rightFollower.follow(rightMaster);
-    // rightFollower.setInverted(InvertType.FollowMaster);
-
-    differentialDrive = new DifferentialDrive(leftMaster, rightMaster);
-    differentialDrive.setSafetyEnabled(false);
-    differentialDrive.setExpiration(0.1);
-    differentialDrive.setMaxOutput(kMaxDriveSpeed);
-    differentialDrive.setDeadband(0.02);
-    addChild("Differential Drive", differentialDrive);
-
-    driveOdometry = new DifferentialDriveOdometry(gyro.getHeading());
-    driveKinematics = new DifferentialDriveKinematics(Constants.kDriveChassisWidthMeters);
-    m_drivetrainSim =
-        new DrivetrainSim(
-            leftMaster,
-            rightMaster,
-            gyro,
-            smartController.convertor,
-            23.0, // 53.0,
-            Constants.kDriveChassisWidthMeters);
-
-    this.resetPosition();
-    SmartDashboard.putData("Field2d", m_field);
+    addChild("Differential Drive", m_differentialDriveTrain);
   }
 
-  public void configForPID() {
-    smartController.setDistanceConfigs(Constants.kDriveGains_Distanc);
+  public void configDistanceGains(Gains dgains) {
+    m_differentialDriveTrain.configDistanceGains(dgains);
   }
 
-  public void configForPID2() {
-    smartController.setDistanceAndTurnConfigs(
-        Constants.kDriveGains_Distanc, Constants.kDriveGains_Turning);
+  public void configDistanceAndTurnGains(Gains dgains, Gains tgains) {
+    m_differentialDriveTrain.configDistanceAndTurnGains(dgains, tgains);
   }
 
   public void configMotionSCurveStrength(int smoothing) {
-    leftMaster.configMotionSCurveStrength(smoothing);
-    rightMaster.configMotionSCurveStrength(smoothing);
-    SmartDashboard.putNumber("Smoothing", smoothing);
+    m_differentialDriveTrain.configMotionSCurveStrength(smoothing);
   }
 
   public void setTarget(double distance) {
-    smartController.setTarget(distance);
-    differentialDrive.feed();
+    m_differentialDriveTrain.setTarget(distance);
     Shuffleboard.addEventMarker("DriveTrain - setTarget (meters)", EventImportance.kHigh);
     // System.out.println("target (meters) = " + distance);
   }
 
   public void setTargetAndAngle(double distance, double angle) {
-    smartController.setTargetAndAngle(distance, angle);
-    differentialDrive.feed();
+    m_differentialDriveTrain.setTargetAndAngle(distance, angle);
     Shuffleboard.addEventMarker("DriveTrain - setTargetAndAngle", EventImportance.kHigh);
     // System.out.println("target (meters) = " + distance + " angle: " + angle);
   }
 
   public Boolean isTargetReached() {
-    differentialDrive.feed();
-    return smartController.isTargetFinished();
+    return m_differentialDriveTrain.isTargetReached();
   }
 
   @Override
   public void periodic() {
-    smartController.update();
-    if (RobotBase.isSimulation()) updateOdometry();
+    m_differentialDriveTrain.update();
   }
 
   @Override
   public void simulationPeriodic() {
-    m_drivetrainSim.run();
-  }
-
-  public Double getVelocity() {
-    return smartController.getVelocity();
-  }
-
-  public Double getDistance() {
-    return smartController.getDistance();
-  }
-
-  public Double getPosition() {
-    return smartController.getPosition();
-  }
-
-  public Double getTurnDistance() {
-    return smartController.getTurnDistance();
-  }
-
-  public Double getTurnPosition() {
-    return smartController.getTurnPosition();
-  }
-
-  /**
-   * Get the velocity of the left side of the drive.
-   *
-   * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
-   */
-  public Double getLeftVelocity() {
-    return smartController.getVelocity();
-  }
-
-  /**
-   * Get the velocity of the right side of the drive.
-   *
-   * @return The signed velocity in feet per second, or null if the drive doesn't have encoders.
-   */
-  public Double getRightVelocity() {
-    return smartController.getAuxVelocity();
-  }
-
-  /**
-   * Get the position of the left side of the drive.
-   *
-   * @return The signed position in feet, or null if the drive doesn't have encoders.
-   */
-  public Double getLeftDistance() {
-    return smartController.getDistance();
-  }
-
-  /**
-   * Get the position of the right side of the drive.
-   *
-   * @return The signed position in feet, or null if the drive doesn't have encoders.
-   */
-  public Double getRightDistance() {
-    return smartController.getAuxDistance();
+    m_differentialDriveTrain.simupdate();
   }
 
   /** Completely stop the robot by setting the voltage to each side to be 0. */
   public void fullStop() {
-    this.setPercentVoltage(0, 0);
-    _lastLSmoothing = _lastRSmoothing = 0.0;
+    m_differentialDriveTrain.fullStop();
   }
 
   /** Reset odometry tracker to current robot pose */
   public void resetOdometry(final Pose2d pose) {
-    this.resetPosition();
-    this.setHeadingDegrees(pose.getRotation().getDegrees());
-    driveOdometry.resetPosition(pose, getHeading());
-    //        driveOdometry.resetPosition(pose, ahrs.getRotation2d());
-  }
-
-  /** Update odometry tracker with current heading, and encoder readings */
-  public void updateOdometry() {
-    // need to convert to meters
-    //        double angle = ((getRightDistance() - getLeftDistance()) * (180.0 / Math.PI)) /
-    // Constants.kWidthChassisMeters;
-
-    driveOdometry.update(
-        getHeading(), /// *Rotation2d.fromDegrees(angle),
-        getLeftDistance(),
-        getRightDistance());
-    m_field.setRobotPose(driveOdometry.getPoseMeters());
-
-    SmartDashboard.putData("Field2d", m_field);
-    SmartDashboard.putString("Heading", driveOdometry.getPoseMeters().getRotation().toString());
+    m_differentialDriveTrain.resetOdometry(pose);
   }
 
   /** @return Current estimated pose based on odometry tracker data */
   public Pose2d getCurrentPose() {
-    return driveOdometry.getPoseMeters() != null
-        ? driveOdometry.getPoseMeters()
-        : new Pose2d(new Translation2d(0, 0), new Rotation2d(0));
+    return m_differentialDriveTrain.getCurrentPose();
   }
 
   /** @return Current wheel speeds based on encoder readings for future pose correction */
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-    return new DifferentialDriveWheelSpeeds(getLeftVelocity(), getRightVelocity());
+    return m_differentialDriveTrain.getWheelSpeeds();
   }
 
   /** @return Kinematics processor for wheel speeds */
   public DifferentialDriveKinematics getDriveKinematics() {
-    return driveKinematics;
-  }
-
-  /** Disable the motors. */
-  public void disable() {
-    leftMaster.disable();
-    rightMaster.disable();
-  }
-
-  public void setPercentVoltage(double leftPctVolts, double rightPctVolts) {
-    leftMaster.set(ControlMode.PercentOutput, leftPctVolts);
-    rightMaster.set(ControlMode.PercentOutput, rightPctVolts);
+    return m_differentialDriveTrain.getDriveKinematics();
   }
 
   /** Resets the position of the Talon to 0. */
   public void resetPosition() {
-    smartController.resetPosition();
-    driveOdometry.resetPosition(m_field.getRobotPose(), getHeading());
+    m_differentialDriveTrain.resetPosition();
   }
 
   public void logPeriodic() {
-    gyro.logPeriodic();
-    smartController.logPeriodic();
+    m_differentialDriveTrain.logPeriodic();
   }
 
   public void enableDriveTrain(boolean enable) {
-    differentialDrive.setSafetyEnabled(enable);
-
-    this.setPercentVoltage(0.0, 0.0);
-    if (!enable) {
-      leftMaster.neutralOutput();
-      rightMaster.neutralOutput();
-    }
+    m_differentialDriveTrain.enableDriveTrain(enable);
   }
 
   public void enableBrakes(boolean enabled) {
-    smartController.enableBrakes(enabled);
+    m_differentialDriveTrain.enableBrakes(enabled);
   }
 
   public void zeroHeading() {
-    gyro.zeroHeading();
-  }
-
-  public double getHeadingDegrees() {
-    return gyro.getHeadingDegrees();
-  }
-
-  public Rotation2d getHeading() {
-    return gyro.getHeading();
-  }
-  /**
-   * Set the robot's heading.
-   *
-   * @param heading The heading to set to, in degrees on [-180, 180].
-   */
-  public void setHeadingDegrees(final double heading) {
-    gyro.setHeadingDegrees(heading);
-  }
-
-  public void setMaxOutput(double maxOutput) {
-    differentialDrive.setMaxOutput(maxOutput);
-  }
-
-  public void setRampRate(double rampTimeSeconds) {
-    leftMaster.configOpenloopRamp(rampTimeSeconds);
-    rightMaster.configOpenloopRamp(rampTimeSeconds);
-  }
-
-  // Put methods for controlling this subsystem here. Call these from Commands.
-  public void driveArcade(double speed, double rotation, boolean useSquares) {
-    differentialDrive.arcadeDrive(speed, rotation, useSquares);
+    m_differentialDriveTrain.zeroHeading();
   }
 
   public void driveTank(double leftSpeed, double rightSpeed) {
-    differentialDrive.tankDrive(leftSpeed, rightSpeed);
-  }
-
-  public void driveCurvature(double speed, double rotation, boolean quickTurn) {
-    differentialDrive.curvatureDrive(speed, rotation, quickTurn);
+    m_differentialDriveTrain.driveTank(leftSpeed, rightSpeed);
   }
 
   public void driveToTarget(double meters) {
-    smartController.setTarget(meters);
-    differentialDrive.feed();
+    m_differentialDriveTrain.driveToTarget(meters);
   }
 
   public void drive(XboxController ctrl) {
-    switch (m_DriveMode) {
-      case ARCADE:
-        this.setOutput(-ctrl.getLeftY(), ctrl.getRightX());
-        break;
-      case TANK:
-        this.setOutput(-ctrl.getLeftY(), -ctrl.getRightY());
-        break;
-      case CURVATURE:
-        this.setOutput(-ctrl.getLeftY(), ctrl.getRightX());
-        break;
-    }
+    m_differentialDriveTrain.drive(
+        ctrl.getLeftY(), ctrl.getLeftX(), ctrl.getRightY(), ctrl.getRightX());
   }
 
   public void setOutput(double left, double right) {
-    double newleft = (_lastLSmoothing + left) / 2.0;
-    double newRight = (_lastRSmoothing + right) / 2.0;
-    _lastLSmoothing = left;
-    _lastRSmoothing = right;
-
-    switch (m_DriveMode) {
-      case ARCADE:
-        this.driveArcade(newleft, newRight, m_UseSquares);
-        break;
-      case TANK:
-        this.driveTank(newleft, newRight);
-        break;
-      case CURVATURE:
-        this.driveCurvature(newleft, newRight, m_QuickTurn);
-        break;
-    }
+    m_differentialDriveTrain.setOutput(left, right);
   }
 
   public DriveMode getDriveMode() {
-    return m_DriveMode;
+    return m_differentialDriveTrain.getDriveMode();
   }
 
   public void setDriveMode(DriveMode mode) {
-    m_DriveMode = mode;
-    SmartDashboard.putString("DriveTrainMode", m_DriveMode.toString());
-  }
-
-  public boolean getUseSquares() {
-    return m_UseSquares;
+    m_differentialDriveTrain.setDriveMode(mode);
   }
 
   public void setUseSquares(boolean use) {
-    m_UseSquares = use;
-    SmartDashboard.putBoolean("UseSquares", m_UseSquares);
+    m_differentialDriveTrain.setUseSquares(use);
   }
 
   public boolean getUseDriveScaling() {
-    return m_UseDriveScaling;
+    return m_differentialDriveTrain.getUseDriveScaling();
   }
 
   public void setUseDriveScaling(boolean use) {
-    m_UseDriveScaling = use;
-    this.setMaxOutput(m_UseDriveScaling ? m_DriveScaling : kMaxDriveSpeed);
-    SmartDashboard.putBoolean("UseDriveScaling", m_UseDriveScaling);
+    m_differentialDriveTrain.setUseDriveScaling(use);
   }
 
   public double getDriveScaling() {
-    return m_DriveScaling;
+    return m_differentialDriveTrain.getDriveScaling();
   }
 
   public void setDriveScaling(double scaling) {
-    m_DriveScaling = Math.max(Math.min(scaling, 1.0), 0.05);
-    this.setMaxOutput(m_UseDriveScaling ? m_DriveScaling : kMaxDriveSpeed);
-    SmartDashboard.putNumber("DriveScaling", m_DriveScaling);
+    m_differentialDriveTrain.setDriveScaling(scaling);
   }
 
   public void addDriveScaling(double incr) {
-    setDriveScaling(m_DriveScaling + incr);
+    m_differentialDriveTrain.addDriveScaling(incr);
   }
 
   public boolean getQuickTurn() {
-    return m_QuickTurn;
+    return m_differentialDriveTrain.getQuickTurn();
   }
 
   public void setQuickTurn(boolean turn) {
-    m_QuickTurn = turn;
-    SmartDashboard.putBoolean("UseQuickTurn", m_QuickTurn);
+    m_differentialDriveTrain.setQuickTurn(turn);
   }
 
   public void toggleDriveMode() {
-    switch (m_DriveMode) {
-      case ARCADE:
-        setDriveMode(DriveMode.TANK);
-        break;
-      case TANK:
-        setDriveMode(DriveMode.CURVATURE);
-        break;
-      case CURVATURE:
-        setDriveMode(DriveMode.ARCADE);
-        break;
-      default:
-        break;
-    }
+    m_differentialDriveTrain.toggleDriveMode();
   }
 }

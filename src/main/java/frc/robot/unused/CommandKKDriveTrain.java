@@ -6,7 +6,7 @@ package frc.robot.unused;
 
 import frc.robot.*;
 import frc.robot.commands.subsystem.*;
-import frc.robot.subsystems.DriveTrain.DriveMode;
+import frc.robot.util.drivetrains.DifferentialDriveTrain.DriveMode;
 
 public class CommandKKDriveTrain extends CommandDriveTrain {
 

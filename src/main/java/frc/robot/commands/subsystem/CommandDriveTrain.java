@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.RobotContainer;
 import frc.robot.commands.drivetrain.*;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.DriveTrain.DriveMode;
+import frc.robot.util.drivetrains.DifferentialDriveTrain.DriveMode;
 
 public class CommandDriveTrain extends CommandBase {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})

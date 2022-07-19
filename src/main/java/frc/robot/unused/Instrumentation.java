@@ -5,7 +5,7 @@
 package frc.robot.unused;
 
 import frc.robot.util.SmartMotor;
-import frc.robot.wrappers.DriveGyro;
+import frc.robot.util.wrappers.DriveGyro;
 
 public class Instrumentation {
   /* Tracking variables for instrumentation */

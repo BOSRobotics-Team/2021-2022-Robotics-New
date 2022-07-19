@@ -7,6 +7,7 @@ package frc.robot.commands.drivetrain;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj.smartdashboard.*;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.*;
 // import edu.wpi.first.wpilibj.XboxController;
@@ -44,7 +45,8 @@ public class AutoDriveTurnCommand extends CommandBase {
 
     m_driveTrain.enableDriveTrain(false);
     m_driveTrain.enableBrakes(false);
-    m_driveTrain.configForPID2();
+    m_driveTrain.configDistanceAndTurnGains(
+        Constants.kDriveGains_Distanc, Constants.kDriveGains_Turning);
     if (_smoothing >= 0) m_driveTrain.configMotionSCurveStrength(_smoothing);
 
     m_driveTrain.setTargetAndAngle(_targetDistance, _targetAngle);
